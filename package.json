@@ -1,0 +1,36 @@
+{
+  "name": "amazon-ecs-deploy-task-definition-for-github-actions",
+  "version": "0.0.0",
+  "description": "Registers an Amazon ECS task definition and deploys it to an ECS service.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint index.js",
+    "package": "ncc build index.js -o dist",
+    "test": "eslint index.js && jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aws/aws/amazon-ecs-deploy-task-definition-for-github-actions.git"
+  },
+  "keywords": [
+    "AWS",
+    "GitHub",
+    "Actions",
+    "JavaScript"
+  ],
+  "author": "AWS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aws/aws/amazon-ecs-deploy-task-definition-for-github-actions/issues"
+  },
+  "homepage": "https://github.com/aws/aws/amazon-ecs-deploy-task-definition-for-github-actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "aws-sdk": "^2.560.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.20.5",
+    "eslint": "^6.6.0",
+    "jest": "^24.9.0"
+  }
+}

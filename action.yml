@@ -1,0 +1,21 @@
+name: 'Amazon ECS "Deploy Task Definition" Action for GitHub Actions'
+description: 'Registers an Amazon ECS task definition, and deploys it to an ECS service'
+inputs:
+  task-definition:
+    description: 'The path to the ECS task definition file to register'
+    required: true
+  service:
+    description: 'The name of the ECS service to deploy to. The action will only register the task definition if no service is given.'
+    required: false
+  cluster:
+    description: "The name of the ECS service's cluster.  Will default to the 'default' cluster"
+    required: false
+  wait-for-service-stability:
+    description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
+    required: false
+outputs:
+  task-definition-arn:
+    description: 'The ARN of the registered ECS task definition'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
