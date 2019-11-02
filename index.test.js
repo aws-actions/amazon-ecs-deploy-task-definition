@@ -31,7 +31,7 @@ describe('Deploy to ECS', () => {
 
         jest.mock('./task-definition.json', () => ({ family: 'task-def-family' }), { virtual: true });
 
-        mockEcsRegisterTaskDef.mockImplementation((params) => {
+        mockEcsRegisterTaskDef.mockImplementation(() => {
             return {
                 promise() {
                     return Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } });
@@ -39,7 +39,7 @@ describe('Deploy to ECS', () => {
             };
         });
 
-        mockEcsUpdateService.mockImplementation((params) => {
+        mockEcsUpdateService.mockImplementation(() => {
             return {
                 promise() {
                     return Promise.resolve({});
@@ -47,7 +47,7 @@ describe('Deploy to ECS', () => {
             };
         });
 
-        mockEcsWaiter.mockImplementation((params) => {
+        mockEcsWaiter.mockImplementation(() => {
             return {
                 promise() {
                     return Promise.resolve({});
