@@ -6,7 +6,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws/amazon-ecs-deploy-task-definition-for-github-actions@release
+      uses: aws/amazon-ecs-deploy-task-definition-for-github-actions
       with:
         task-definition: task-definition.json
         service: my-service
@@ -14,7 +14,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
         wait-for-service-stability: true
 ```
 
-Note, the action can also be passed a `task-definition` generated dynamically via [the `aws/amazon-ecs-render-task-definition-for-github-actions` action](https://github.com/aws/amazon-ecs-render-task-definition-for-github-actions).
+The action can be passed a `task-definition` generated dynamically via [the `aws/amazon-ecs-render-task-definition-for-github-actions` action](https://github.com/aws/amazon-ecs-render-task-definition-for-github-actions).
 
 ## Credentials and Region
 
