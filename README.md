@@ -45,6 +45,17 @@ This action requires the following minimum set of permissions:
          "Resource":"*"
       },
       {
+         "Sid":"PassRolesInTaskDefinition",
+         "Effect":"Allow",
+         "Action":[
+            "iam:PassRole"
+         ],
+         "Resource":[
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
+         ]
+      },
+      {
          "Sid":"DeployService",
          "Effect":"Allow",
          "Action":[
@@ -52,7 +63,7 @@ This action requires the following minimum set of permissions:
             "ecs:DescribeServices"
          ],
          "Resource":[
-            "arn:aws:ecs:region:aws_account_id:service/cluster-name/service-name"
+            "arn:aws:ecs:region:<aws_account_id>:service/<cluster_name>/<service_name>"
          ]
       }
    ]
