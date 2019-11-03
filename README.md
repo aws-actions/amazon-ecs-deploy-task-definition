@@ -6,7 +6,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws/amazon-ecs-deploy-task-definition-for-github-actions
+      uses: aws/amazon-ecs-deploy-task-definition-for-github-actions@master
       with:
         task-definition: task-definition.json
         service: my-service
