@@ -4,7 +4,9 @@ const aws = require('aws-sdk');
 
 async function run() {
   try {
-    const ecs = new aws.ECS();
+    const ecs = new aws.ECS({
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
+    });
 
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
