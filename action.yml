@@ -1,5 +1,8 @@
 name: 'Amazon ECS "Deploy Task Definition" Action for GitHub Actions'
 description: 'Registers an Amazon ECS task definition, and deploys it to an ECS service'
+branding:
+  icon: 'cloud'
+  color: 'orange'
 inputs:
   task-definition:
     description: 'The path to the ECS task definition file to register'
