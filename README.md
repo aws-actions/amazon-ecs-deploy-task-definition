@@ -6,7 +6,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws/amazon-ecs-deploy-task-definition-for-github-actions@master
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: task-definition.json
         service: my-service
@@ -14,12 +14,12 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
         wait-for-service-stability: true
 ```
 
-The action can be passed a `task-definition` generated dynamically via [the `aws/amazon-ecs-render-task-definition-for-github-actions` action](https://github.com/aws/amazon-ecs-render-task-definition-for-github-actions).
+The action can be passed a `task-definition` generated dynamically via [the `aws-actions/amazon-ecs-render-task-definition` action](https://github.com/aws-actions/amazon-ecs-render-task-definition).
 
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.
-Use [the `aws/configure-aws-credentials-for-github-actions` action](https://github.com/aws/configure-aws-credentials-for-github-actions) to configure the GitHub Actions environment with environment variables containing AWS credentials and your desired region.
+Use [the `aws-actions/configure-aws-credentials` action](https://github.com/aws-actions/configure-aws-credentials) to configure the GitHub Actions environment with environment variables containing AWS credentials and your desired region.
 
 We recommend following [Amazon IAM best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) for the AWS credentials used in GitHub Actions workflows, including:
 * Do not store credentials in your repository's code.  You may use [GitHub Actions secrets](https://help.github.com/en/github/automating-your-workflow-with-github-actions/virtual-environments-for-github-actions#creating-and-using-secrets-encrypted-variables) to store credentials and redact credentials from GitHub Actions workflow logs.
