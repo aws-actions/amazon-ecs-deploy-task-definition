@@ -63,7 +63,7 @@ This action requires the following minimum set of permissions:
             "ecs:DescribeServices"
          ],
          "Resource":[
-            "arn:aws:ecs:region:<aws_account_id>:service/<cluster_name>/<service_name>"
+            "arn:aws:ecs:<region>:<aws_account_id>:service/<cluster_name>/<service_name>"
          ]
       }
    ]
@@ -71,6 +71,70 @@ This action requires the following minimum set of permissions:
 ```
 
 Note: the policy above assumes the account has opted in to the ECS long ARN format.
+
+## CodeDeploy Support
+
+For ECS services that uses the `CODE_DEPLOY` deployment controller, additional configuration is needed for this action:
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+        codedeploy-appspec: appspec.json
+        codedeploy-application: my-codedeploy-application
+        codedeploy-deployment-group: my-codedeploy-deployment-group
+```
+
+The minimal permissions require access to CodeDeploy:
+
+```
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Sid":"RegisterTaskDefinition",
+         "Effect":"Allow",
+         "Action":[
+            "ecs:RegisterTaskDefinition"
+         ],
+         "Resource":"*"
+      },
+      {
+         "Sid":"PassRolesInTaskDefinition",
+         "Effect":"Allow",
+         "Action":[
+            "iam:PassRole"
+         ],
+         "Resource":[
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
+         ]
+      },
+      {
+         "Sid":"DeployService",
+         "Effect":"Allow",
+         "Action":[
+            "ecs:DescribeServices",
+            "codedeploy:GetDeploymentGroup",
+            "codedeploy:CreateDeployment",
+            "codedeploy:GetDeployment",
+            "codedeploy:GetDeploymentConfig",
+            "codedeploy:RegisterApplicationRevision"
+         ],
+         "Resource":[
+            "arn:aws:ecs:<region>:<aws_account_id>:service/<cluster_name>/<service_name>",
+            "arn:aws:codedeploy:<region>:<aws_account_id>:deploymentgroup:<application_name>/<deployment_group_name>",
+            "arn:aws:codedeploy:<region>:<aws_account_id>:deploymentconfig:*",
+            "arn:aws:codedeploy:<region>:<aws_account_id>:application:<application_name>"
+         ]
+      }
+   ]
+}
+```
 
 ## License Summary
 
