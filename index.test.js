@@ -156,6 +156,20 @@ describe('Deploy to ECS', () => {
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
     });
 
+    test('cleans null keys out of the task definition contents', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            return '{ "ipcMode": null, "family": "task-def-family" }';
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+    });
+
     test('registers the task definition contents and creates a CodeDeploy deployment', async () => {
         core.getInput = jest
             .fn()
