@@ -72,7 +72,7 @@ This action requires the following minimum set of permissions:
 
 Note: the policy above assumes the account has opted in to the ECS long ARN format.
 
-## CodeDeploy Support
+## AWS CodeDeploy Support
 
 For ECS services that uses the `CODE_DEPLOY` deployment controller, additional configuration is needed for this action:
 

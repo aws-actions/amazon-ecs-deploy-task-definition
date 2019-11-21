@@ -17,13 +17,13 @@ inputs:
     description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
     required: false
   codedeploy-appspec:
-    description: "The path to the CodeDeploy AppSpec file, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'appspec.yaml'."
+    description: "The path to the AWS CodeDeploy AppSpec file, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'appspec.yaml'."
     required: false
   codedeploy-application:
-    description: "The name of the CodeDeploy application, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'AppECS-{cluster}-{service}'."
+    description: "The name of the AWS CodeDeploy application, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'AppECS-{cluster}-{service}'."
     required: false
   codedeploy-deployment-group:
-    description: "The name of the CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
+    description: "The name of the AWS CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
     required: false
 outputs:
   task-definition-arn:
