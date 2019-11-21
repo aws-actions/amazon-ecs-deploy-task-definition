@@ -52,6 +52,18 @@ function findAppSpecKey(obj, keyName) {
   throw new Error(`AppSpec file must include property '${keyName}'`);
 }
 
+function undefinedOrNullReplacer(_, value) {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function cleanNullKeys(obj) {
+  return JSON.parse(JSON.stringify(obj, undefinedOrNullReplacer));
+}
+
 // Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
 async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService) {
   core.debug('Updating AppSpec file with new task definition ARN');
@@ -153,7 +165,7 @@ async function run() {
       taskDefinitionFile :
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = yaml.parse(fileContents);
+    const taskDefContents = cleanNullKeys(yaml.parse(fileContents));
     const registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
