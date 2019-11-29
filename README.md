@@ -16,6 +16,8 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 The action can be passed a `task-definition` generated dynamically via [the `aws-actions/amazon-ecs-render-task-definition` action](https://github.com/aws-actions/amazon-ecs-render-task-definition).
 
+See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
+
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.
