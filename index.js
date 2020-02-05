@@ -227,9 +227,8 @@ async function run() {
     }
   }
   catch (error) {
-    core.debug(error);
-    core.debug(error.stack);
     core.setFailed(error.message);
+    core.debug(error.stack);
   }
 }
 
