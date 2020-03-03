@@ -29,6 +29,10 @@ jest.mock('aws-sdk', () => {
     };
 });
 
+const EXPECTED_DEFAULT_WAIT_TIME = 30;
+const EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME = 60;
+const EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME = 30;
+
 describe('Deploy to ECS', () => {
 
     beforeEach(() => {
@@ -118,10 +122,10 @@ describe('Deploy to ECS', () => {
                         deploymentGroupInfo: {
                             blueGreenDeploymentConfiguration: {
                                 deploymentReadyOption: {
-                                    waitTimeInMinutes: 60
+                                    waitTimeInMinutes: EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                                 },
                                 terminateBlueInstancesOnDeploymentSuccess: {
-                                    terminationWaitTimeInMinutes: 30
+                                    terminationWaitTimeInMinutes: EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME
                                 }
                             }
                         }
@@ -247,7 +251,11 @@ describe('Deploy to ECS', () => {
             deploymentId: 'deployment-1',
             $waiter: {
                 delay: 15,
-                maxAttempts: (30 + 90) * 4
+                maxAttempts: (
+                    EXPECTED_DEFAULT_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
+                ) * 4
             }
         });
 
@@ -319,7 +327,11 @@ describe('Deploy to ECS', () => {
             deploymentId: 'deployment-1',
             $waiter: {
                 delay: 15,
-                maxAttempts: (60 + 90) * 4
+                maxAttempts: (
+                    60 +
+                    EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
+                ) * 4
             }
         });
 
@@ -566,7 +578,7 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             "$waiter": {
                 "delay": 15,
-                "maxAttempts": 120,
+                "maxAttempts": EXPECTED_DEFAULT_WAIT_TIME * 4,
             },
         });
     });
@@ -599,7 +611,7 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             "$waiter": {
                 "delay": 15,
-                "maxAttempts": 240,
+                "maxAttempts": 60 * 4,
             },
         });
     });
