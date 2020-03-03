@@ -5,10 +5,8 @@ const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
 
-const CODE_DEPLOY_WAIT_BUFFER_MINUTES = 10;
-const CODE_DEPLOY_MAX_WAIT_MINUTES = 360;  // 6 hours
-const CODE_DEPLOY_MIN_WAIT_MINUTES = 30;
-const CODE_DEPLOY_WAIT_DEFAULT_DELAY_SEC = 15;
+const MAX_WAIT_MINUTES = 360;  // 6 hours
+const WAIT_DEFAULT_DELAY_SEC = 15;
 
 // Attributes that are returned by DescribeTaskDefinition, but are not valid RegisterTaskDefinition inputs
 const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
@@ -20,7 +18,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
   core.debug('Updating the service');
   await ecs.updateService({
     cluster: clusterName,
@@ -30,10 +28,15 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
 
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
-    core.debug('Waiting for the service to become stable');
+    core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
+    const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
     await ecs.waitFor('servicesStable', {
       services: [service],
-      cluster: clusterName
+      cluster: clusterName,
+      $waiter: {
+        delay: WAIT_DEFAULT_DELAY_SEC,
+        maxAttempts: maxAttempts
+      }
     }).promise();
   } else {
     core.debug('Not waiting for the service to become stable');
@@ -88,7 +91,7 @@ function removeIgnoredAttributes(taskDef) {
 }
 
 // Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
-async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService) {
+async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
   core.debug('Updating AppSpec file with new task definition ARN');
 
   let codeDeployAppSpecFile = core.getInput('codedeploy-appspec', { required : false });
@@ -145,20 +148,17 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     // Determine wait time
     const deployReadyWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.deploymentReadyOption.waitTimeInMinutes;
     const terminationWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.terminateBlueInstancesOnDeploymentSuccess.terminationWaitTimeInMinutes;
-    let totalWaitMin = deployReadyWaitMin + terminationWaitMin + CODE_DEPLOY_WAIT_BUFFER_MINUTES;
-    if (totalWaitMin > CODE_DEPLOY_MAX_WAIT_MINUTES) {
-      totalWaitMin = CODE_DEPLOY_MAX_WAIT_MINUTES;
+    let totalWaitMin = deployReadyWaitMin + terminationWaitMin + waitForMinutes;
+    if (totalWaitMin > MAX_WAIT_MINUTES) {
+      totalWaitMin = MAX_WAIT_MINUTES;
     }
-    if (totalWaitMin < CODE_DEPLOY_MIN_WAIT_MINUTES) {
-      totalWaitMin = CODE_DEPLOY_MIN_WAIT_MINUTES;
-    }
-    const maxAttempts = (totalWaitMin * 60) / CODE_DEPLOY_WAIT_DEFAULT_DELAY_SEC;
+    const maxAttempts = (totalWaitMin * 60) / WAIT_DEFAULT_DELAY_SEC;
 
     core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
     await codedeploy.waitFor('deploymentSuccessful', {
       deploymentId: createDeployResponse.deploymentId,
       $waiter: {
-        delay: CODE_DEPLOY_WAIT_DEFAULT_DELAY_SEC,
+        delay: WAIT_DEFAULT_DELAY_SEC,
         maxAttempts: maxAttempts
       }
     }).promise();
@@ -181,6 +181,10 @@ async function run() {
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
+    let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
+    if (waitForMinutes > MAX_WAIT_MINUTES) {
+      waitForMinutes = MAX_WAIT_MINUTES;
+    }
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -215,10 +219,10 @@ async function run() {
 
       if (!serviceResponse.deploymentController) {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else if (serviceResponse.deploymentController.type == 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
-        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService);
+        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
       }
