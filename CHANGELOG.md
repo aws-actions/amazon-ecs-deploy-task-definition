@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.0.3...v1.1.0) (2020-03-05)
+
+
+### Features
+
+* add option to specify number of minutes to wait for deployment to complete ([#37](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/37)) ([27c64c3](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/27c64c3fabb355c8a4311a02eaf507f684adc033)), closes [#33](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/33)
+
 ### [1.0.3](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.0.2...v1.0.3) (2020-02-06)
 
 ### [1.0.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.0.1...v1.0.2) (2020-02-06)
