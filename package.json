@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/aws-actions/amazon-ecs-deploy-task-definition#readme",
   "dependencies": {
-    "@actions/core": "^1.2.2",
+    "@actions/core": "^1.2.3",
     "aws-sdk": "^2.633.0",
     "yaml": "^1.7.2"
   },
