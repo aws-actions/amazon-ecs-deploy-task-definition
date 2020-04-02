@@ -174,6 +174,44 @@ describe('Deploy to ECS', () => {
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
     });
 
+    test('cleans empty arrays out of the task definition contents', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            return '{ "tags": [], "family": "task-def-family" }';
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+    });
+
+    test('cleans empty strings and objects out of the task definition contents', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            return '{ "memory": "", "containerDefinitions": [ { "name": "sample-container", "logConfiguration": {}, "repositoryCredentials": { "credentialsParameter": "" }, "cpu": 0, "essential": false } ], "requiresCompatibilities": [ "EC2" ], "family": "task-def-family" }';
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, {
+            family: 'task-def-family',
+            containerDefinitions: [
+                {
+                    name: 'sample-container',
+                    cpu: 0,
+                    essential: false
+                }
+            ],
+            requiresCompatibilities: [ 'EC2' ]
+        });
+    });
+
     test('cleans invalid keys out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
