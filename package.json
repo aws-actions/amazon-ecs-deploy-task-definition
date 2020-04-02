@@ -26,12 +26,12 @@
   "homepage": "https://github.com/aws-actions/amazon-ecs-deploy-task-definition#readme",
   "dependencies": {
     "@actions/core": "^1.2.3",
-    "aws-sdk": "^2.633.0",
-    "yaml": "^1.7.2"
+    "aws-sdk": "^2.650.0",
+    "yaml": "^1.8.3"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.21.1",
+    "@zeit/ncc": "^0.22.0",
     "eslint": "^6.8.0",
-    "jest": "^25.1.0"
+    "jest": "^25.2.4"
   }
 }
