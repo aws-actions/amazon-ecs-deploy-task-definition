@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.1.0...v1.2.0) (2020-04-02)
+
+
+### Features
+
+* clean empty arrays and objects from the task def file ([#52](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/52)) ([e64c8a6](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/e64c8a6fd7cb8f40b6487fc0acd0a357cc1eaffd))
+
 ## [1.1.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.0.3...v1.1.0) (2020-03-05)
 
 
