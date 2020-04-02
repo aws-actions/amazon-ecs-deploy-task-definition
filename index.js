@@ -64,8 +64,35 @@ function findAppSpecKey(obj, keyName) {
   throw new Error(`AppSpec file must include property '${keyName}'`);
 }
 
-function undefinedOrNullReplacer(_, value) {
-  if (value === null || value === undefined) {
+function isEmptyValue(value) {
+  if (value === null || value === undefined || value === '') {
+    return true;
+  }
+
+  if (Array.isArray(value) && value.length === 0) {
+    return true;
+  }
+
+  if (typeof value === 'object' && Object.values(value).length === 0) {
+    return true;
+  }
+
+  return false;
+}
+
+function emptyValueReplacer(_, value) {
+  if (isEmptyValue(value)) {
+    return undefined;
+  }
+
+  if (typeof value === 'object') {
+    for (var childValue of Object.values(value)) {
+      if (!isEmptyValue(childValue)) {
+        // the object has at least one non-empty property
+        return value;
+      }
+    }
+    // the object has no non-empty property
     return undefined;
   }
 
@@ -73,7 +100,7 @@ function undefinedOrNullReplacer(_, value) {
 }
 
 function cleanNullKeys(obj) {
-  return JSON.parse(JSON.stringify(obj, undefinedOrNullReplacer));
+  return JSON.parse(JSON.stringify(obj, emptyValueReplacer));
 }
 
 function removeIgnoredAttributes(taskDef) {
