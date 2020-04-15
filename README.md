@@ -34,7 +34,7 @@ We recommend following [Amazon IAM best practices](https://docs.aws.amazon.com/I
 
 This action requires the following minimum set of permissions:
 
-```
+```json
 {
    "Version":"2012-10-17",
    "Statement":[
@@ -93,7 +93,7 @@ For ECS services that uses the `CODE_DEPLOY` deployment controller, additional c
 
 The minimal permissions require access to CodeDeploy:
 
-```
+```json
 {
    "Version":"2012-10-17",
    "Statement":[
