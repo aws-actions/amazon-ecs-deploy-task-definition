@@ -813,13 +813,16 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toBeCalledWith('Unsupported deployment controller: EXTERNAL');
     });
 
-    test('error is caught by core.setFailed', async () => {
+
+    test('error is caught if task def registration fails', async () => {
         mockEcsRegisterTaskDef.mockImplementation(() => {
-            throw new Error();
+            throw new Error("Could not parse");
         });
 
         await run();
 
-        expect(core.setFailed).toBeCalled();
+        expect(core.setFailed).toHaveBeenCalledTimes(2);
+        expect(core.setFailed).toHaveBeenNthCalledWith(1, 'Failed to register task definition in ECS: Could not parse');
+        expect(core.setFailed).toHaveBeenNthCalledWith(2, 'Could not parse');
     });
 });
