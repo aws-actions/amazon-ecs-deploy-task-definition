@@ -15,6 +15,9 @@ const mockCodeDeployGetDeploymentGroup = jest.fn();
 const mockCodeDeployWaiter = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
+        config: {
+            region: 'fake-region'
+        },
         ECS: jest.fn(() => ({
             registerTaskDefinition: mockEcsRegisterTaskDef,
             updateService: mockEcsUpdateService,
@@ -158,6 +161,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn'
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
     });
 
     test('cleans null keys out of the task definition contents', async () => {
@@ -299,6 +303,8 @@ describe('Deploy to ECS', () => {
 
         expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
     });
 
     test('registers the task definition contents and creates a CodeDeploy deployment, waits for 1 hour + deployment group\'s wait time', async () => {

@@ -25,6 +25,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     service: service,
     taskDefinition: taskDefArn
   }).promise();
+  core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
 
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
@@ -169,6 +170,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     }
   }).promise();
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
+  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
 
   // Wait for deployment to complete
   if (waitForService && waitForService.toLowerCase() === 'true') {
@@ -220,7 +222,15 @@ async function run() {
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
     const taskDefContents = removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents)));
-    const registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
+    let registerResponse;
+    try {
+      registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
+    } catch (error) {
+      core.setFailed("Failed to register task definition in ECS: " + error.message);
+      core.debug("Task definition contents:");
+      core.debug(JSON.stringify(taskDefContents, undefined, 4));
+      throw(error);
+    }
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
 
