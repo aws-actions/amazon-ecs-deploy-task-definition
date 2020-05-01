@@ -30,7 +30,7 @@
     "yaml": "^1.8.3"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.22.0",
+    "@zeit/ncc": "^0.22.1",
     "eslint": "^6.8.0",
     "jest": "^25.5.3"
   }
