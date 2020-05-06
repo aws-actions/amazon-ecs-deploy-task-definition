@@ -70,11 +70,25 @@ function isEmptyValue(value) {
     return true;
   }
 
-  if (Array.isArray(value) && value.length === 0) {
+  if (Array.isArray(value)) {
+    for (var element of value) {
+      if (!isEmptyValue(element)) {
+        // the array has at least one non-empty element
+        return false;
+      }
+    }
+    // the array has no non-empty elements
     return true;
   }
 
-  if (typeof value === 'object' && Object.values(value).length === 0) {
+  if (typeof value === 'object') {
+    for (var childValue of Object.values(value)) {
+      if (!isEmptyValue(childValue)) {
+        // the object has at least one non-empty property
+        return false;
+      }
+    }
+    // the object has no non-empty property
     return true;
   }
 
@@ -86,15 +100,8 @@ function emptyValueReplacer(_, value) {
     return undefined;
   }
 
-  if (typeof value === 'object') {
-    for (var childValue of Object.values(value)) {
-      if (!isEmptyValue(childValue)) {
-        // the object has at least one non-empty property
-        return value;
-      }
-    }
-    // the object has no non-empty property
-    return undefined;
+  if (Array.isArray(value)) {
+    return value.filter(e => !isEmptyValue(e));
   }
 
   return value;
