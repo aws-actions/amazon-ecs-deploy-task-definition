@@ -198,7 +198,37 @@ describe('Deploy to ECS', () => {
                 throw new Error(`Wrong encoding ${encoding}`);
             }
 
-            return '{ "memory": "", "containerDefinitions": [ { "name": "sample-container", "logConfiguration": {}, "repositoryCredentials": { "credentialsParameter": "" }, "cpu": 0, "essential": false } ], "requiresCompatibilities": [ "EC2" ], "family": "task-def-family" }';
+            return `
+            {
+                "memory": "",
+                "containerDefinitions": [ {
+                    "name": "sample-container",
+                    "logConfiguration": {},
+                    "repositoryCredentials": { "credentialsParameter": "" },
+                    "command": [
+                        ""
+                    ],
+                    "environment": [
+                        {
+                            "name": "hello",
+                            "value": "world"
+                        },
+                        {
+                            "name": "",
+                            "value": ""
+                        }
+                    ],
+                    "secretOptions": [ {
+                        "name": "",
+                        "valueFrom": ""
+                    } ],
+                    "cpu": 0,
+                    "essential": false
+                } ],
+                "requiresCompatibilities": [ "EC2" ],
+                "family": "task-def-family"
+            }
+            `;
         });
 
         await run();
@@ -209,7 +239,11 @@ describe('Deploy to ECS', () => {
                 {
                     name: 'sample-container',
                     cpu: 0,
-                    essential: false
+                    essential: false,
+                    environment: [{
+                        name: 'hello',
+                        value: 'world'
+                    }]
                 }
             ],
             requiresCompatibilities: [ 'EC2' ]
