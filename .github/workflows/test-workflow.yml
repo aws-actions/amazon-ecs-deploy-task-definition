@@ -16,7 +16,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-q0a9Gc4Dsaz2:1214cffe-d9fc-4f3a-88e5-8f9cc167ae28
+        echo Integration test run: githubactionsamazonecsdeplo-q0a9Gc4Dsaz2:42114fbe-93cb-479c-90ab-a8b7e353138c
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -26,7 +26,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@a9aedc8f3c9d084de1cebad58dabed6d1272920e
+      uses: aws-actions/amazon-ecs-deploy-task-definition@f89a0719cfd0a46123cd4ee70989a9851f01f94b
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
