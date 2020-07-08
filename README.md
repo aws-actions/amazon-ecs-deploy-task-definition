@@ -28,6 +28,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
         service: my-service
         cluster: my-cluster
         wait-for-service-stability: true
+        desired-count: 2
 ```
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
