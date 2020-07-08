@@ -18,12 +18,13 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, desiredCount) {
   core.debug('Updating the service');
   await ecs.updateService({
     cluster: clusterName,
     service: service,
-    taskDefinition: taskDefArn
+    taskDefinition: taskDefArn,
+    desiredCount: desiredCount
   }).promise();
   core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
 
@@ -213,6 +214,7 @@ async function run() {
     });
 
     // Get inputs
+    const desiredCount = parseInt(core.getInput('desired-count', { required: false })) || 1;
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
@@ -263,7 +265,7 @@ async function run() {
 
       if (!serviceResponse.deploymentController) {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, desiredCount);
       } else if (serviceResponse.deploymentController.type == 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
