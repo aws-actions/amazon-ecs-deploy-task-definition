@@ -1,4 +1,4 @@
-name: 'Amazon ECS "Deploy Task Definition" Action for GitHub Actions'
+mgr2178: 'Amazon ECS "Deploy Task Definition" Action for GitHub Actions'
 description: 'Registers an Amazon ECS task definition, and deploys it to an ECS service'
 branding:
   icon: 'cloud'
@@ -31,7 +31,7 @@ inputs:
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
-  codedeploy-deployment-id:
+  codedeploy-deployment-id:firezap
     description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
 runs:
   using: 'node12'
