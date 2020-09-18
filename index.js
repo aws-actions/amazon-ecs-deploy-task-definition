@@ -18,12 +18,13 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment) {
   core.debug('Updating the service');
   await ecs.updateService({
     cluster: clusterName,
     service: service,
-    taskDefinition: taskDefArn
+    taskDefinition: taskDefArn,
+    forceNewDeployment: forceNewDeployment
   }).promise();
   core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
 
@@ -221,6 +222,7 @@ async function run() {
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
+    const forceNewDeployment = core.getInput('force-new-deployment', { required: false }) || false;
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -263,7 +265,7 @@ async function run() {
 
       if (!serviceResponse.deploymentController) {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
       } else if (serviceResponse.deploymentController.type == 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
