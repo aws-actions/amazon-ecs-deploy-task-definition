@@ -488,7 +488,7 @@ describe('Deploy to ECS', () => {
 
         expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
-    }); 
+    });
 
     test('does not wait for a CodeDeploy deployment, parses JSON appspec file', async () => {
         core.getInput = jest
@@ -498,7 +498,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('false')               // wait-for-service-stability
             .mockReturnValueOnce('')                    // wait-for-minutes
-            .mockReturnValueOnce('false')               // wait-for-service-stability
+            .mockReturnValueOnce('')                    // force-new-deployment
             .mockReturnValueOnce('/hello/appspec.json') // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')       // codedeploy-application
             .mockReturnValueOnce('MyDeploymentGroup');  // codedeploy-deployment-group
