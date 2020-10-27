@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.10](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.9...v1.3.10) (2020-09-29)
+
 ### [1.3.9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.8...v1.3.9) (2020-08-25)
 
 ### [1.3.8](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.7...v1.3.8) (2020-08-11)
