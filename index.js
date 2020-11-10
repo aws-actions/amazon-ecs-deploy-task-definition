@@ -222,8 +222,10 @@ async function run() {
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
-    const forceNewDeployment = core.getInput('force-new-deployment', { required: false }) || false;
 
+    const forceNewDeployInput = core.getInput('force-new-deployment', { required: false })
+    const forceNewDeployment = forceNewDeployInput != undefined && forceNewDeployInput.toLocaleLowerCase === "true" ? true : false;
+    
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
