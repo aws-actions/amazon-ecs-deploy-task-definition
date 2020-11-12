@@ -223,8 +223,8 @@ async function run() {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
 
-    const forceNewDeployInput = core.getInput('force-new-deployment', { required: false })
-    const forceNewDeployment = forceNewDeployInput != undefined && forceNewDeployInput.toLocaleLowerCase === "true" ? true : false;
+    const forceNewDeployInput = core.getInput('force-new-deployment', { required: false });
+    const forceNewDeployment = forceNewDeployInput != undefined && (forceNewDeployInput.toLowerCase === 'true' || forceNewDeployInput);
     
     // Register the task definition
     core.debug('Registering the task definition');
