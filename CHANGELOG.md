@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.0...v1.4.1) (2020-12-22)
+
+
+### Bug Fixes
+
+* forceNewDeployment input to take a boolean ([#150](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/150)) ([06f69cf](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/06f69cf0d8243e21900f315a65772f40e9b508a2))
+* forceNewDeployment to be a boolean ([#140](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/140)) ([9407da9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/9407da9865a8d6b2d45c8239daeaff7203b49d45))
+
 ## [1.4.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.10...v1.4.0) (2020-10-29)
 
 
