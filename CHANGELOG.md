@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.1...v1.4.2) (2021-01-26)
+
+
+### Bug Fixes
+
+* ignore additional fields from task definition input ([#165](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/165)) ([7727942](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/77279428f4b2e987d6c03366891893fb8161c1e4))
+
 ### [1.4.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.0...v1.4.1) (2020-12-22)
 
 

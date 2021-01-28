@@ -14,7 +14,10 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'taskDefinitionArn',
   'requiresAttributes',
   'revision',
-  'status'
+  'status',
+  'registeredAt',
+  'deregisteredAt',
+  'registeredBy'
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
