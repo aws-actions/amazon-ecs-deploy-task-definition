@@ -741,7 +741,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce(true);                  // force-new-deployment
+            .mockReturnValueOnce('true');                  // force-new-deployment
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
