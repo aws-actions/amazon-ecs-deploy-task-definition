@@ -319,6 +319,9 @@ describe('Deploy to ECS', () => {
                         {
                             "name": "ProxyEgressPort",
                             "value": "15001"
+                        },
+                        {
+                            "value": "some-value"
                         }
                     ]
                 }
@@ -373,6 +376,10 @@ describe('Deploy to ECS', () => {
                     {
                         name: "ProxyEgressPort",
                         value: "15001"
+                    },
+                    {
+                        name: "",
+                        value: "some-value"
                     }
                 ]
             }

@@ -135,9 +135,11 @@ function maintainAppMeshConfiguration(taskDef) {
             if (!('value' in property)) {
                 arr[index].value = '';
             }
+            if (!('name' in property)) {
+                arr[index].name = '';
+            }
         });
     }
-
     return taskDef;
 }
 
