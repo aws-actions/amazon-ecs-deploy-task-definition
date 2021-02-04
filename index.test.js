@@ -252,6 +252,140 @@ describe('Deploy to ECS', () => {
         });
     });
 
+    test('maintains empty keys in proxyConfiguration.properties for APPMESH', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            return `
+            {
+                "memory": "",
+                "containerDefinitions": [ {
+                    "name": "sample-container",
+                    "logConfiguration": {},
+                    "repositoryCredentials": { "credentialsParameter": "" },
+                    "command": [
+                        ""
+                    ],
+                    "environment": [
+                        {
+                            "name": "hello",
+                            "value": "world"
+                        },
+                        {
+                            "name": "",
+                            "value": ""
+                        }
+                    ],
+                    "secretOptions": [ {
+                        "name": "",
+                        "valueFrom": ""
+                    } ],
+                    "cpu": 0,
+                    "essential": false
+                } ],
+                "requiresCompatibilities": [ "EC2" ],
+                "registeredAt": 1611690781,
+                "family": "task-def-family",
+                "proxyConfiguration": {
+                    "type": "APPMESH",
+                    "containerName": "envoy",
+                    "properties": [
+                        {
+                            "name": "ProxyIngressPort",
+                            "value": "15000"
+                        },
+                        {
+                            "name": "AppPorts",
+                            "value": "1234"
+                        },
+                        {
+                            "name": "EgressIgnoredIPs",
+                            "value": "169.254.170.2,169.254.169.254"
+                        },
+                        {
+                            "name": "IgnoredGID",
+                            "value": ""
+                        },
+                        {
+                            "name": "EgressIgnoredPorts",
+                            "value": ""
+                        },
+                        {
+                            "name": "IgnoredUID",
+                            "value": "1337"
+                        },
+                        {
+                            "name": "ProxyEgressPort",
+                            "value": "15001"
+                        },
+                        {
+                            "value": "some-value"
+                        }
+                    ]
+                }
+            }
+            `;
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, {
+            family: 'task-def-family',
+            containerDefinitions: [
+                {
+                    name: 'sample-container',
+                    cpu: 0,
+                    essential: false,
+                    environment: [{
+                        name: 'hello',
+                        value: 'world'
+                    }]
+                }
+            ],
+            requiresCompatibilities: [ 'EC2' ],
+            proxyConfiguration: {
+                type: "APPMESH",
+                containerName: "envoy",
+                properties: [
+                    {
+                        name: "ProxyIngressPort",
+                        value: "15000"
+                    },
+                    {
+                        name: "AppPorts",
+                        value: "1234"
+                    },
+                    {
+                        name: "EgressIgnoredIPs",
+                        value: "169.254.170.2,169.254.169.254"
+                    },
+                    {
+                        name: "IgnoredGID",
+                        value: ""
+                    },
+                    {
+                        name: "EgressIgnoredPorts",
+                        value: ""
+                    },
+                    {
+                        name: "IgnoredUID",
+                        value: "1337"
+                    },
+                    {
+                        name: "ProxyEgressPort",
+                        value: "15001"
+                    },
+                    {
+                        name: "",
+                        value: "some-value"
+                    }
+                ]
+            }
+        });
+    });
+
     test('cleans invalid keys out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
