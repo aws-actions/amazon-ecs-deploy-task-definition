@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.3](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.2...v1.4.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* allow empty values in proxyConfiguration.properties ([#168](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/168)) ([3963f7f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/3963f7f3050f9c64b285d6a437b3d447a73131f3)), closes [#163](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/163)
+* enable forceNewDeployment for ECS Task that is broken per [#157](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/157) ([#159](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/159)) ([4b6d445](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b6d44541b0b3e5871a0eb4265d8c35a35cbb215))
+
 ### [1.4.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.1...v1.4.2) (2021-01-26)
 
 
