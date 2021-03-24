@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.3...v1.4.4) (2021-02-23)
+
+### [1.4.3](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.2...v1.4.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* allow empty values in proxyConfiguration.properties ([#168](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/168)) ([3963f7f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/3963f7f3050f9c64b285d6a437b3d447a73131f3)), closes [#163](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/163)
+* enable forceNewDeployment for ECS Task that is broken per [#157](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/157) ([#159](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/159)) ([4b6d445](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b6d44541b0b3e5871a0eb4265d8c35a35cbb215))
+
+### [1.4.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.1...v1.4.2) (2021-01-26)
+
+
+### Bug Fixes
+
+* ignore additional fields from task definition input ([#165](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/165)) ([7727942](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/77279428f4b2e987d6c03366891893fb8161c1e4))
+
+### [1.4.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.0...v1.4.1) (2020-12-22)
+
+
+### Bug Fixes
+
+* forceNewDeployment input to take a boolean ([#150](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/150)) ([06f69cf](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/06f69cf0d8243e21900f315a65772f40e9b508a2))
+* forceNewDeployment to be a boolean ([#140](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/140)) ([9407da9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/9407da9865a8d6b2d45c8239daeaff7203b49d45))
+
+## [1.4.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.10...v1.4.0) (2020-10-29)
+
+
+### Features
+
+* allow forceNewDeployment ([#116](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/116)) ([f2d330f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/f2d330fcd84477fa5332a7f18acb483c21e31bee))
+
 ### [1.3.10](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.9...v1.3.10) (2020-09-29)
 
 ### [1.3.9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.3.8...v1.3.9) (2020-08-25)

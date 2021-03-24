@@ -146,7 +146,7 @@ describe('Deploy to ECS', () => {
         });
     });
 
-    test('registers the task definition contents and updates the service', async () => {
+     test('registers the task definition contents and updates the service', async () => {
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
@@ -158,7 +158,8 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
             service: 'service-456',
-            taskDefinition: 'task:def:arn'
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
@@ -226,6 +227,7 @@ describe('Deploy to ECS', () => {
                     "essential": false
                 } ],
                 "requiresCompatibilities": [ "EC2" ],
+                "registeredAt": 1611690781,
                 "family": "task-def-family"
             }
             `;
@@ -247,6 +249,140 @@ describe('Deploy to ECS', () => {
                 }
             ],
             requiresCompatibilities: [ 'EC2' ]
+        });
+    });
+
+    test('maintains empty keys in proxyConfiguration.properties for APPMESH', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            return `
+            {
+                "memory": "",
+                "containerDefinitions": [ {
+                    "name": "sample-container",
+                    "logConfiguration": {},
+                    "repositoryCredentials": { "credentialsParameter": "" },
+                    "command": [
+                        ""
+                    ],
+                    "environment": [
+                        {
+                            "name": "hello",
+                            "value": "world"
+                        },
+                        {
+                            "name": "",
+                            "value": ""
+                        }
+                    ],
+                    "secretOptions": [ {
+                        "name": "",
+                        "valueFrom": ""
+                    } ],
+                    "cpu": 0,
+                    "essential": false
+                } ],
+                "requiresCompatibilities": [ "EC2" ],
+                "registeredAt": 1611690781,
+                "family": "task-def-family",
+                "proxyConfiguration": {
+                    "type": "APPMESH",
+                    "containerName": "envoy",
+                    "properties": [
+                        {
+                            "name": "ProxyIngressPort",
+                            "value": "15000"
+                        },
+                        {
+                            "name": "AppPorts",
+                            "value": "1234"
+                        },
+                        {
+                            "name": "EgressIgnoredIPs",
+                            "value": "169.254.170.2,169.254.169.254"
+                        },
+                        {
+                            "name": "IgnoredGID",
+                            "value": ""
+                        },
+                        {
+                            "name": "EgressIgnoredPorts",
+                            "value": ""
+                        },
+                        {
+                            "name": "IgnoredUID",
+                            "value": "1337"
+                        },
+                        {
+                            "name": "ProxyEgressPort",
+                            "value": "15001"
+                        },
+                        {
+                            "value": "some-value"
+                        }
+                    ]
+                }
+            }
+            `;
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, {
+            family: 'task-def-family',
+            containerDefinitions: [
+                {
+                    name: 'sample-container',
+                    cpu: 0,
+                    essential: false,
+                    environment: [{
+                        name: 'hello',
+                        value: 'world'
+                    }]
+                }
+            ],
+            requiresCompatibilities: [ 'EC2' ],
+            proxyConfiguration: {
+                type: "APPMESH",
+                containerName: "envoy",
+                properties: [
+                    {
+                        name: "ProxyIngressPort",
+                        value: "15000"
+                    },
+                    {
+                        name: "AppPorts",
+                        value: "1234"
+                    },
+                    {
+                        name: "EgressIgnoredIPs",
+                        value: "169.254.170.2,169.254.169.254"
+                    },
+                    {
+                        name: "IgnoredGID",
+                        value: ""
+                    },
+                    {
+                        name: "EgressIgnoredPorts",
+                        value: ""
+                    },
+                    {
+                        name: "IgnoredUID",
+                        value: "1337"
+                    },
+                    {
+                        name: "ProxyEgressPort",
+                        value: "15001"
+                    },
+                    {
+                        name: "",
+                        value: "some-value"
+                    }
+                ]
+            }
         });
     });
 
@@ -497,6 +633,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('false')               // wait-for-service-stability
             .mockReturnValueOnce('')                    // wait-for-minutes
+            .mockReturnValueOnce('')                    // force-new-deployment
             .mockReturnValueOnce('/hello/appspec.json') // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')       // codedeploy-application
             .mockReturnValueOnce('MyDeploymentGroup');  // codedeploy-deployment-group
@@ -608,7 +745,7 @@ describe('Deploy to ECS', () => {
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
     });
 
-    test('registers the task definition contents at an absolute path', async () => {
+     test('registers the task definition contents at an absolute path', async () => {
         core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
@@ -649,7 +786,8 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
             service: 'service-456',
-            taskDefinition: 'task:def:arn'
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
         });
         expect(mockEcsWaiter).toHaveBeenNthCalledWith(1, 'servicesStable', {
             services: ['service-456'],
@@ -668,7 +806,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValue('60');                     // wait-for-minutes
+            .mockReturnValueOnce('60');                     // wait-for-minutes
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -682,7 +820,8 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
             service: 'service-456',
-            taskDefinition: 'task:def:arn'
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
         });
         expect(mockEcsWaiter).toHaveBeenNthCalledWith(1, 'servicesStable', {
             services: ['service-456'],
@@ -701,7 +840,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValue('1000');                   // wait-for-minutes
+            .mockReturnValueOnce('1000');                   // wait-for-minutes
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -715,7 +854,8 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
             service: 'service-456',
-            taskDefinition: 'task:def:arn'
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
         });
         expect(mockEcsWaiter).toHaveBeenNthCalledWith(1, 'servicesStable', {
             services: ['service-456'],
@@ -724,6 +864,33 @@ describe('Deploy to ECS', () => {
                 "delay": 15,
                 "maxAttempts": 6 * 60 * 4,
             },
+        });
+    });
+
+    test('force new deployment', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('true');                  // force-new-deployment
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: true
         });
     });
 
@@ -745,7 +912,8 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'default',
             service: 'service-456',
-            taskDefinition: 'task:def:arn'
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
         });
     });
 
@@ -847,7 +1015,6 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toBeCalledWith('Unsupported deployment controller: EXTERNAL');
     });
 
-
     test('error is caught if task def registration fails', async () => {
         mockEcsRegisterTaskDef.mockImplementation(() => {
             throw new Error("Could not parse");
@@ -859,4 +1026,4 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenNthCalledWith(1, 'Failed to register task definition in ECS: Could not parse');
         expect(core.setFailed).toHaveBeenNthCalledWith(2, 'Could not parse');
     });
-});
+ });
