@@ -130,7 +130,7 @@ function removeIgnoredAttributes(taskDef) {
 }
 
 function maintainAppMeshConfiguration(taskDef) {
-    if ('proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties.length > 0) {
+    if ('proxyConfiguration' in taskDef && taskDef.proxyConfiguration && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties && taskDef.proxyConfiguration.properties.length > 0) {
         taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
             if (!('value' in property)) {
                 arr[index].value = '';
