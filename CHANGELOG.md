@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.6](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.5...v1.4.6) (2021-06-02)
+
+
+### Bug Fixes
+
+* Cannot read property 'length' of undefined ([#202](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/202)) ([8009d7d](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/8009d7da6ac76c5f49983585decef599d9916042))
+
 ### [1.4.5](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.4...v1.4.5) (2021-05-10)
 
 ### [1.4.4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.3...v1.4.4) (2021-02-23)
