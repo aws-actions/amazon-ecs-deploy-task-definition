@@ -215,7 +215,7 @@ describe('Deploy to ECS', () => {
                             "value": "world"
                         },
                         {
-                            "name": "",
+                            "name": "test",
                             "value": ""
                         }
                     ],
@@ -245,6 +245,9 @@ describe('Deploy to ECS', () => {
                     environment: [{
                         name: 'hello',
                         value: 'world'
+                    }, {
+                        "name": "test",
+                        "value": ""
                     }]
                 }
             ],

@@ -129,6 +129,21 @@ function removeIgnoredAttributes(taskDef) {
   return taskDef;
 }
 
+function maintainEnvironmentVariables(taskDef) {
+  if(taskDef && taskDef.containerDefinitions){
+    taskDef.containerDefinitions.forEach((container) => {
+      if(container.environment){
+        container.environment.forEach((property, index, arr) => {
+          if (!('value' in property)) {
+            arr[index].value = '';
+          }
+        });
+      }
+    });
+  }
+  return taskDef;
+}
+
 function maintainAppMeshConfiguration(taskDef) {
     if (validateProxyConfigurations(taskDef)) {
         taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
@@ -253,7 +268,7 @@ async function run() {
       taskDefinitionFile :
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = maintainAppMeshConfiguration(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
+    const taskDefContents = maintainAppMeshConfiguration(removeIgnoredAttributes(maintainEnvironmentVariables(cleanNullKeys(yaml.parse(fileContents)))));
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
