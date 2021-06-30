@@ -217,6 +217,10 @@ describe('Deploy to ECS', () => {
                         {
                             "name": "test",
                             "value": ""
+                        },
+                        {
+                            "name": "",
+                            "value": ""
                         }
                     ],
                     "secretOptions": [ {
