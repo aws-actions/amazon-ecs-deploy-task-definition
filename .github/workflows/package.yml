@@ -25,3 +25,28 @@ jobs:
         git add dist/
         git commit -m "chore: Update dist" || echo "No changes to commit"
         git push origin HEAD:master
+
+  # Upload Job and Workflow Metrics to Datadog
+  # https://app.datadoghq.com/dashboard/2gu-t9j-ppr
+  metrics:
+    needs: [check]
+    runs-on: ubuntu-latest
+    name: Datadog reports
+    if: ${{ always() }}
+    steps:
+      # CLEANUP TASK: https://scribdjira.atlassian.net/browse/TOOLS-2897
+      # Set up ruby for the metrics action
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      # Report job and workflow performance metrics
+      - name: Job and Workflow performance reporting
+        uses: scribd/github-action-datadog-reporting@v1
+        with:
+          datadog-metric-prefix: 'github.action'
+          metrics-type: 'job_metrics'
+        env:
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
+          OCTOKIT_TOKEN: ${{ secrets.SCRIBD_GITHUB_GENERIC_TOKEN }}

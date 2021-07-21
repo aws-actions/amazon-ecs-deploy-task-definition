@@ -1,0 +1,43 @@
+# Upload Developer Velocity Metrics to Datadog
+# https://app.datadoghq.com/dashboard/2gu-t9j-ppr
+name: PR Velocity Workflow
+on:
+  pull_request:
+    types: [opened, closed]
+jobs:
+  metrics:
+    if: |
+      (github.event.action == 'closed' &&
+      github.event.pull_request.merged == true) ||
+      github.event.action == 'opened'
+    name: Track merge request activity
+    runs-on: ubuntu-latest
+    steps:
+      # CLEANUP TASK: https://scribdjira.atlassian.net/browse/TOOLS-2897
+      # Set up ruby for the action
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      # CLEANUP TASK: https://scribdjira.atlassian.net/browse/TOOLS-2897
+      # Retrieve the teams for a user using GraphQL
+      - name: Get all teams for user
+        uses: tspascoal/get-user-teams-membership@v1
+        id: actor-teams
+        if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
+        with:
+          username: ${{ github.event.pull_request.user.login }}
+          GITHUB_TOKEN: ${{ secrets.SCRIBD_GITHUB_GENERIC_TOKEN }}
+
+      # Report velocity metrics
+      - name: Reporting velocity metrics
+        id: datadog-metrics
+        uses: scribd/github-action-datadog-reporting@v1
+        with:
+          datadog-metric-prefix: 'github.action'
+          metrics-type: 'velocity'
+          teams: ${{ steps.actor-teams.outputs.teams }}
+        env:
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
+          OCTOKIT_TOKEN: ${{ secrets.SCRIBD_GITHUB_GENERIC_TOKEN }}
