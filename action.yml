@@ -29,7 +29,7 @@ inputs:
     description: "The name of the AWS CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
     required: false
   codedeploy-deployment-description:
-    description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
+    description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
     required: false
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'

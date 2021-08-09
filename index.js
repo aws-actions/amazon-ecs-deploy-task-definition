@@ -157,7 +157,6 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   codeDeployGroup = codeDeployGroup ? codeDeployGroup : `DgpECS-${clusterName}-${service}`;
 
   let codeDeployDescription = core.getInput('codedeploy-deployment-description', { required: false });
-  codeDeployDescription = codeDeployDescription ? codeDeployDescription : '';
 
   let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
     applicationName: codeDeployApp,
@@ -197,6 +196,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
       }
     }
   };
+  // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
   if (codeDeployDescription) {
     deploymentParams.description = codeDeployDescription
   }
