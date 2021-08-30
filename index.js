@@ -129,8 +129,8 @@ function removeIgnoredAttributes(taskDef) {
   return taskDef;
 }
 
-function maintainAppMeshConfiguration(taskDef) {
-    if ('proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties.length > 0) {
+function maintainValidObjects(taskDef) {
+    if (validateProxyConfigurations(taskDef)) {
         taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
             if (!('value' in property)) {
                 arr[index].value = '';
@@ -140,7 +140,23 @@ function maintainAppMeshConfiguration(taskDef) {
             }
         });
     }
+
+    if(taskDef && taskDef.containerDefinitions){
+      taskDef.containerDefinitions.forEach((container) => {
+        if(container.environment){
+          container.environment.forEach((property, index, arr) => {
+            if (!('value' in property)) {
+              arr[index].value = '';
+            }
+          });
+        }
+      });
+    }
     return taskDef;
+}
+
+function validateProxyConfigurations(taskDef){
+  return 'proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties && taskDef.proxyConfiguration.properties.length > 0;
 }
 
 // Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
@@ -256,7 +272,7 @@ async function run() {
       taskDefinitionFile :
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = maintainAppMeshConfiguration(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
+    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
