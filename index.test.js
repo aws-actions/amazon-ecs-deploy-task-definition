@@ -752,6 +752,90 @@ describe('Deploy to ECS', () => {
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
     });
 
+    test('registers the task definition contents and creates a CodeDeploy deployment with custom application, deployment group and description', async () => {
+        core.getInput = jest
+            .fn(input => {
+                return {
+                    'task-definition': 'task-definition.json',
+                    'service': 'service-456',
+                    'cluster': 'cluster-789',
+                    'wait-for-service-stability': 'TRUE',
+                    'codedeploy-application': 'Custom-Application',
+                    'codedeploy-deployment-group': 'Custom-Deployment-Group',
+                    'codedeploy-deployment-description': 'Custom-Deployment'
+                }[input];
+            });
+
+        mockEcsDescribeServices.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        failures: [],
+                        services: [{
+                            status: 'ACTIVE',
+                            deploymentController: {
+                                type: 'CODE_DEPLOY'
+                            }
+                        }]
+                    });
+                }
+            };
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+
+        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
+            applicationName: 'Custom-Application',
+            deploymentGroupName: 'Custom-Deployment-Group',
+            description: 'Custom-Deployment',
+            revision: {
+                revisionType: 'AppSpecContent',
+                appSpecContent: {
+                    content: JSON.stringify({
+                        Resources: [{
+                            TargetService: {
+                                Type: 'AWS::ECS::Service',
+                                Properties: {
+                                    TaskDefinition: 'task:def:arn',
+                                    LoadBalancerInfo: {
+                                        ContainerName: "web",
+                                        ContainerPort: 80
+                                    }
+                                }
+                            }
+                        }]
+                    }),
+                    sha256: '0911d1e99f48b492e238d1284d8ddb805382d33e1d1fc74ffadf37d8b7e6d096'
+                }
+            }
+        });
+
+        expect(mockCodeDeployWaiter).toHaveBeenNthCalledWith(1, 'deploymentSuccessful', {
+            deploymentId: 'deployment-1',
+            $waiter: {
+                delay: 15,
+                maxAttempts: (
+                    EXPECTED_DEFAULT_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
+                ) * 4
+            }
+        });
+
+        expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
+        expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
+    });
+
      test('registers the task definition contents at an absolute path', async () => {
         core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
         fs.readFileSync.mockImplementation((pathInput, encoding) => {

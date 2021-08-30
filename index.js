@@ -172,6 +172,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   let codeDeployGroup = core.getInput('codedeploy-deployment-group', { required: false });
   codeDeployGroup = codeDeployGroup ? codeDeployGroup : `DgpECS-${clusterName}-${service}`;
 
+  let codeDeployDescription = core.getInput('codedeploy-deployment-description', { required: false });
+
   let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
     applicationName: codeDeployApp,
     deploymentGroupName: codeDeployGroup
@@ -199,7 +201,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
   // Start the deployment with the updated appspec contents
   core.debug('Starting CodeDeploy deployment');
-  const createDeployResponse = await codedeploy.createDeployment({
+  let deploymentParams = {
     applicationName: codeDeployApp,
     deploymentGroupName: codeDeployGroup,
     revision: {
@@ -209,7 +211,12 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
         sha256: appSpecHash
       }
     }
-  }).promise();
+  };
+  // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
+  if (codeDeployDescription) {
+    deploymentParams.description = codeDeployDescription
+  }
+  const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
   core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
 
