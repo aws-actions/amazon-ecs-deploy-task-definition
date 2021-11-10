@@ -17,7 +17,8 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'status',
   'registeredAt',
   'deregisteredAt',
-  'registeredBy'
+  'registeredBy',
+  'runtimePlatform'
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
