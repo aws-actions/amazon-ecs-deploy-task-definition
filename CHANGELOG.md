@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.8...v1.4.9) (2022-01-18)
+
+
+### Bug Fixes
+
+* Strict Mode Deprecation ([ec3c2b2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/ec3c2b2d3e7138039c827953d14cccbedc99ae23))
+
 ### [1.4.8](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.7...v1.4.8) (2021-11-23)
 
 ### [1.4.7](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.6...v1.4.7) (2021-07-13)
