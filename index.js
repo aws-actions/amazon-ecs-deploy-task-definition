@@ -20,6 +20,107 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
+// Run task outside of a service
+async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
+  core.info('Running task')
+
+  const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
+  const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
+  const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
+  const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
+  const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
+  const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+  let awsvpcConfiguration = {}
+
+  if (subnetIds != "") {
+    awsvpcConfiguration["subnets"] = subnetIds.split(',')
+  }
+
+  if (securityGroupIds != "") {
+    awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
+  }
+
+  const runTaskResponse = await ecs.runTask({
+    startedBy: startedBy,
+    cluster: clusterName,
+    taskDefinition: taskDefArn,
+    overrides: {
+      containerOverrides: containerOverrides
+    },
+    launchType: launchType,
+    networkConfiguration: awsvpcConfiguration === {} ? {} : { awsvpcConfiguration: awsvpcConfiguration }
+  }).promise();
+
+  core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
+
+  const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
+  core.setOutput('run-task-arn', taskArns);
+
+  taskArns.map(taskArn => {
+    let taskId = taskArn.split('/').pop();
+    core.info(`Task running: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`)
+  });
+
+  if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
+    const failure = runTaskResponse.failures[0];
+    throw new Error(`${failure.arn} is ${failure.reason}`);
+  }
+
+  // Wait for task to end
+  if (waitForTask && waitForTask.toLowerCase() === "true") {
+    await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes)
+    await tasksExitCode(ecs, clusterName, taskArns)
+  } else {
+    core.debug('Not waiting for the task to stop');
+  }
+}
+
+// Poll tasks until they enter a stopped state
+async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
+  if (waitForMinutes > MAX_WAIT_MINUTES) {
+    waitForMinutes = MAX_WAIT_MINUTES;
+  }
+
+  core.info(`Waiting for tasks to stop. Will wait for ${waitForMinutes} minutes`);
+
+  const waitTaskResponse = await ecs.waitFor('tasksStopped', {
+    cluster: clusterName,
+    tasks: taskArns,
+    $waiter: {
+      delay: WAIT_DEFAULT_DELAY_SEC,
+      maxAttempts: (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC
+    }
+  }).promise();
+
+  core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`);
+  core.info('All tasks have stopped.');
+}
+
+// Check a task's exit code and fail the job on error
+async function tasksExitCode(ecs, clusterName, taskArns) {
+  const describeResponse = await ecs.describeTasks({
+    cluster: clusterName,
+    tasks: taskArns
+  }).promise();
+
+  const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
+  const exitCodes = containers.map(container => container.exitCode)
+  const reasons = containers.map(container => container.reason)
+
+  const failuresIdx = [];
+
+  exitCodes.filter((exitCode, index) => {
+    if (exitCode !== 0) {
+      failuresIdx.push(index)
+    }
+  })
+
+  const failures = reasons.filter((_, index) => failuresIdx.indexOf(index) !== -1)
+  if (failures.length > 0) {
+    throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
+  }
+}
+
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment) {
   core.debug('Updating the service');
@@ -288,10 +389,18 @@ async function run() {
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
 
+    // Run the task outside of the service
+    const clusterName = cluster ? cluster : 'default';
+    const shouldRunTaskInput = core.getInput('run-task', { required: false }) || 'false';
+    const shouldRunTask = shouldRunTaskInput.toLowerCase() === 'true';
+    core.debug(`shouldRunTask: ${shouldRunTask}`);
+    if (shouldRunTask) {
+      core.debug("Running ad-hoc task...");
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
+    }
+
     // Update the service with the new task definition
     if (service) {
-      const clusterName = cluster ? cluster : 'default';
-
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
