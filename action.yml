@@ -34,6 +34,27 @@ inputs:
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
+  run-task:
+    description: 'Whether to run the task outside of an ECS service. Task will run before the service is updated if both are provided. Will default to not run.'
+    required: false
+  run-task-container-overrides:
+    description: 'A JSON array of container override objects which should applied when running a task outside of a service. Warning: Do not expose this field to untrusted inputs. More details: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerOverride.html'
+    required: false
+  run-task-security-groups:
+    description: 'A comma-separated list of security group IDs to assign to a task when run outside of a service. Will default to none.'
+    required: false
+  run-task-subnets:
+    description: 'A comma-separated list of subnet IDs to assign to a task when run outside of a service. Will default to none.'
+    required: false
+  run-task-launch-type:
+    description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'."
+    required: false
+  run-task-started-by:
+    description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
+    required: false
+  wait-for-task-stopped:
+    description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
