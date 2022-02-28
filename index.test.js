@@ -13,11 +13,13 @@ const mockEcsWaiter = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
 const mockCodeDeployWaiter = jest.fn();
+let config = {
+  region: 'fake-region',
+};
+
 jest.mock('aws-sdk', () => {
     return {
-        config: {
-            region: 'fake-region'
-        },
+        config,
         ECS: jest.fn(() => ({
             registerTaskDefinition: mockEcsRegisterTaskDef,
             updateService: mockEcsUpdateService,
@@ -146,7 +148,7 @@ describe('Deploy to ECS', () => {
         });
     });
 
-     test('registers the task definition contents and updates the service', async () => {
+    test('registers the task definition contents and updates the service', async () => {
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
@@ -163,6 +165,17 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
+    });
+
+    test('prints Chinese console domain for cn regions', async () => {
+        const originalRegion = config.region;
+        config.region = 'cn-fake-region';
+        await run();
+
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.amazonaws.cn/ecs/home?region=cn-fake-region#/clusters/cluster-789/services/service-456/events");
+
+        // reset
+        config.region = originalRegion;
     });
 
     test('cleans null keys out of the task definition contents', async () => {
