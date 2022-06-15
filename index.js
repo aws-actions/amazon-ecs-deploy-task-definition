@@ -55,11 +55,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
 
   const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
   core.setOutput('run-task-arn', taskArns);
-
-  taskArns.map(taskArn => {
-    let taskId = taskArn.split('/').pop();
-    core.info(`Task running: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`)
-  });
+  core.info(`Task running: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`);
 
   if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
     const failure = runTaskResponse.failures[0];
@@ -316,9 +312,11 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
       }
     }
   };
+
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
   if (codeDeployDescription) {
-    deploymentParams.description = codeDeployDescription
+    // CodeDeploy Deployment Descriptions have a max length of 512 characters, so truncate if necessary
+    deploymentParams.description = (codeDeployDescription.length <= 512) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
   }
   const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
