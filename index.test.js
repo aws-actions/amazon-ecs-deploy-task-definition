@@ -779,26 +779,27 @@ describe('Deploy to ECS', () => {
         });
 
         expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
-            applicationName: 'MyApplication',
-            deploymentGroupName: 'MyDeploymentGroup',
+            applicationName: 'Custom-Application',
+            deploymentGroupName: 'Custom-Deployment-Group',
+            description: 'Custom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentC…',
             revision: {
                 revisionType: 'AppSpecContent',
                 appSpecContent: {
-                  content: JSON.stringify({
-                      Resources: [{
-                          TargetService: {
-                              Type: 'AWS::ECS::Service',
-                              Properties: {
-                                TaskDefinition: 'task:def:arn',
-                                LoadBalancerInfo: {
-                                    ContainerName: "web",
-                                    ContainerPort: 80
+                    content: JSON.stringify({
+                        Resources: [{
+                            TargetService: {
+                                Type: 'AWS::ECS::Service',
+                                Properties: {
+                                    TaskDefinition: 'task:def:arn',
+                                    LoadBalancerInfo: {
+                                        ContainerName: "web",
+                                        ContainerPort: 80
+                                    }
                                 }
-                              }
-                          }
-                      }]
+                            }
+                        }]
                     }),
-                  sha256: '0911d1e99f48b492e238d1284d8ddb805382d33e1d1fc74ffadf37d8b7e6d096'
+                    sha256: '0911d1e99f48b492e238d1284d8ddb805382d33e1d1fc74ffadf37d8b7e6d096'
                 }
             }
         });
@@ -1146,7 +1147,7 @@ describe('Deploy to ECS', () => {
             launchType: "EC2",
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsVpcNetworkConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } }
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } }
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });

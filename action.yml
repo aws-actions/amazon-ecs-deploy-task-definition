@@ -32,7 +32,7 @@ inputs:
     description: "The name of the AWS CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
     required: false
   codedeploy-deployment-description:
-    description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
+    description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller. NOTE: This will be truncated to 512 characters if necessary."
     required: false
   codedeploy-deployment-config:
     description: "The name of the AWS CodeDeploy deployment configuration, if the ECS service uses the CODE_DEPLOY deployment controller. If not specified, the value configured in the deployment group or `CodeDeployDefault.OneAtATime` is used as the default."
