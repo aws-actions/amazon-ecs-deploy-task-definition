@@ -4,7 +4,6 @@ queue_rules:
       # Conditions to get out of the queue (= merged)
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
-      - status-success=CodeQL
       - status-success=Analyze (javascript)
 
 pull_request_rules:
@@ -16,7 +15,6 @@ pull_request_rules:
       - -approved-reviews-by~=author
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
-      - status-success=CodeQL
       - status-success=Analyze (javascript)
       - label!=work-in-progress
       - -title~=(WIP|wip)
@@ -34,7 +32,6 @@ pull_request_rules:
       - author=dependabot[bot]
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
-      - status-success=CodeQL
       - status-success=Analyze (javascript)
       - -title~=(WIP|wip)
       - -label~=(blocked|do-not-merge)
