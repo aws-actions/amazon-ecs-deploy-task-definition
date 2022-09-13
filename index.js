@@ -294,9 +294,10 @@ async function run() {
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
 
     const tagsInput = core.getInput('tags', { required: false }) || '';
-    const tags=createTags(tagsInput)
     core.debug('---------tags---');
     core.debug(tagsInput);
+
+    const tags=createTags(tagsInput);
     core.debug(JSON.stringify(tags));
     core.debug('---------------');
 
@@ -320,12 +321,12 @@ async function run() {
     core.setOutput('task-definition-arn', taskDefArn);
 
     //tag Task Definition
-    if(tagsInput){
-      ecs.tagResource({
-        resourceArn: taskDefArn, 
-        tags: tags
-      }).promise();
-    }
+    // if(tagsInput){
+    //   ecs.tagResource({
+    //     resourceArn: taskDefArn, 
+    //     tags: tags
+    //   }).promise();
+    // }
     core.debug("tags created");
     // Update the service with the new task definition
     if (service) {
