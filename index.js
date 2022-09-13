@@ -165,7 +165,7 @@ function validateProxyConfigurations(taskDef){
 async function createTags(raw_tags_input){
   if(raw_tags_input){
     let raw_tags=[]
-    let resp={}
+    let resp=[]
     let tag_resp={}
     try {
     core.debug("formationg tags")
@@ -295,6 +295,10 @@ async function run() {
 
     const tagsInput = core.getInput('tags', { required: false }) || '';
     const tags=createTags(tagsInput)
+    core.debug('---------tags---');
+    core.debug(tagsInput);
+    core.debug(JSON.stringify(tags));
+    core.debug('---------------');
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -322,6 +326,7 @@ async function run() {
         tags: tags
       }).promise();
     }
+    core.debug("tags created");
     // Update the service with the new task definition
     if (service) {
       const clusterName = cluster ? cluster : 'default';
