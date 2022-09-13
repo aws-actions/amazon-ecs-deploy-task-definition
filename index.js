@@ -168,7 +168,7 @@ async function createTags(raw_tags_input){
     let resp=[]
     try {
     core.debug("formationg tags")
-    raw_tags=raw_tags_input.split(' ')
+    raw_tags=raw_tags_input.split(/\r?\n|\r|\n/g)
     resp=raw_tags.map(x=>{
         let tag_resp={}
         let raw_tag=x.split(',')
