@@ -35,7 +35,7 @@ inputs:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
   tags:
-    description: 'Task Definition tags key=key_name,value=content key=key_name,value=content'
+    description: 'Task Definition tags key=key_name,value=content key=key_name,value=content one key value pair per line'
     required: false
 outputs:
   task-definition-arn:
