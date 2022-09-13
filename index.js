@@ -161,6 +161,30 @@ function maintainValidObjects(taskDef) {
 function validateProxyConfigurations(taskDef){
   return 'proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties && taskDef.proxyConfiguration.properties.length > 0;
 }
+//create tags
+async function createTags(raw_tags_input){
+  if(raw_tags_input){
+    let raw_tags=[]
+    let resp={}
+    try {
+    core.debug("formationg tags")
+    raw_tags=raw_tags_input.split(' ')
+    resp=raw_tags.map(x=>{
+        let raw_tag=x.split(',')
+        let tag={}
+        tag.key=raw_tag[0].split('=')[1]
+        tag.value=raw_tag[1].split('=')[1]
+        return tag
+      });
+      return resp
+    } catch (error) {
+      core.setFailed("Failed to Create Tags for ECS task definition: " + error.message);
+      core.debug("Tags Input content:");
+      core.debug(raw_tags_input);
+      throw(error);
+    }
+  }
+}
 
 // Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
 async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
@@ -269,6 +293,9 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
 
+    const tagsInput = core.getInput('tags', { required: false }) || '';
+    const tags=createTags(tagsInput)
+
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -288,6 +315,13 @@ async function run() {
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
 
+    //tag Task Definition
+    if(tagsInput){
+      ecs.tagResource({
+        resourceArn: taskDefArn, 
+        tags: tags
+      }).promise();
+    }
     // Update the service with the new task definition
     if (service) {
       const clusterName = cluster ? cluster : 'default';
