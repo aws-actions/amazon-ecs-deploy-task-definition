@@ -167,6 +167,41 @@ describe('Deploy to ECS', () => {
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
     });
 
+    test('registers the task definition contents and updates the service if deployment controller type is ECS', async () => {
+        mockEcsDescribeServices.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        failures: [],
+                        services: [{
+                            status: 'ACTIVE',
+                            deploymentController: {
+                                type: 'ECS'
+                            }
+                        }]
+                    });
+                }
+            };
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false
+        });
+        expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
+    });
+
     test('prints Chinese console domain for cn regions', async () => {
         const originalRegion = config.region;
         config.region = 'cn-fake-region';
