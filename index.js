@@ -308,7 +308,7 @@ async function run() {
         throw new Error(`Service is ${serviceResponse.status}`);
       }
 
-      if (!serviceResponse.deploymentController) {
+      if (!serviceResponse.deploymentController || serviceResponse.deploymentController === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
       } else if (serviceResponse.deploymentController.type == 'CODE_DEPLOY') {
