@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.10](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.9...v1.4.10) (2022-09-30)
+
+
+### Bug Fixes
+
+* support new 'ECS' deployment type rather than relying on a null value ([#387](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/387)) ([b74b034](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b74b034038701c2a78e7715e68f28b8fd49a14c7))
+* Use correct host for China region console ([#309](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/309)) ([bfe35b5](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/bfe35b582b00dd351d71abc7af67f91e493c0802))
+
 ### [1.4.9](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.8...v1.4.9) (2022-01-18)
 
 
