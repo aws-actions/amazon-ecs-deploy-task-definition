@@ -27,7 +27,7 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "aws-sdk": "^2.1224.0",
-    "yaml": "^2.1.1"
+    "yaml": "^2.1.2"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.34.0",
