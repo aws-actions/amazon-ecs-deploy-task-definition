@@ -1,44 +1,38 @@
-name: 'Amazon ECS "Deploy Task Definition" Action for GitHub Actions'
-description: 'Registers an Amazon ECS task definition, and deploys it to an ECS service'
+name: 'Amazon ECS "Run Task" Action for GitHub Actions'
+description: 'Runs an Amazon ECS task'
 branding:
   icon: 'cloud'
   color: 'orange'
 inputs:
   task-definition:
-    description: 'The path to the ECS task definition file to register'
+    description: 'The name of ECS task definition'
     required: true
-  service:
-    description: 'The name of the ECS service to deploy to. The action will only register the task definition if no service is given.'
-    required: false
   cluster:
-    description: "The name of the ECS service's cluster.  Will default to the 'default' cluster"
+    description: "The name of the ECS cluster. Will default to the 'default' cluster"
+    required: true
+  count:
+    description: "The count of tasks to run. Will default to the 1"
+    required: true
+  subnet:
+    description: "The in which the ECS task will run"
+    required: true
+  security-group:
+    description: "The security group of the ECS task"
+    required: true
+  started-by:
+    description: "The value of the task started-by"
     required: false
-  wait-for-service-stability:
-    description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
+  wait-for-finish:
+    description: "Whether to wait for tasks to reach stopped state. Will default to not waiting"
     required: false
   wait-for-minutes:
-    description: 'How long to wait for the ECS service to reach stable state, in minutes (default: 30 minutes, max: 6 hours). For CodeDeploy deployments, any wait time configured in the CodeDeploy deployment group will be added to this value.'
-    required: false
-  codedeploy-appspec:
-    description: "The path to the AWS CodeDeploy AppSpec file, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'appspec.yaml'."
-    required: false
-  codedeploy-application:
-    description: "The name of the AWS CodeDeploy application, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'AppECS-{cluster}-{service}'."
-    required: false
-  codedeploy-deployment-group:
-    description: "The name of the AWS CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'."
-    required: false
-  codedeploy-deployment-description:
-    description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
-    required: false
-  force-new-deployment:
-    description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
+    description: 'How long to wait for the task reach stopped state, in minutes (default: 30 minutes, max: 6 hours).'
     required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
-  codedeploy-deployment-id:
-    description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
+  task-arn:
+    description: 'The ARN of the ECS task'
 runs:
   using: 'node16'
   main: 'dist/index.js'

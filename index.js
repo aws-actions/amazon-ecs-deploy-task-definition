@@ -3,10 +3,6 @@ const core = require('@actions/core');
 const aws = require('aws-sdk');
 const yaml = require('yaml');
 const fs = require('fs');
-const crypto = require('crypto');
-
-const MAX_WAIT_MINUTES = 360;  // 6 hours
-const WAIT_DEFAULT_DELAY_SEC = 15;
 
 // Attributes that are returned by DescribeTaskDefinition, but are not valid RegisterTaskDefinition inputs
 const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
@@ -14,63 +10,11 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'taskDefinitionArn',
   'requiresAttributes',
   'revision',
-  'status',
-  'registeredAt',
-  'deregisteredAt',
-  'registeredBy'
+  'status'
 ];
 
-// Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment) {
-  core.debug('Updating the service');
-  await ecs.updateService({
-    cluster: clusterName,
-    service: service,
-    taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment
-  }).promise();
-
-  const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
-
-  core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://${consoleHostname}/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
-
-  // Wait for service stability
-  if (waitForService && waitForService.toLowerCase() === 'true') {
-    core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
-    const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
-    await ecs.waitFor('servicesStable', {
-      services: [service],
-      cluster: clusterName,
-      $waiter: {
-        delay: WAIT_DEFAULT_DELAY_SEC,
-        maxAttempts: maxAttempts
-      }
-    }).promise();
-  } else {
-    core.debug('Not waiting for the service to become stable');
-  }
-}
-
-// Find value in a CodeDeploy AppSpec file with a case-insensitive key
-function findAppSpecValue(obj, keyName) {
-  return obj[findAppSpecKey(obj, keyName)];
-}
-
-function findAppSpecKey(obj, keyName) {
-  if (!obj) {
-    throw new Error(`AppSpec file must include property '${keyName}'`);
-  }
-
-  const keyToMatch = keyName.toLowerCase();
-
-  for (var key in obj) {
-    if (key.toLowerCase() == keyToMatch) {
-      return key;
-    }
-  }
-
-  throw new Error(`AppSpec file must include property '${keyName}'`);
-}
+const WAIT_DEFAULT_DELAY_SEC = 5;
+const MAX_WAIT_MINUTES = 360;
 
 function isEmptyValue(value) {
   if (value === null || value === undefined || value === '') {
@@ -132,142 +76,26 @@ function removeIgnoredAttributes(taskDef) {
   return taskDef;
 }
 
-function maintainValidObjects(taskDef) {
-    if (validateProxyConfigurations(taskDef)) {
-        taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
-            if (!('value' in property)) {
-                arr[index].value = '';
-            }
-            if (!('name' in property)) {
-                arr[index].name = '';
-            }
-        });
-    }
-
-    if(taskDef && taskDef.containerDefinitions){
-      taskDef.containerDefinitions.forEach((container) => {
-        if(container.environment){
-          container.environment.forEach((property, index, arr) => {
-            if (!('value' in property)) {
-              arr[index].value = '';
-            }
-          });
-        }
-      });
-    }
-    return taskDef;
-}
-
-function validateProxyConfigurations(taskDef){
-  return 'proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties && taskDef.proxyConfiguration.properties.length > 0;
-}
-
-// Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
-async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
-  core.debug('Updating AppSpec file with new task definition ARN');
-
-  let codeDeployAppSpecFile = core.getInput('codedeploy-appspec', { required : false });
-  codeDeployAppSpecFile = codeDeployAppSpecFile ? codeDeployAppSpecFile : 'appspec.yaml';
-
-  let codeDeployApp = core.getInput('codedeploy-application', { required: false });
-  codeDeployApp = codeDeployApp ? codeDeployApp : `AppECS-${clusterName}-${service}`;
-
-  let codeDeployGroup = core.getInput('codedeploy-deployment-group', { required: false });
-  codeDeployGroup = codeDeployGroup ? codeDeployGroup : `DgpECS-${clusterName}-${service}`;
-
-  let codeDeployDescription = core.getInput('codedeploy-deployment-description', { required: false });
-
-  let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
-    applicationName: codeDeployApp,
-    deploymentGroupName: codeDeployGroup
-  }).promise();
-  deploymentGroupDetails = deploymentGroupDetails.deploymentGroupInfo;
-
-  // Insert the task def ARN into the appspec file
-  const appSpecPath = path.isAbsolute(codeDeployAppSpecFile) ?
-    codeDeployAppSpecFile :
-    path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
-  const fileContents = fs.readFileSync(appSpecPath, 'utf8');
-  const appSpecContents = yaml.parse(fileContents);
-
-  for (var resource of findAppSpecValue(appSpecContents, 'resources')) {
-    for (var name in resource) {
-      const resourceContents = resource[name];
-      const properties = findAppSpecValue(resourceContents, 'properties');
-      const taskDefKey = findAppSpecKey(properties, 'taskDefinition');
-      properties[taskDefKey] = taskDefArn;
-    }
-  }
-
-  const appSpecString = JSON.stringify(appSpecContents);
-  const appSpecHash = crypto.createHash('sha256').update(appSpecString).digest('hex');
-
-  // Start the deployment with the updated appspec contents
-  core.debug('Starting CodeDeploy deployment');
-  let deploymentParams = {
-    applicationName: codeDeployApp,
-    deploymentGroupName: codeDeployGroup,
-    revision: {
-      revisionType: 'AppSpecContent',
-      appSpecContent: {
-        content: appSpecString,
-        sha256: appSpecHash
-      }
-    }
-  };
-  // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
-  if (codeDeployDescription) {
-    deploymentParams.description = codeDeployDescription
-  }
-  const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
-  core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
-  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
-
-  // Wait for deployment to complete
-  if (waitForService && waitForService.toLowerCase() === 'true') {
-    // Determine wait time
-    const deployReadyWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.deploymentReadyOption.waitTimeInMinutes;
-    const terminationWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.terminateBlueInstancesOnDeploymentSuccess.terminationWaitTimeInMinutes;
-    let totalWaitMin = deployReadyWaitMin + terminationWaitMin + waitForMinutes;
-    if (totalWaitMin > MAX_WAIT_MINUTES) {
-      totalWaitMin = MAX_WAIT_MINUTES;
-    }
-    const maxAttempts = (totalWaitMin * 60) / WAIT_DEFAULT_DELAY_SEC;
-
-    core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
-    await codedeploy.waitFor('deploymentSuccessful', {
-      deploymentId: createDeployResponse.deploymentId,
-      $waiter: {
-        delay: WAIT_DEFAULT_DELAY_SEC,
-        maxAttempts: maxAttempts
-      }
-    }).promise();
-  } else {
-    core.debug('Not waiting for the deployment to complete');
-  }
-}
-
 async function run() {
   try {
+    const agent = 'amazon-ecs-run-task-for-github-actions'
+
     const ecs = new aws.ECS({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
-    const codedeploy = new aws.CodeDeploy({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
+      customUserAgent: agent
     });
 
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
-    const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
-    const waitForService = core.getInput('wait-for-service-stability', { required: false });
+    const count = core.getInput('count', { required: true });
+    const startedBy = core.getInput('started-by', { required: false }) || agent;
+    const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
+    const subnet = core.getInput('subnet', { required: true });
+    const securityGroup = core.getInput('security-group', { required: true });
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
-
-    const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
-    const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -275,7 +103,8 @@ async function run() {
       taskDefinitionFile :
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
+    const taskDefContents = removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents)));
+
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
@@ -288,42 +117,101 @@ async function run() {
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
 
-    // Update the service with the new task definition
-    if (service) {
-      const clusterName = cluster ? cluster : 'default';
+    const clusterName = cluster ? cluster : 'default';
 
-      // Determine the deployment controller
-      const describeResponse = await ecs.describeServices({
-        services: [service],
-        cluster: clusterName
-      }).promise();
+    core.debug(`Running task with ${JSON.stringify({
+      cluster: clusterName,
+      taskDefinition: taskDefArn,
+      count: count,
+      startedBy: startedBy,
+      subnet: subnet,
+      securityGroup: securityGroup
+    })}`)
 
-      if (describeResponse.failures && describeResponse.failures.length > 0) {
-        const failure = describeResponse.failures[0];
-        throw new Error(`${failure.arn} is ${failure.reason}`);
+    const runTaskResponse = await ecs.runTask({
+      cluster: clusterName,
+      taskDefinition: taskDefArn,
+      count: count,
+      startedBy: startedBy,
+      launchType: "FARGATE",
+      networkConfiguration: {
+        awsvpcConfiguration: {
+          subnets: [subnet],
+          assignPublicIp: "DISABLED",
+          securityGroups: [securityGroup]
+        }
       }
+    }).promise();
 
-      const serviceResponse = describeResponse.services[0];
-      if (serviceResponse.status != 'ACTIVE') {
-        throw new Error(`Service is ${serviceResponse.status}`);
-      }
+    core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 
-      if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
-        // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
-      } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
-        // Service uses CodeDeploy, so we should start a CodeDeploy deployment
-        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
-      } else {
-        throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
-      }
-    } else {
-      core.debug('Service was not specified, no service updated');
+    if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
+      const failure = runTaskResponse.failures[0];
+      throw new Error(`${failure.arn} is ${failure.reason}`);
+    }
+
+    const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
+
+    core.setOutput('task-arn', taskArns);
+
+    if (waitForFinish && waitForFinish.toLowerCase() === 'true') {
+      await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes);
+      await tasksExitCode(ecs, clusterName, taskArns);
     }
   }
   catch (error) {
     core.setFailed(error.message);
     core.debug(error.stack);
+  }
+}
+
+async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
+  if (waitForMinutes > MAX_WAIT_MINUTES) {
+    waitForMinutes = MAX_WAIT_MINUTES;
+  }
+
+  const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
+
+  core.debug('Waiting for tasks to stop');
+  
+  const waitTaskResponse = await ecs.waitFor('tasksStopped', {
+    cluster: clusterName,
+    tasks: taskArns,
+    $waiter: {
+      delay: WAIT_DEFAULT_DELAY_SEC,
+      maxAttempts: maxAttempts
+    }
+  }).promise();
+
+  core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`)
+  
+  core.info(`All tasks have stopped. Watch progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`);
+}
+
+async function tasksExitCode(ecs, clusterName, taskArns) {
+  const describeResponse = await ecs.describeTasks({
+    cluster: clusterName,
+    tasks: taskArns
+  }).promise();
+
+  const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
+  const exitCodes = containers.map(container => container.exitCode)
+  const reasons = containers.map(container => container.reason)
+
+  const failuresIdx = [];
+  
+  exitCodes.filter((exitCode, index) => {
+    if (exitCode !== 0) {
+      failuresIdx.push(index)
+    }
+  })
+
+  const failures = reasons.filter((_, index) => failuresIdx.indexOf(index) !== -1)
+
+  if (failures.length > 0) {
+    core.setFailed(failures.join("\n"));
+  } else {
+    core.info(`All tasks have exited successfully.`);
   }
 }
 
