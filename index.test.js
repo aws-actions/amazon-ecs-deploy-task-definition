@@ -4,7 +4,10 @@ const fs = require('fs');
 const path = require('path');
 
 jest.mock('@actions/core');
-jest.mock('fs');
+jest.mock('fs', () => ({
+    promises: { access: jest.fn() },
+    readFileSync: jest.fn(),
+}));
 
 const mockEcsRegisterTaskDef = jest.fn();
 const mockEcsUpdateService = jest.fn();
