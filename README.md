@@ -326,6 +326,8 @@ To tag your tasks:
 
 This action emits debug logs to help troubleshoot deployment failures.  To see the debug logs, create a secret named `ACTIONS_STEP_DEBUG` with value `true` in your repository.
 
+The input `show-service-events` helps you to check logs from the service deployment events without going to the AWS console. This is just for the `ECS deployment controller`. Is desirable to configure [deployment circuit breaker](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-circuit-breaker.html) to get a 'FAILED' rolloutState.
+
 ## License Summary
 
 This code is made available under the MIT license.
