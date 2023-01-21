@@ -21,7 +21,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, showServiceEvents, showServiceEventsFrequency, waitForService, waitForMinutes, forceNewDeployment) {
   core.debug('Updating the service');
   await ecs.updateService({
     cluster: clusterName,
@@ -30,9 +30,48 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     forceNewDeployment: forceNewDeployment
   }).promise();
 
-  const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
+  // Create a while loop to print the events of the service if deployment rollout state is failed
+  // or if there are failed tasks but rollout state is still in progress
+  if (showServiceEvents && showServiceEvents.toLowerCase() === 'true') {
+    core.debug(`Deployment started. The option show-service-events is set to true. Showing logs each ${showServiceEventsFrequency} seconds.`);
+    const initialState = 'IN_PROGRESS';
+    let describeResponse = await ecs.describeServices({
+      services: [service],
+      cluster: clusterName
+    }).promise();
+    const deployTime = describeResponse.services[0].events[0].createdAt
+    let newEvents = [];
 
-  core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://${consoleHostname}/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
+    while (initialState == 'IN_PROGRESS') {
+      const showServiceEventsFrequencyMilisec = (showServiceEventsFrequency * 1000)
+      await delay(showServiceEventsFrequencyMilisec);
+      let describeResponse = await ecs.describeServices({
+        services: [service],
+        cluster: clusterName
+      }).promise();
+
+      let serviceResponse = describeResponse.services[0];
+      let rolloutState = serviceResponse.deployments[0].rolloutState;
+      let rolloutStateReason = serviceResponse.deployments[0].rolloutStateReason;
+      let failedTasksCount = serviceResponse.deployments[0].failedTasks;
+      let indexEventContainDeployDate = getPosition(deployTime.toString(), serviceResponse.events);
+      newEvents = serviceResponse.events.slice(0, indexEventContainDeployDate);
+
+      if (rolloutState == 'COMPLETED') {
+        printEvents(newEvents.reverse());
+        break;
+      } else if (rolloutState == 'FAILED') {
+        printEvents(newEvents.reverse());
+        throw new Error(`Rollout state is ${rolloutState}. Reason: ${rolloutStateReason}.`);
+      } else if (rolloutState == 'IN_PROGRESS' && failedTasksCount > 0) {
+        printEvents(newEvents.reverse());
+        throw new Error(`The deployment is still in progress but there are failed tasks. This means the deployment didn't go well. Please check the events of the service or the logs of the task to get more information.`);
+      }
+    }
+  } else {
+    const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
+    core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://${consoleHostname}/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
+  }
 
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
@@ -50,6 +89,29 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     core.debug('Not waiting for the service to become stable');
   }
 }
+
+// Function to print the events of the service
+function printEvents(events) {
+  core.debug('Showing the service events:')
+  for (let i = 0; i < events.length; i++) {
+    core.info(events[i].createdAt.toString().split('(')[0]);
+    core.info(events[i].message);
+  }
+}
+
+// Function to get the position of an element in an array
+function getPosition(elementToFind, arrayElements) {
+  for (let i = 0; i < arrayElements.length; i += 1) {
+      if (arrayElements[i].createdAt.toString().includes(elementToFind)) {
+          return i;
+      }
+  }
+}
+
+// Fuction to create a delay
+ function delay(time) {
+   return new Promise(resolve => setTimeout(resolve, time));
+ } 
 
 // Find value in a CodeDeploy AppSpec file with a case-insensitive key
 function findAppSpecValue(obj, keyName) {
@@ -260,7 +322,8 @@ async function run() {
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
-    const waitForService = core.getInput('wait-for-service-stability', { required: false });
+    const waitForService = core.getInput('wait-for-service-stability', { required: false });    
+
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
@@ -268,6 +331,9 @@ async function run() {
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
+
+    const showServiceEvents = core.getInput('show-service-events', { required: false });
+    let showServiceEventsFrequency = core.getInput('show-service-events-frequency', { required: false }) || 15;
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -310,7 +376,7 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, showServiceEvents, showServiceEventsFrequency, waitForService, waitForMinutes, forceNewDeployment);
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
