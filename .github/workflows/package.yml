@@ -7,11 +7,10 @@ on:
 
 jobs:
   build:
-    if: github.event.commits[0].author.name != 'GitHub Actions'
     name: Package distribution file
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      # pull-requests: read
       contents: write
     steps:
       - name: Init a git repo
@@ -27,6 +26,7 @@ jobs:
           npm run package
       - name: Commit to PR
         # if: github.actor == 'dependabot[bot]'
+        if: github.event.commits[0].author.name != 'GitHub Actions'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
