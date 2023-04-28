@@ -11,7 +11,8 @@ jobs:
     name: Package distribution file
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      pull-requests: read
+      contents: write
     steps:
       - name: Init a git repo
         uses: actions/checkout@v2
