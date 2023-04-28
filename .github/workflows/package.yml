@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     if: github.event.commits[0].author.name != 'GitHub Actions'
-    name: Package distribution file for a dependabot PR
+    name: Package distribution file
     runs-on: ubuntu-latest
     steps:
       - name: Init a git repo
