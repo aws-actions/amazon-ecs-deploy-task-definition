@@ -22,7 +22,7 @@ jobs:
           npm ci
           npm test
           npm run package
-      - name: Commit
+      - name: Commit to PR
         if: github.actor == 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add dist/
           git commit -m "chore: Update dist" || echo "No changes to commit"
-          git push
+          git push 
       - name: Check git diff
         if: github.actor != 'dependabot[bot]'
         env:
