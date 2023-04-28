@@ -9,6 +9,7 @@ name: Package
 
 jobs:
   check:
+    if: github.event.commits[0].author.name != 'GitHub Actions'
     name: Package distribution file
     runs-on: ubuntu-latest
     steps:
