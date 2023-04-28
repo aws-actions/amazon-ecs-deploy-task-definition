@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-dependabot-pr:
-    if: github.actor == 'dependabot[bot]'
+    if: github.event.commits[0].author.name != 'GitHub Actions'
     name: Package distribution file for a dependabot PR
     runs-on: ubuntu-latest
     steps:
@@ -23,6 +23,7 @@ jobs:
           npm test
           npm run package
       - name: Commit
+        if: github.actor == 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -30,23 +31,8 @@ jobs:
           git add dist/
           git commit -m "chore: Update dist" || echo "No changes to commit"
           git push
-  build-contributor-pr:
-    name: Check distribution file
-    if: github.actor != 'dependabot[bot]' && github.event.commits[0].author.name != 'GitHub Actions'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Init a git repo
-        uses: actions/checkout@v2
-      - name: Checkout PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr checkout ${{ github.event.pull_request.number }}
-      - name: Package
-        run: |
-          npm ci
-          npm test
-          npm run package
       - name: Check git diff
+        if: github.actor != 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
