@@ -25,6 +25,7 @@ jobs:
         npm test
         npm run package
     - name: Commit
+      if: github.event.pull_request.author.name == 'dependabot'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
