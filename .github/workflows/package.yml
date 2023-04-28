@@ -6,7 +6,7 @@ on:
 
 
 jobs:
-  build-dependabot-pr:
+  build:
     if: github.event.commits[0].author.name != 'GitHub Actions'
     name: Package distribution file for a dependabot PR
     runs-on: ubuntu-latest
