@@ -532,7 +532,7 @@ describe('Deploy to ECS', () => {
         expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
 
-        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://fake-region.console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1");
     });
 
     test('registers the task definition contents and creates a CodeDeploy deployment, waits for 1 hour + deployment group\'s wait time', async () => {

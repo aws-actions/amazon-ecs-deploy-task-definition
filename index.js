@@ -221,7 +221,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   }
   const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
-  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
+  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://${aws.config.region}.console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}`);
 
   // Wait for deployment to complete
   if (waitForService && waitForService.toLowerCase() === 'true') {
