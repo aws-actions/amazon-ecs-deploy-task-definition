@@ -12,6 +12,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 - [Credentials and Region](#credentials-and-region)
 - [Permissions](#permissions)
 - [AWS CodeDeploy Support](#aws-codedeploy-support)
+- [Running Tasks](#running-tasks)
 - [Troubleshooting](#troubleshooting)
 - [License Summary](#license-summary)
 - [Security Disclosures](#security-disclosures)
@@ -237,10 +238,13 @@ In the following example, the service would not be updated until the ad-hoc task
         cluster: my-cluster
         wait-for-service-stability: true
         run-task: true
+        run-task-container-overrides: '[{"name": "kong-api-gateway", "command": ["kong", "migrations", "up"]}]'
+        run-task-security-groups: security-group-1,security-group-2
+        run-task-subnets: subnet-1,subnet-2
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [actions.yml](actions.yml) for more details.
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details.
 
 ## Troubleshooting
 
