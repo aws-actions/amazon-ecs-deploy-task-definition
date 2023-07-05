@@ -22,14 +22,13 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 
 // Run task outside of a service
 async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
-  core.info('Running task')
-
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
   const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
   const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+  core.info(`Running task with settings: ${JSON.stringify(containerOverrides[0])}`)
   let awsvpcConfiguration = {}
 
   if (subnetIds != "") {
@@ -89,7 +88,7 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
   }).promise();
 
   core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`);
-  core.info('All tasks have stopped.');
+  core.info(`SUCCESS - task ${taskArns} completed`);
 }
 
 // Check a task's exit code and fail the job on error
