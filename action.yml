@@ -52,6 +52,9 @@ inputs:
   run-task-started-by:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
     required: false
+  run-task-use-arn:
+    description: "If true will use an existing ARN passed in to the `task-definition`. Be careful when using this to ensure that the container already has been deployed somewhere."
+    required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
@@ -60,6 +63,8 @@ outputs:
     description: 'The ARN of the registered ECS task definition'
   codedeploy-deployment-id:
     description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
+  run-task-arn:
+    description: 'The ARN of the invoked ECS task'
 runs:
   using: 'node16'
   main: 'dist/index.js'
