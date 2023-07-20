@@ -687,14 +687,14 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('cluster-789')         // cluster
-            .mockReturnValueOnce('false')               // wait-for-service-stability
-            .mockReturnValueOnce('')                    // wait-for-minutes
-            .mockReturnValueOnce('')                    // force-new-deployment
-            .mockReturnValueOnce('/hello/appspec.json') // codedeploy-appspec
-            .mockReturnValueOnce('MyApplication')       // codedeploy-application
-            .mockReturnValueOnce('MyDeploymentGroup');  // codedeploy-deployment-group
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
+            .mockReturnValueOnce('MyApplication')        // codedeploy-application
+            .mockReturnValueOnce('MyDeploymentGroup')    // codedeploy-deployment-group
 
         fs.readFileSync.mockReturnValue(`
             {
