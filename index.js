@@ -269,7 +269,9 @@ async function run() {
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
-    const desiredCount = core.getInput('desired-count', {required: false})
+
+    let desiredCount = parseInt((core.getInput('desired-count', {required: false}))) || 1;
+
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -311,9 +313,9 @@ async function run() {
       }
 
       // Get Desired count of the service before deployment
-      const desiredCountResponse = describeResponse.desiredCount;
+      const desiredCountResponse = serviceResponse.desiredCount;
       if (desiredCountResponse === 0) {
-        throw new Error(`Service have desired-count ${desiredCountResponse}, set property 'desired-count' to \
+        core.warning(`Service have desired-count ${desiredCountResponse}, set property 'desired-count' to \
         start you service if required`);
       }
 

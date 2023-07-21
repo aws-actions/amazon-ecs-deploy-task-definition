@@ -162,6 +162,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -197,6 +198,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -887,7 +889,7 @@ describe('Deploy to ECS', () => {
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
     });
 
-     test('registers the task definition contents at an absolute path', async () => {
+    test('registers the task definition contents at an absolute path', async () => {
         core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
@@ -908,7 +910,7 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
     });
 
-   test('waits for the service to be stable', async () => {
+    test('waits for the service to be stable', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
@@ -927,6 +929,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -961,6 +964,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -995,6 +999,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -1030,6 +1035,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true
@@ -1053,6 +1059,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'default',
+            desiredCount: 1,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
