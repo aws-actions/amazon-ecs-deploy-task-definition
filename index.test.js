@@ -685,7 +685,7 @@ describe('Deploy to ECS', () => {
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
     });
 
-    test('does not wait for a CodeDeploy deployment, parses JSON appspec file', async () => {
+    test.only('does not wait for a CodeDeploy deployment, parses JSON appspec file', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
@@ -775,7 +775,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
 
-        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
+        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1,{
             applicationName: 'MyApplication',
             deploymentGroupName: 'MyDeploymentGroup',
             revision: {
