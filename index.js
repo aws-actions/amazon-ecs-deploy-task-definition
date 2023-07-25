@@ -182,6 +182,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
   let codeDeployDescription = core.getInput('codedeploy-deployment-description', { required: false });
 
+  let codeDeployConfigName = core.getInput('codedeploy-config-name', { required: false });
+
   let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
     applicationName: codeDeployApp,
     deploymentGroupName: codeDeployGroup
@@ -223,6 +225,9 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
   if (codeDeployDescription) {
     deploymentParams.description = codeDeployDescription
+  }
+  if (codeDeployConfigName) {
+    deploymentParams.deploymentConfigName = codeDeployConfigName
   }
   const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
