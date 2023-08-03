@@ -270,7 +270,7 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
 
-    let desiredCount = parseInt((core.getInput('desired-count', {required: false}))) || 1;
+    let desiredCount = parseInt((core.getInput('desired-count', {required: false}))) || 0;
 
 
     // Register the task definition
