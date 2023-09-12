@@ -7,12 +7,14 @@ jest.mock('@actions/core');
 jest.mock('fs', () => ({
     promises: { access: jest.fn() },
     readFileSync: jest.fn(),
+    existsSync: jest.fn().mockReturnValue(true)
 }));
 
 const mockEcsRegisterTaskDef = jest.fn();
 const mockEcsUpdateService = jest.fn();
 const mockEcsDescribeServices = jest.fn();
 const mockEcsWaiter = jest.fn();
+const mockEcsDescribeTaskDef = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
 const mockCodeDeployWaiter = jest.fn();
@@ -27,7 +29,8 @@ jest.mock('aws-sdk', () => {
             registerTaskDefinition: mockEcsRegisterTaskDef,
             updateService: mockEcsUpdateService,
             describeServices: mockEcsDescribeServices,
-            waitFor: mockEcsWaiter
+            waitFor: mockEcsWaiter,
+            describeTaskDefinition: mockEcsDescribeTaskDef
         })),
         CodeDeploy: jest.fn(() => ({
             createDeployment: mockCodeDeployCreateDeployment,
@@ -85,6 +88,14 @@ describe('Deploy to ECS', () => {
                 }
             };
         });
+
+        mockEcsDescribeTaskDef.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } });
+                }
+            };
+        })
 
         mockEcsUpdateService.mockImplementation(() => {
             return {
@@ -149,6 +160,65 @@ describe('Deploy to ECS', () => {
                 }
             };
         });
+    });
+
+    test("try to get existing task definition ARN when user provides family instead of file", async () => {
+      fs.existsSync.mockReturnValueOnce(false);
+
+      core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-def-family')
+        .mockReturnValueOnce('service-456')
+        .mockReturnValueOnce('cluster-789'); 
+
+      await run();
+
+      expect(core.setFailed).toHaveBeenCalledTimes(0);
+      expect(mockEcsDescribeTaskDef).toHaveBeenNthCalledWith(1, {
+        taskDefinition: "task-def-family"
+      });
+      expect(mockEcsRegisterTaskDef).not.toHaveBeenCalled();
+      expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+      expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+        cluster: 'cluster-789',
+        services: ['service-456']
+      });
+      expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+        cluster: 'cluster-789',
+        service: 'service-456',
+        taskDefinition: 'task:def:arn',
+        forceNewDeployment: false
+      });
+      expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+      expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
+    });
+
+    test("should be able to throw an error when the task definition family is not found", async () => {
+      fs.existsSync.mockReturnValueOnce(false);
+      
+      core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-def-family')
+        .mockReturnValueOnce('service-456')
+        .mockReturnValueOnce('cluster-789'); 
+
+      mockEcsDescribeTaskDef.mockImplementation(() => {
+        return {
+          promise() {
+            return Promise.resolve({ taskDefinition: null });
+          }
+        };
+      });
+
+      await run()
+
+      expect(mockEcsDescribeTaskDef).toHaveBeenNthCalledWith(1, {
+        taskDefinition: "task-def-family"
+      });
+      expect(core.setFailed).toHaveBeenCalledTimes(2);
+      expect(mockEcsRegisterTaskDef).not.toHaveBeenCalled();
+      expect(core.setOutput).not.toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+      expect(core.info).not.toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
     });
 
     test('registers the task definition contents and updates the service', async () => {
