@@ -56,6 +56,18 @@ If you do not wish to store your task definition as a file in your git repositor
         aws ecs describe-task-definition --task-definition my-task-definition-family --query taskDefinition > task-definition.json
 ```
 
+If you don't want to create new revisions of your task definition, you can define the task definition family and revision as inputs for the action. By default, the action will use the latest revision of the task definition family if the revision is not specified.
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: my-task-definition-family
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+```
+
 ### Task definition container image values
 
 It is highly recommended that each time your GitHub Actions workflow runs and builds a new container image for deployment, a new container image ID is generated.  For example, use the commit ID as the new image's tag, instead of updating the 'latest' tag with the new image.  Using a unique container image ID for each deployment allows rolling back to a previous container image.
