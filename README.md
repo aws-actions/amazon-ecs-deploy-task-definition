@@ -102,6 +102,19 @@ The task definition file can be updated prior to deployment with the new contain
         wait-for-service-stability: true
 ```
 
+If you're using CloudFormation tools such as AWS CDK, Serverless Framework, or others to construct your task definition, you can directly pass the ARN of the task definition. For example:
+```yaml
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: arn:aws:ecs:<region>:<aws_account_id>:task-definition/<task_definition_name>:<revision_number>
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+
+```
+
+
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.
