@@ -485,7 +485,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_DEFAULT_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
-                ),
+                ) * 60,
             },
             {
                 deploymentId: 'deployment-1',
@@ -563,7 +563,7 @@ describe('Deploy to ECS', () => {
                     60 +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
-                ),
+                ) * 60,
             },
             {
                 deploymentId: 'deployment-1',
@@ -635,7 +635,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
-                maxWaitTime: 6 * 60,
+                maxWaitTime: 6 * 60 * 60,
             },
             {
                 deploymentId: 'deployment-1',
@@ -834,7 +834,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_DEFAULT_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
-                ),
+                ) * 60,
             },
             {
                 deploymentId: 'deployment-1',
@@ -897,7 +897,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
-                maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME,
+                maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
             },
             {
                 services: ['service-456'],
@@ -936,7 +936,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
-                maxWaitTime: 60,
+                maxWaitTime: 60 * 60,
             },
             {
                 services: ['service-456'],
@@ -975,7 +975,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
-                maxWaitTime: 6 * 60,
+                maxWaitTime: 6 * 60 * 60,
             },
             {
                 services: ['service-456'],
