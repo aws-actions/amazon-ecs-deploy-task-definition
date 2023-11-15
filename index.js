@@ -1,6 +1,10 @@
 const path = require('path');
 const core = require('@actions/core');
 const aws = require('aws-sdk');
+
+const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
+const { ECS, waitUntilServicesStable } = require('@aws-sdk/client-ecs');
+
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -33,7 +37,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
   }
-  await ecs.updateService(params).promise();
+  await ecs.updateService(params);
 
   const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
@@ -43,14 +47,13 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   if (waitForService && waitForService.toLowerCase() === 'true') {
     core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
     const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
-    await ecs.waitFor('servicesStable', {
+    await waitUntilServicesStable({
+      client: ecs,
+      maxWaitTime: 200
+    }, {
       services: [service],
-      cluster: clusterName,
-      $waiter: {
-        delay: WAIT_DEFAULT_DELAY_SEC,
-        maxAttempts: maxAttempts
-      }
-    }).promise();
+      cluster: clusterName
+    });
   } else {
     core.debug('Not waiting for the service to become stable');
   }
@@ -185,7 +188,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
     applicationName: codeDeployApp,
     deploymentGroupName: codeDeployGroup
-  }).promise();
+  });
   deploymentGroupDetails = deploymentGroupDetails.deploymentGroupInfo;
 
   // Insert the task def ARN into the appspec file
@@ -224,7 +227,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   if (codeDeployDescription) {
     deploymentParams.description = codeDeployDescription
   }
-  const createDeployResponse = await codedeploy.createDeployment(deploymentParams).promise();
+  const createDeployResponse = await codedeploy.createDeployment(deploymentParams);
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
   core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
 
@@ -240,13 +243,12 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     const maxAttempts = (totalWaitMin * 60) / WAIT_DEFAULT_DELAY_SEC;
 
     core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
-    await codedeploy.waitFor('deploymentSuccessful', {
-      deploymentId: createDeployResponse.deploymentId,
-      $waiter: {
-        delay: WAIT_DEFAULT_DELAY_SEC,
-        maxAttempts: maxAttempts
-      }
-    }).promise();
+    await waitUntilDeploymentSuccessful({
+      client: codedeploy,
+      maxWaitTime: 200
+    }, {
+      deploymentId: createDeployResponse.deploymentId
+    });
   } else {
     core.debug('Not waiting for the deployment to complete');
   }
@@ -254,10 +256,16 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
 async function run() {
   try {
-    const ecs = new aws.ECS({
+    const ecs = new ECS({
+      // The transformation for customUserAgent is not implemented.
+      // Refer to UPGRADING.md on aws-sdk-js-v3 for changes needed.
+      // Please create/upvote feature request on aws-sdk-js-codemod for customUserAgent.
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
-    const codedeploy = new aws.CodeDeploy({
+    const codedeploy = new CodeDeploy({
+      // The transformation for customUserAgent is not implemented.
+      // Refer to UPGRADING.md on aws-sdk-js-v3 for changes needed.
+      // Please create/upvote feature request on aws-sdk-js-codemod for customUserAgent.
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
 
@@ -285,7 +293,7 @@ async function run() {
     const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
     let registerResponse;
     try {
-      registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
+      registerResponse = await ecs.registerTaskDefinition(taskDefContents);
     } catch (error) {
       core.setFailed("Failed to register task definition in ECS: " + error.message);
       core.debug("Task definition contents:");
@@ -303,7 +311,7 @@ async function run() {
       const describeResponse = await ecs.describeServices({
         services: [service],
         cluster: clusterName
-      }).promise();
+      });
 
       if (describeResponse.failures && describeResponse.failures.length > 0) {
         const failure = describeResponse.failures[0];
