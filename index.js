@@ -257,15 +257,9 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 async function run() {
   try {
     const ecs = new ECS({
-      // The transformation for customUserAgent is not implemented.
-      // Refer to UPGRADING.md on aws-sdk-js-v3 for changes needed.
-      // Please create/upvote feature request on aws-sdk-js-codemod for customUserAgent.
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
     const codedeploy = new CodeDeploy({
-      // The transformation for customUserAgent is not implemented.
-      // Refer to UPGRADING.md on aws-sdk-js-v3 for changes needed.
-      // Please create/upvote feature request on aws-sdk-js-codemod for customUserAgent.
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
 
