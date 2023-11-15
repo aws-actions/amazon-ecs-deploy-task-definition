@@ -42,7 +42,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     await waitUntilServicesStable({
       client: ecs,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
-      maxWaitTime: waitForMinutes
+      maxWaitTime: waitForMinutes * 60
     }, {
       services: [service],
       cluster: clusterName
@@ -239,7 +239,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     await waitUntilDeploymentSuccessful({
       client: codedeploy,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
-      maxWaitTime: totalWaitMin
+      maxWaitTime: totalWaitMin * 60
     }, {
       deploymentId: createDeployResponse.deploymentId
     });
