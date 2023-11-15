@@ -46,10 +46,10 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
     core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
-    const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
     await waitUntilServicesStable({
       client: ecs,
-      maxWaitTime: 200
+      minDelay: WAIT_DEFAULT_DELAY_SEC,
+      maxWaitTime: waitForMinutes
     }, {
       services: [service],
       cluster: clusterName
@@ -240,12 +240,11 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     if (totalWaitMin > MAX_WAIT_MINUTES) {
       totalWaitMin = MAX_WAIT_MINUTES;
     }
-    const maxAttempts = (totalWaitMin * 60) / WAIT_DEFAULT_DELAY_SEC;
-
     core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
     await waitUntilDeploymentSuccessful({
       client: codedeploy,
-      maxWaitTime: 200
+      minDelay: WAIT_DEFAULT_DELAY_SEC,
+      maxWaitTime: totalWaitMin
     }, {
       deploymentId: createDeployResponse.deploymentId
     });
