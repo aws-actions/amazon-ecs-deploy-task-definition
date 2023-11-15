@@ -1,10 +1,7 @@
 const path = require('path');
 const core = require('@actions/core');
-const aws = require('aws-sdk');
-
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
 const { ECS, waitUntilServicesStable } = require('@aws-sdk/client-ecs');
-
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -39,9 +36,10 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   }
   await ecs.updateService(params);
 
-  const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
+  const region = await ecs.config.region();
+  const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
-  core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://${consoleHostname}/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/services/${service}/events`);
+  core.info(`Deployment started. Watch this deployment's progress in the Amazon ECS console: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/services/${service}/events`);
 
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
@@ -229,7 +227,9 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   }
   const createDeployResponse = await codedeploy.createDeployment(deploymentParams);
   core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
-  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
+
+  const region = await codedeploy.config.region();
+  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${region}`);
 
   // Wait for deployment to complete
   if (waitForService && waitForService.toLowerCase() === 'true') {
