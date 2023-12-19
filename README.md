@@ -222,6 +222,26 @@ The minimal permissions require access to CodeDeploy:
 }
 ```
 
+## Running Tasks
+
+For services which need an initialization task, such as database migrations, or ECS tasks that are run without a service, additional configuration can be added to trigger an ad-hoc task run. When combined with GitHub Action's `on: schedule` triggers, runs can also be scheduled without EventBridge.
+
+In the following example, the service would not be updated until the ad-hoc task exits successfully.
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+        run-task: true
+        wait-for-task-stopped: true
+```
+
+Overrides and VPC networking options are available as well. See [actions.yml](actions.yml) for more details.
+
 ## Troubleshooting
 
 This action emits debug logs to help troubleshoot deployment failures.  To see the debug logs, create a secret named `ACTIONS_STEP_DEBUG` with value `true` in your repository.
