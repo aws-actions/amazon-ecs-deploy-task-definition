@@ -5,7 +5,7 @@ branding:
   color: 'orange'
 inputs:
   task-definition:
-    description: 'The path to the ECS task definition file to register'
+    description: 'The path to the ECS task definition file to register or the name of the task definition family to use. If the task definition family is given, the action will use the latest ACTIVE revision of the task definition.'
     required: true
   service:
     description: 'The name of the ECS service to deploy to. The action will only register the task definition if no service is given.'
