@@ -249,18 +249,12 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
 async function run() {
   try {
-    const ecs = new aws.ECS({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
-    const codedeploy = new aws.CodeDeploy({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
-
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
+    const maxRetries = core.getInput('max-retries', { required: false }) || 3;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
@@ -268,6 +262,15 @@ async function run() {
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
+
+    const ecs = new aws.ECS({
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxRetries
+    });
+    const codedeploy = new aws.CodeDeploy({
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxRetries 
+    });
 
     // Register the task definition
     core.debug('Registering the task definition');
