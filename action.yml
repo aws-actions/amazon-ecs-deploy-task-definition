@@ -13,6 +13,12 @@ inputs:
   cluster:
     description: "The name of the ECS service's cluster.  Will default to the 'default' cluster"
     required: false
+  show-service-events:
+    description: "Whether to see or not the service deployment events when deployment rolloutState is 'FAILED'. Useful to see errors when a deployment fails."
+    required: false
+  show-service-events-frequency:
+    description: "The frequency for showing a log line of the service events (default: 15 seconds)."
+    required: false
   wait-for-service-stability:
     description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
     required: false

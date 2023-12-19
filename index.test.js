@@ -12,6 +12,8 @@ jest.mock('fs', () => ({
 const mockEcsRegisterTaskDef = jest.fn();
 const mockEcsUpdateService = jest.fn();
 const mockEcsDescribeServices = jest.fn();
+const mockEcsListTasks = jest.fn();
+const mockEcsDescribeTasks = jest.fn();
 const mockEcsWaiter = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
@@ -27,6 +29,8 @@ jest.mock('aws-sdk', () => {
             registerTaskDefinition: mockEcsRegisterTaskDef,
             updateService: mockEcsUpdateService,
             describeServices: mockEcsDescribeServices,
+            listTasks: mockEcsListTasks,
+            describeTasks: mockEcsDescribeTasks,
             waitFor: mockEcsWaiter
         })),
         CodeDeploy: jest.fn(() => ({
@@ -45,7 +49,6 @@ describe('Deploy to ECS', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
@@ -691,6 +694,8 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('false')               // wait-for-service-stability
             .mockReturnValueOnce('')                    // wait-for-minutes
+            .mockReturnValueOnce('')                    // show-deployment-events
+            .mockReturnValueOnce('')                    // show-deployment-events-frequency
             .mockReturnValueOnce('')                    // force-new-deployment
             .mockReturnValueOnce('/hello/appspec.json') // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')       // codedeploy-application
@@ -982,7 +987,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValueOnce('1000');                   // wait-for-minutes
+            .mockReturnValueOnce('1000');
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1017,7 +1022,8 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('true');                  // force-new-deployment
+            .mockReturnValueOnce('true')                 // force-new-deployment
+            .mockReturnValueOnce('false');               // show-service-events
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1071,6 +1077,170 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockEcsDescribeServices).toHaveBeenCalledTimes(0);
         expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
+    });
+
+    test('deployment is sucessful with rolloutState in COMPLETED', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('false')                 // force-new-deployment
+            .mockReturnValueOnce('true')                 // show-service-events
+            .mockReturnValueOnce(1);                     // show-service-events-frequency
+
+        mockEcsDescribeServices.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        services: [{
+                            status: 'ACTIVE',
+                            deployments: [
+                                {
+                                    status: 'PRIMARY',
+                                    rolloutState: 'COMPLETED',
+                                }
+                            ],
+                            events: [
+                                {
+                                    createdAt: "2020-01-01T00:00:00Z",
+                                    message: "beggining deployment"
+                                },
+                                {
+                                    createdAt: "2020-01-02T00:00:00Z",
+                                    message: "deployment completed"
+                                }
+                            ]
+                        }]
+                    });
+                }
+            };
+        });
+        await run();
+        expect(mockEcsDescribeServices).toHaveBeenCalledTimes(3);
+    });
+
+    test('error caught if deployment state is failed', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('false')                 // force-new-deployment
+            .mockReturnValueOnce('true')                 // show-service-events
+            .mockReturnValueOnce(1);                     // show-service-events-frequency
+
+        mockEcsDescribeServices.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        services: [{
+                            status: 'ACTIVE',
+                            deployments: [
+                                {
+                                    status: 'PRIMARY',
+                                    rolloutState: 'FAILED',
+                                    rolloutStateReason: 'tasks failed to start',
+                                }
+                            ],
+                            events: [
+                                {
+                                    createdAt: "2020-01-01T00:00:00Z",
+                                    message: "deployment failed: tasks failed to start"
+                                }
+                            ]
+                        }]
+                    });
+                }
+            };
+        });
+        await run();
+        expect(mockEcsDescribeServices).toHaveBeenCalledTimes(3);
+        expect(core.setFailed).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toBeCalledWith("Rollout state is FAILED. Reason: tasks failed to start.");
+        
+    });
+
+    test('error caught if deployment state is in progress, but there are failed tasks', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('false')                // force-new-deployment
+            .mockReturnValueOnce('true')                 // show-service-events
+            .mockReturnValueOnce(1);                     // show-service-events-frequency
+
+        mockEcsDescribeServices.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        failures: [],
+                        services: [{
+                            status: 'ACTIVE',
+                            deployments: [
+                                {
+                                    status: 'PRIMARY',
+                                    rolloutState: 'IN_PROGRESS',
+                                    failedTasks: 1
+                                }
+                            ],
+                            events: [
+                                {
+                                    createdAt: "2020-01-01T00:00:00Z",
+                                    message: "deployment failed: tasks failed to start"
+                                }
+                            ]
+                        }]
+                    });
+                }
+            };
+        });
+
+        mockEcsListTasks.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        taskArns: ['task:arn:1']
+                    });
+                }
+            };
+        });
+
+        mockEcsDescribeTasks.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        tasks: [
+                            {
+                                containers: [
+                                    {
+                                        name: 'container-1',
+                                        lastStatus: 'STOPPED',
+                                        exitCode: 1,
+                                        reason: 'CannotPullContainerError'
+                                    }
+                                ],
+                                stopCode: 'TaskFailedToStart',
+                                stoppedReason: 'CannotStartContainerError'
+                            }
+                        ]
+                    });
+                }
+            };
+        });
+
+        await run();
+        expect(mockEcsListTasks).toHaveBeenCalledTimes(1);
+        expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toBeCalledWith("There are failed tasks. This means the deployment didn't go well. Please check the logs of task, service or container for more information.");
+        
     });
 
     test('error caught if AppSpec file is not formatted correctly', async () => {
