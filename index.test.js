@@ -776,7 +776,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
 
-        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1,{
+        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
             applicationName: 'MyApplication',
             deploymentGroupName: 'MyDeploymentGroup',
             revision: {
