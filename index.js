@@ -20,6 +20,109 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
+async function runInitTask(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, initTaskCommand) {
+  core.info(`Starting init task "${initTaskCommand}"`)
+
+  const agent = 'amazon-ecs-run-task-for-github-actions'
+  const startedBy = core.getInput('started-by', { required: false }) || agent;
+  const networkConfiguration = JSON.parse(core.getInput('init-task-network-configuration', { required : false }));
+  const containerName = core.getInput('init-task-name', { required : false })
+
+  const runTaskResponse = await ecs.runTask({
+    startedBy: startedBy,
+    cluster: clusterName,
+    taskDefinition: taskDefArn,
+    enableExecuteCommand: true,
+    overrides: {
+      containerOverrides: [
+        {
+          name: containerName,
+          command: initTaskCommand.split(' ')
+        }
+      ]
+    },
+    launchType: 'FARGATE',
+    networkConfiguration: networkConfiguration
+  }).promise();
+
+  core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
+
+  const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
+  core.setOutput('init-task-arn', taskArns);
+
+  taskArns.map(taskArn =>{
+    let taskId = taskArn.split('/').pop();
+
+    core.info(`Init task started. Watch the task logs in https://${aws.config.region}.console.aws.amazon.com/cloudwatch/home?region=${aws.config.region}#logsV2:log-groups/log-group/ecs$252F${service}/log-events/ecs$252Fapp$252F${taskId}`)
+  });
+
+  if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
+    const failure = runTaskResponse.failures[0];
+    throw new Error(`${failure.arn} is ${failure.reason}`);
+  }
+
+  // Wait for task to end
+  if (waitForService && waitForService.toLowerCase() === 'true') {
+    core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
+    await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes)
+    await tasksExitCode(ecs, clusterName, taskArns)
+  } else {
+    core.debug('Not waiting for the service to become stable');
+  }
+}
+
+async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
+  if (waitForMinutes > MAX_WAIT_MINUTES) {
+    waitForMinutes = MAX_WAIT_MINUTES;
+  }
+
+  const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
+
+  core.info('Waiting for tasks to stop');
+
+  const waitTaskResponse = await ecs.waitFor('tasksStopped', {
+    cluster: clusterName,
+    tasks: taskArns,
+    $waiter: {
+      delay: WAIT_DEFAULT_DELAY_SEC,
+      maxAttempts: maxAttempts
+    }
+  }).promise();
+
+  core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`)
+
+  core.info(`All tasks have stopped. Watch progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`);
+}
+
+async function tasksExitCode(ecs, clusterName, taskArns) {
+  const describeResponse = await ecs.describeTasks({
+    cluster: clusterName,
+    tasks: taskArns
+  }).promise();
+
+  const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
+  const exitCodes = containers.map(container => container.exitCode)
+  const reasons = containers.map(container => container.reason)
+
+  const failuresIdx = [];
+
+  exitCodes.filter((exitCode, index) => {
+    if (exitCode !== 0) {
+      failuresIdx.push(index)
+    }
+  })
+
+  const failures = reasons.filter((_, index) => failuresIdx.indexOf(index) !== -1)
+
+  if (failures.length > 0) {
+    console.log(`failed to with exit code${failures}`)
+    core.setFailed(failures.join("\n"));
+    throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
+  } else {
+    core.info(`All tasks have exited successfully.`);
+  }
+}
+
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
@@ -267,6 +370,7 @@ async function run() {
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
+    const initTaskCommand = core.getInput('init-task-command');
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
@@ -316,6 +420,12 @@ async function run() {
         throw new Error(`Service is ${serviceResponse.status}`);
       }
 
+      if (initTaskCommand) {
+        await runInitTask(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, initTaskCommand);
+      } else {
+        core.debug('InitTaskCommand was not specified, no init run task.');
+      }
+
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
@@ -330,6 +440,7 @@ async function run() {
     }
   }
   catch (error) {
+    console.log(error);
     core.setFailed(error.message);
     core.debug(error.stack);
   }

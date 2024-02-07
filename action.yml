@@ -37,6 +37,21 @@ inputs:
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
+
+  init-task-command:
+    description: 'A command to be run as a task before deploy.'
+    required: false
+  init-task-name:
+    description: 'Container name for init run task.'
+    default: 'app'
+    required: false
+  init-task-network-configuration:
+    description: 'Network configuration as json string required for network mode `awsvpc`.'
+    required: false
+  started-by:
+    description: "The value of the task started-by"
+    required: false
+
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
