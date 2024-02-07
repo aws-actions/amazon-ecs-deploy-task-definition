@@ -40,5 +40,5 @@ outputs:
   codedeploy-deployment-id:
     description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
