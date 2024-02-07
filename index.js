@@ -23,13 +23,17 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
-  await ecs.updateService({
+  let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment,
-    desiredCount: desiredCount
-  }).promise();
+    forceNewDeployment: forceNewDeployment
+  };
+  // Add the desiredCount property only if it is defined and a number.
+  if (!isNaN(desiredCount) && desiredCount !== undefined) {
+    params.desiredCount = desiredCount;
+  }
+  await ecs.updateService(params).promise();
 
   const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
@@ -270,7 +274,7 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
 
-    let desiredCount = parseInt((core.getInput('desired-count', {required: false}))) || 0;
+    const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
 
 
     // Register the task definition
@@ -310,13 +314,6 @@ async function run() {
       const serviceResponse = describeResponse.services[0];
       if (serviceResponse.status != 'ACTIVE') {
         throw new Error(`Service is ${serviceResponse.status}`);
-      }
-
-      // Get Desired count of the service before deployment
-      const desiredCountResponse = serviceResponse.desiredCount;
-      if (desiredCountResponse === 0) {
-        core.warning(`Service have desired-count ${desiredCountResponse}, set property 'desired-count' to \
-        start you service if required`);
       }
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {

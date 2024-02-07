@@ -162,7 +162,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -198,7 +197,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -931,7 +929,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -967,7 +964,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -990,7 +986,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('1000')                 // wait-for-minutes
-            .mockReturnValueOnce('');                    // desired count
+            .mockReturnValueOnce('abc');                 // desired count is NaN
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1003,7 +999,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
@@ -1027,7 +1022,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('true')                 // force-new-deployment
-            .mockReturnValueOnce('');                    // desired count
+            .mockReturnValueOnce('4');                   // desired count is number
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1040,7 +1035,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
-            desiredCount: 0,
+            desiredCount: 4,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true
@@ -1065,7 +1060,6 @@ describe('Deploy to ECS', () => {
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
             cluster: 'default',
-            desiredCount: 0,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false
