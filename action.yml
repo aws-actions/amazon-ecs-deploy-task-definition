@@ -11,7 +11,7 @@ inputs:
     description: 'The number of instantiations of the task to place and keep running in your service.'
     required: false
   service:
-    description: 'The name of the ECS service to deploy to. The action will only register the task definition if no service is given.'
+    description: 'The name of the ECS service to deploy to. If no service is given, the action will not deploy the task, but only register the task definition.'
     required: false
   cluster:
     description: "The name of the ECS service's cluster.  Will default to the 'default' cluster"
