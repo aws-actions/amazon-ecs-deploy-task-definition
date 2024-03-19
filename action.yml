@@ -34,6 +34,9 @@ inputs:
   codedeploy-deployment-description:
     description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
     required: false
+  codedeploy-config-name:
+    description: "The deployment config name for the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
+    required: false
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
