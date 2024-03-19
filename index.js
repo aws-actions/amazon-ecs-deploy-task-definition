@@ -183,7 +183,6 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   let codeDeployDescription = core.getInput('codedeploy-deployment-description', { required: false });
 
   let codeDeployConfigName = core.getInput('codedeploy-config-name', { required: false });
-
   let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
     applicationName: codeDeployApp,
     deploymentGroupName: codeDeployGroup
