@@ -804,7 +804,7 @@ describe('Deploy to ECS', () => {
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
     });
 
-    test('registers the task definition contents and creates a CodeDeploy deployment with custom application, deployment group and description', async () => {
+    test('registers the task definition contents and creates a CodeDeploy deployment with custom application, deployment group, description and config', async () => {
         core.getInput = jest
             .fn(input => {
                 return {
@@ -814,7 +814,8 @@ describe('Deploy to ECS', () => {
                     'wait-for-service-stability': 'TRUE',
                     'codedeploy-application': 'Custom-Application',
                     'codedeploy-deployment-group': 'Custom-Deployment-Group',
-                    'codedeploy-deployment-description': 'Custom-Deployment'
+                    'codedeploy-deployment-description': 'Custom-Deployment',
+                    'codedeploy-deployment-config': 'CodeDeployDefault.AllAtOnce'
                 }[input];
             });
 
@@ -847,6 +848,7 @@ describe('Deploy to ECS', () => {
         expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
             applicationName: 'Custom-Application',
             deploymentGroupName: 'Custom-Deployment-Group',
+            deploymentConfigName: 'CodeDeployDefault.AllAtOnce',
             description: 'Custom-Deployment',
             revision: {
                 revisionType: 'AppSpecContent',
@@ -887,6 +889,8 @@ describe('Deploy to ECS', () => {
 
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
     });
+
+
 
     test('registers the task definition contents at an absolute path', async () => {
         core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
