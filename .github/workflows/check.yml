@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Run tests
         run: |
           npm ci
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: validate
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             // See https://gist.github.com/marcojahn/482410b728c31b221b70ea6d2c433f0c#file-conventional-commit-regex-md

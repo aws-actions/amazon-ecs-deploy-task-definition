@@ -7,6 +7,9 @@ inputs:
   task-definition:
     description: 'The path to the ECS task definition file to register'
     required: true
+  desired-count:
+    description: 'The number of instantiations of the task to place and keep running in your service.'
+    required: false
   service:
     description: 'The name of the ECS service to deploy to. The action will only register the task definition if no service is given.'
     required: false
@@ -43,5 +46,5 @@ outputs:
   codedeploy-deployment-id:
     description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
