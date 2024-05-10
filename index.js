@@ -21,14 +21,19 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
-  await ecs.updateService({
+  let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment
-  }).promise();
+  };
+  // Add the desiredCount property only if it is defined and a number.
+  if (!isNaN(desiredCount) && desiredCount !== undefined) {
+    params.desiredCount = desiredCount;
+  }
+  await ecs.updateService(params).promise();
 
   const consoleHostname = aws.config.region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
@@ -268,6 +273,8 @@ async function run() {
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
+    const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
+
 
     let taskDefArn = null;
 
@@ -322,7 +329,7 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);

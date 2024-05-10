@@ -13,7 +13,7 @@ jobs:
       contents: write
     steps:
       - name: Init a git repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Checkout PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
