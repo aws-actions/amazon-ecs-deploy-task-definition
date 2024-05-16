@@ -11,7 +11,6 @@ jobs:
   issue-notifications:
     name: Send Notifications
     runs-on: ubuntu-latest
-    environment: development
 
     steps:
       - name: Send notifications on Pull Request
