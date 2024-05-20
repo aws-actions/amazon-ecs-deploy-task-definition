@@ -20,6 +20,8 @@ let config = {
   region: 'fake-region',
 };
 
+const mockRunTasks = jest.fn();
+const mockEcsDescribeTasks = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
         config,
@@ -27,6 +29,8 @@ jest.mock('aws-sdk', () => {
             registerTaskDefinition: mockEcsRegisterTaskDef,
             updateService: mockEcsUpdateService,
             describeServices: mockEcsDescribeServices,
+            describeTasks: mockEcsDescribeTasks,
+            runTask: mockRunTasks,
             waitFor: mockEcsWaiter
         })),
         CodeDeploy: jest.fn(() => ({
@@ -146,6 +150,57 @@ describe('Deploy to ECS', () => {
             return {
                 promise() {
                     return Promise.resolve({});
+                }
+            };
+        });
+
+        mockRunTasks.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        failures: [],
+                        tasks: [
+                            {
+                                containers: [
+                                    {
+                                        lastStatus: "RUNNING",
+                                        exitCode: 0,
+                                        reason: '',
+                                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                                    }
+                                ],
+                                desiredStatus: "RUNNING",
+                                lastStatus: "RUNNING",
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                                // taskDefinitionArn: "arn:aws:ecs:<region>:<aws_account_id>:task-definition/amazon-ecs-sample:1"
+                            }
+                         ]
+                    });
+                }
+            };
+        });
+
+        mockEcsDescribeTasks.mockImplementation(() => {
+            return {
+                promise() {
+                    return Promise.resolve({
+                        failures: [],
+                        tasks: [
+                            {
+                                containers: [
+                                    {
+                                        lastStatus: "RUNNING",
+                                        exitCode: 0,
+                                        reason: '',
+                                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                                    }
+                                ],
+                                desiredStatus: "RUNNING",
+                                lastStatus: "RUNNING",
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            }
+                         ]
+                    });
                 }
             };
         });
@@ -687,15 +742,15 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // desired count
-            .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
-            .mockReturnValueOnce('MyApplication')        // codedeploy-application
-            .mockReturnValueOnce('MyDeploymentGroup')    // codedeploy-deployment-group
+            .mockReturnValueOnce('service-456')         // service
+            .mockReturnValueOnce('cluster-789')         // cluster
+            .mockReturnValueOnce('false')               // wait-for-service-stability
+            .mockReturnValueOnce('')                    // wait-for-minutes
+            .mockReturnValueOnce('')                    // init-task-command
+            .mockReturnValueOnce('')                    // force-new-deployment
+            .mockReturnValueOnce('/hello/appspec.json') // codedeploy-appspec
+            .mockReturnValueOnce('MyApplication')       // codedeploy-application
+            .mockReturnValueOnce('MyDeploymentGroup');  // codedeploy-deployment-group
 
         fs.readFileSync.mockReturnValue(`
             {
@@ -1021,8 +1076,8 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('true')                 // force-new-deployment
-            .mockReturnValueOnce('4');                   // desired count is number
+            .mockReturnValueOnce('')                     // init-task-command
+            .mockReturnValueOnce('true');                  // force-new-deployment
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1039,6 +1094,86 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true
+        });
+    });
+
+    test('run init task before deployment', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('npm test')             // init-task-command
+            .mockReturnValueOnce('true')                 // force-new-deployment
+            .mockReturnValueOnce('{}')                   // init-task-network-configuration
+            .mockReturnValueOnce('app');                 // init-task-name
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockRunTasks).toHaveBeenCalledTimes(1);
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: true
+        });
+    });
+
+    test('waits for the init task before deployment', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('1000')                 // wait-for-minutes
+            .mockReturnValueOnce('npm test')             // init-task-command
+            .mockReturnValueOnce('true')                 // force-new-deployment
+            .mockReturnValueOnce('{}')                   // init-task-network-configuration
+            .mockReturnValueOnce('app');                 // init-task-name
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn')
+        expect(core.setOutput).toHaveBeenNthCalledWith(2, 'init-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"])
+
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockRunTasks).toHaveBeenCalledTimes(1);
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: true
+        });
+        expect(mockEcsWaiter).toHaveBeenNthCalledWith(1, 'tasksStopped', {
+            tasks: ['arn:aws:ecs:fake-region:account_id:task/arn'],
+            cluster: 'cluster-789',
+            "$waiter": {
+                "delay": 15,
+                "maxAttempts": 6 * 60 * 4,
+            },
+        });
+        expect(mockEcsWaiter).toHaveBeenNthCalledWith(2, 'servicesStable', {
+            services: ['service-456'],
+            cluster: 'cluster-789',
+            "$waiter": {
+                "delay": 15,
+                "maxAttempts": 6 * 60 * 4,
+            },
         });
     });
 
