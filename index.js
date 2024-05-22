@@ -273,7 +273,6 @@ async function run() {
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
-
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
 
 

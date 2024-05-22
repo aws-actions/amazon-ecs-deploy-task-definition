@@ -1,0 +1,57 @@
+name: Send Notifications to Slack
+on:
+  pull_request:
+    types: [opened, reopened]
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  issue-notifications:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send notifications on Pull Request
+        if: ${{ github.event_name == 'pull_request'}}
+        id: slack_PR
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "Notification Type": "Pull Request",
+              "Notification URL":"${{ github.event.pull_request.html_url }}",
+              "GitHub Repo": "${{ github.repository }}",
+              "Notification Title": "${{ github.event.pull_request.title }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send notification on new issues
+        if: ${{github.event_name == 'issues'}}
+        id: slack_issue
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "Notification Type": "Issue",
+              "Notification URL":"${{ github.event.issue.html_url }}",
+              "GitHub Repo": "${{ github.repository }}",
+              "Notification Title": "${{ github.event.issue.title }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send notification on Issues and Pull Requests Comments
+        if: ${{github.event_name == 'issue_comment'}}
+        id: slack_issue_comment
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "Notification Type": "Issue comment",
+              "Notification URL":"${{ github.event.comment.html_url }}",
+              "GitHub Repo": "${{ github.repository }}",
+              "Notification Title": "${{ github.event.issue_comment.issue.title }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
