@@ -34,7 +34,7 @@ inputs:
   codedeploy-deployment-description:
     description: "A description of the deployment, if the ECS service uses the CODE_DEPLOY deployment controller."
     required: false
- codedeploy-deployment-config:
+  codedeploy-deployment-config:
     description: "The name of the AWS CodeDeploy deployment configuration, if the ECS service uses the CODE_DEPLOY deployment controller. If not specified, the value configured in the deployment group or `CodeDeployDefault.OneAtATime` is used as the default."
     required: false
   force-new-deployment:
