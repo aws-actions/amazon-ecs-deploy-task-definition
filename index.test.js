@@ -143,7 +143,7 @@ describe('Deploy to ECS', () => {
                 failures: [],
                 services: [{
                     status: 'ACTIVE',
-                    deploymentController: { 
+                    deploymentController: {
                         type: 'ECS'
                     }
                 }]
@@ -763,7 +763,7 @@ describe('Deploy to ECS', () => {
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
     });
 
-    test('registers the task definition contents and creates a CodeDeploy deployment with custom application, deployment group and description', async () => {
+    test('registers the task definition contents and creates a CodeDeploy deployment with custom application, deployment group, description and config', async () => {
         core.getInput = jest
             .fn(input => {
                 return {
@@ -773,7 +773,8 @@ describe('Deploy to ECS', () => {
                     'wait-for-service-stability': 'TRUE',
                     'codedeploy-application': 'Custom-Application',
                     'codedeploy-deployment-group': 'Custom-Deployment-Group',
-                    'codedeploy-deployment-description': 'Custom-Deployment'
+                    'codedeploy-deployment-description': 'Custom-Deployment',
+                    'codedeploy-deployment-config': 'CodeDeployDefault.AllAtOnce'
                 }[input];
             });
 
@@ -802,6 +803,7 @@ describe('Deploy to ECS', () => {
         expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
             applicationName: 'Custom-Application',
             deploymentGroupName: 'Custom-Deployment-Group',
+            deploymentConfigName: 'CodeDeployDefault.AllAtOnce',
             description: 'Custom-Deployment',
             revision: {
                 revisionType: 'AppSpecContent',
