@@ -50,7 +50,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
     },
     launchType: launchType,
     networkConfiguration: awsvpcConfiguration === {} ? {} : { awsvpcConfiguration: awsvpcConfiguration }
-  }).promise();
+  });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 
@@ -80,14 +80,14 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
 
   core.info(`Waiting for tasks to stop. Will wait for ${waitForMinutes} minutes`);
 
-  const waitTaskResponse = await ecs.waitFor('tasksStopped', {
+  const waitTaskResponse = await waitUntilTasksStopped({
+    client: ecs,
+    minDelay: WAIT_DEFAULT_DELAY_SEC,
+    maxWaitTime: waitForMinutes * 60,
+  }, {
     cluster: clusterName,
     tasks: taskArns,
-    $waiter: {
-      delay: WAIT_DEFAULT_DELAY_SEC,
-      maxAttempts: (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC
-    }
-  }).promise();
+  });
 
   core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`);
   core.info('All tasks have stopped.');
@@ -98,7 +98,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
   const describeResponse = await ecs.describeTasks({
     cluster: clusterName,
     tasks: taskArns
-  }).promise();
+  });
 
   const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
   const exitCodes = containers.map(container => container.exitCode)
