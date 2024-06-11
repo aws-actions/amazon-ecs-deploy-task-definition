@@ -7,7 +7,7 @@
 const path = __nccwpck_require__(1017);
 const core = __nccwpck_require__(2186);
 const { CodeDeploy, waitUntilDeploymentSuccessful } = __nccwpck_require__(6692);
-const { ECS, waitUntilServicesStable } = __nccwpck_require__(8209);
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = __nccwpck_require__(8209);
 const yaml = __nccwpck_require__(4083);
 const fs = __nccwpck_require__(7147);
 const crypto = __nccwpck_require__(6113);
@@ -55,18 +55,18 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
       containerOverrides: containerOverrides
     },
     launchType: launchType,
-    networkConfiguration: awsvpcConfiguration === {} ? {} : { awsvpcConfiguration: awsvpcConfiguration }
-  }).promise();
+    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration }
+  });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 
   const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
   core.setOutput('run-task-arn', taskArns);
 
-  taskArns.map(taskArn => {
-    let taskId = taskArn.split('/').pop();
-    core.info(`Task running: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`)
-  });
+  const region = await ecs.config.region();
+  const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
+
+  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
 
   if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
     const failure = runTaskResponse.failures[0];
@@ -90,14 +90,14 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
 
   core.info(`Waiting for tasks to stop. Will wait for ${waitForMinutes} minutes`);
 
-  const waitTaskResponse = await ecs.waitFor('tasksStopped', {
+  const waitTaskResponse = await waitUntilTasksStopped({
+    client: ecs,
+    minDelay: WAIT_DEFAULT_DELAY_SEC,
+    maxWaitTime: waitForMinutes * 60,
+  }, {
     cluster: clusterName,
     tasks: taskArns,
-    $waiter: {
-      delay: WAIT_DEFAULT_DELAY_SEC,
-      maxAttempts: (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC
-    }
-  }).promise();
+  });
 
   core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`);
   core.info('All tasks have stopped.');
@@ -108,7 +108,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
   const describeResponse = await ecs.describeTasks({
     cluster: clusterName,
     tasks: taskArns
-  }).promise();
+  });
 
   const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
   const exitCodes = containers.map(container => container.exitCode)
@@ -330,9 +330,11 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
       }
     }
   };
+
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
   if (codeDeployDescription) {
-    deploymentParams.description = codeDeployDescription
+    // CodeDeploy Deployment Descriptions have a max length of 512 characters, so truncate if necessary
+    deploymentParams.description = (codeDeployDescription.length <= 512) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
   }
   if (codeDeployConfig) {
     deploymentParams.deploymentConfigName = codeDeployConfig
