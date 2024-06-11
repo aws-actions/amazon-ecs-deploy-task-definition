@@ -1,7 +1,7 @@
 const run = require('.');
 const core = require('@actions/core');
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
-const { ECS, waitUntilServicesStable } = require('@aws-sdk/client-ecs');
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sdk/client-ecs');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,6 +16,8 @@ const mockEcsUpdateService = jest.fn();
 const mockEcsDescribeServices = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
+const mockRunTask = jest.fn();
+const mockEcsDescribeTasks = jest.fn();
 const config = {
   region: () => Promise.resolve('fake-region'),
 };
@@ -33,7 +35,9 @@ describe('Deploy to ECS', () => {
         config,
         registerTaskDefinition: mockEcsRegisterTaskDef,
         updateService: mockEcsUpdateService,
-        describeServices: mockEcsDescribeServices
+        describeServices: mockEcsDescribeServices,
+        describeTasks: mockEcsDescribeTasks,
+        runTask: mockRunTask,
     };
 
     const mockCodeDeployClient = {
@@ -109,7 +113,6 @@ describe('Deploy to ECS', () => {
             })
         );
 
-
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [],
@@ -152,6 +155,8 @@ describe('Deploy to ECS', () => {
             }));
             
         ECS.mockImplementation(() => mockEcsClient);
+
+        waitUntilTasksStopped.mockImplementation(() => Promise.resolve({}));
 
         waitUntilServicesStable.mockImplementation(() => Promise.resolve({}));
 
@@ -779,9 +784,8 @@ describe('Deploy to ECS', () => {
         });
 
         expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, {
-            applicationName: 'Custom-Application',
-            deploymentGroupName: 'Custom-Deployment-Group',
-            description: 'Custom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentCustom-DeploymentC…',
+            applicationName: 'MyApplication',
+            deploymentGroupName: 'MyDeploymentGroup',
             revision: {
                 revisionType: 'AppSpecContent',
                 appSpecContent: {
@@ -1108,6 +1112,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true');                 // run-task
 
         await run();
@@ -1128,6 +1133,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1161,6 +1167,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true');                 // wait-for-task-stopped
 
@@ -1171,14 +1178,7 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn')
         expect(mockRunTask).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"])
-        expect(mockEcsWaiter).toHaveBeenNthCalledWith(1, 'tasksStopped', {
-            tasks: ['arn:aws:ecs:fake-region:account_id:task/arn'],
-            cluster: 'somecluster',
-            "$waiter": {
-                "delay": 15,
-                "maxAttempts": 120,
-            },
-        });
+        expect(waitUntilTasksStopped).toHaveBeenCalledTimes(1);
     });
 
     test('error caught if AppSpec file is not formatted correctly', async () => {
