@@ -29,6 +29,7 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@3491fdb09977e802b19e806aceacf94ec0d1bb64
       with:
         task-definition: task-definition.json
+        run-task: github-actions-deploy-task-def-integ-test
         service: github-actions-deploy-task-def-integ-test
         cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
