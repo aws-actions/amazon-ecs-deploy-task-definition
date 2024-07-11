@@ -1,10 +1,11 @@
 const path = require('path');
 const core = require('@actions/core');
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
-const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sdk/client-ecs');
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped,CreateClusterCommand} = require('@aws-sdk/client-ecs');
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
+const { default: cluster } = require('cluster');
 
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
@@ -21,6 +22,50 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
+async function createClusterCommand(){
+  const taskClusterName = core.getInput('task-cluster-name', { required: true } ) || 'default';
+  const serviceClusterName = core.getInput('service-cluster-name', { required: true })|| 'default';
+
+  // Creating an individual cluster for service or task 
+  if(createTaskCluster){
+    core.debug('Creating a single cluster for a one-off task ...');
+    const createTaskClusterInput = {
+      clusterTaskName: `github-actions-task-cluster-${Date.now}`,
+      tags:[
+        {
+          key:'github-actions-task-cluster',
+          value:'true'
+        }
+      ]
+    };
+    const createTaskClusterCommand = new CreateClusterCommand(createTaskClusterInput);
+    const createTaskClusterResponse = await ecs.send(createTaskClusterCommand);
+    taskClusterName = createTaskClusterResponse.cluster.clusterTaskName;
+    core.setOutput('task-cluster-name', taskClusterName);
+
+  }
+  else if(createServiceCluster){
+    core.debug('Creating a new cluster for a service ...');
+    const createServiceClusterInput ={
+      clusterServiceName: `github-actions-service-cluster-${Date.now}`,
+      tags:[
+        {
+          key:'github-actions-service-cluster',
+          value:'true'
+        }
+      ]
+    };
+    const createServiceClusterCommand = new CreateClusterCommand(createServiceClusterInput);
+    const createServiceClusterResponse = await ecs.send(createServiceClusterCommand);
+    serviceClusterName = createServiceClusterResponse.cluster.clusterServiceName;
+    core.setOutput('service-cluster-name', serviceClusterName); 
+  }
+  else{
+    core.debug('Running using the default cluster');
+  }
+ 
+}
+
 //Code to run task outside of a service aka (also known as) a one-off task
 
 async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
@@ -29,6 +74,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
   const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
   const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
+  const capacityProviderStrategy = core.getInput('run-task-capacity-provider-strategy', {required: false});
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
@@ -41,6 +87,14 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
 
   if (securityGroupIds != "") {
     awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
+  }
+
+  if (capacityProviderStrategy){
+    //if the capacity provider is given then the launch type is ommited
+    launchType = undefined;
+  }
+  else{
+    launchType = launchType || 'FARGATE';
   }
 
   const runTaskResponse = await ecs.runTask({
@@ -124,7 +178,6 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
     throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
   }
 }
-
 
 
 // Deploy to a service that uses the 'ECS' deployment controller
@@ -386,8 +439,8 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-
-
+    
+    
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -406,17 +459,29 @@ async function run() {
     }
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
-
-
+    
     // Run the task outside of the service
     const clusterName = cluster ? cluster : 'default';
     const shouldRunTaskInput = core.getInput('run-task', { required: false }) || 'false';
     const shouldRunTask = shouldRunTaskInput.toLowerCase() === 'true';
+    const taskClusterNameInput = core.getInput('task-cluster-name', { required: true } ) || 'default';
+    const taskClusterNameRun = taskClusterNameInput.toLowerCase() === 'task';
     core.debug(`shouldRunTask: ${shouldRunTask}`);
+    
     if (shouldRunTask) {
-      core.debug("Running ad-hoc task...");
+      core.debug("Running one-off task...");
+      if(taskClusterNameRun == 'task'){
+      core.debug("Running one-off task in an individual cluster ...");
+      await runTask(ecs, createClusterCommand, taskDefArn, waitForMinutes);
+      }
+      else{
+        core.debug('The default cluster will be used to execute your one-off task')
+      }
       await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
     }
+
+    const serviceClusterNameInput = core.getInput('service-cluster-name', { required: true } ) || 'default';
+    const serviceClusterNameRun = serviceClusterNameInput.toLowerCase() === 'service';
 
     // Update the service with the new task definition
     if (service) {
@@ -440,9 +505,24 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
+        core.debug('Updating service...');
+
+        if(serviceClusterNameRun == 'service'){
+          core.debug('Running service in a individual cluster...');
+          await updateEcsService(ecs, createClusterCommand, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+        }
+        core.debug('Running your service in the default cluster');
+
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
+        core.debug('deploying service in selected cluster...')
+        if(serviceClusterNameRun == 'service'){
+          core.debug('Deploying service in a individual cluster...');
+          await updateEcsService(ecs, createClusterCommand, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+        }
+        core.debug('Deploying service in the default cluster');
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);

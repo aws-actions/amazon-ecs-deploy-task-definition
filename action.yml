@@ -57,12 +57,22 @@ inputs:
   run-task-launch-type:
     description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'."
     required: false
+  run-task-capacity-provider-strategy:
+    description: "Allows users who use capacity provider to have the launch type ommited"
+    required: false
   run-task-started-by:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
     required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
+  task-cluster-name: 
+    description: 'Whether to run the task or service within the same cluster or in different clusters'
+    required: false
+  service-cluster-name:
+    description: 'Whether to run the task or service within the same cluster or in different clusters'
+    required: false
+ 
 #back to normal inputs
 outputs:
   task-definition-arn:
