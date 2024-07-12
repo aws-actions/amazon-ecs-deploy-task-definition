@@ -1,7 +1,7 @@
 const run = require('.');
 const core = require('@actions/core');
-const { CodeDeploy, waitUntilDeploymentSuccessful} = require('@aws-sdk/client-codedeploy');
-const { ECS, waitUntilServicesStable, waitUntilTasksStopped,CreateClusterCommand} = require('@aws-sdk/client-ecs');
+const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
+const { ECS, waitUntilServicesStable,waitUntilTasksStopped} = require('@aws-sdk/client-ecs');
 const fs = require('fs');
 const path = require('path');
 
@@ -17,7 +17,6 @@ const mockEcsDescribeServices = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
 const mockRunTask = jest.fn();
-const mockCreateClusterCommand = jest.fn();
 const mockEcsDescribeTasks = jest.fn();
 const config = {
   region: () => Promise.resolve('fake-region'),
@@ -39,14 +38,12 @@ describe('Deploy to ECS', () => {
         describeServices: mockEcsDescribeServices,
         describeTasks: mockEcsDescribeTasks,
         runTask: mockRunTask,
-        createClusterCommand: mockCreateClusterCommand,
     };
 
     const mockCodeDeployClient = {
         config,
         createDeployment: mockCodeDeployCreateDeployment,
         getDeploymentGroup: mockCodeDeployGetDeploymentGroup,
-
     };
 
     beforeEach(() => {
@@ -88,12 +85,24 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } })
         );
 
-        mockEcsUpdateService.mockImplementation(() => Promise.resolve({}));
+        mockEcsUpdateService.mockImplementation(() => Promise.resolve({
+            service: { 
+                capacityProviderStrategy: [ 
+                   { 
+                      base: number,
+                      capacityProvider: 'string',
+                      weight: number
+                   }
+                ],
+            }
+        }));
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
                 failures: [],
-                services: [{ status: 'ACTIVE' }]
+                services: [{ 
+                    status: 'ACTIVE' 
+                }]
             })
         );
 
@@ -119,6 +128,7 @@ describe('Deploy to ECS', () => {
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [],
+                capacityProviderName: 'string',
                 tasks: [
                     {
                         containers: [
@@ -137,39 +147,17 @@ describe('Deploy to ECS', () => {
                 ]
             }));
 
-        mockCreateClusterCommand.mockImplementation(
-            () => Promise.resolve({
-                clusterName: 'individualCluster',
-                    
-                settings: [
-                { // ClusterSetting
-                     name: 'individualCluster',
-                     value: 'true',
-                },
-            ],
-        }));
-   
         mockEcsDescribeTasks.mockImplementation(
             () => Promise.resolve({
                 failures: [],
                 tasks: [
                     {
-                        containers: [
-                            {
-                                lastStatus: "RUNNING",
-                                exitCode: 0,
-                                reason: '',
-                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
-                            }
-                        ],
                         desiredStatus: "RUNNING",
                         lastStatus: "RUNNING",
                         taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
                     }
                 ]
             }));
-
-            
 
         ECS.mockImplementation(() => mockEcsClient);
 
@@ -180,9 +168,6 @@ describe('Deploy to ECS', () => {
         CodeDeploy.mockImplementation(() => mockCodeDeployClient);
 
         waitUntilDeploymentSuccessful.mockImplementation(() => Promise.resolve({}));
-
-        CreateClusterCommand.mockImplementation(() => Promise.resolve({}));
-
     });
 
     test('registers the task definition contents and updates the service', async () => {
@@ -195,6 +180,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -226,6 +212,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -493,9 +480,7 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('')         // cluster
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE');               // wait-for-service-stability
 
         mockEcsDescribeServices.mockImplementation(
@@ -572,11 +557,10 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('')         // cluster
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValueOnce('60');                 // wait-for-minutes
+            .mockReturnValueOnce('60')                  // wait-for-minutes
+
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -650,11 +634,10 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('')         // cluster
-            .mockReturnValueOnce('')      //task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
             .mockReturnValueOnce('1000');               // wait-for-minutes
+        
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -725,16 +708,15 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('')                     // task cluster name
-            .mockReturnValueOnce('')                     // service cluster name
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // run-task
+            .mockReturnValueOnce('')                     // task
             .mockReturnValueOnce('')                     // desired count
             .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')        // codedeploy-application
-            .mockReturnValueOnce('MyDeploymentGroup')    // codedeploy-deployment-group
+            .mockReturnValueOnce('MyDeploymentGroup');    // codedeploy-deployment-group
+
 
         fs.readFileSync.mockReturnValue(`
             {
@@ -951,11 +933,10 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('')          // cluster
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('');                    // desired count
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -967,6 +948,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -991,12 +973,11 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('')          // cluster
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('60')                   // wait-for-minutes
-            .mockReturnValueOnce('');                    // desired count
+            .mockReturnValueOnce('');                     // desired count
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1008,6 +989,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -1032,12 +1014,11 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('')          // cluster
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
+            .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('1000')                 // wait-for-minutes
             .mockReturnValueOnce('abc');                 // desired count is NaN
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1049,6 +1030,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -1073,13 +1055,12 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('')          // cluster
-            .mockReturnValueOnce('')          // task cluster name
-            .mockReturnValueOnce('')          // service cluster name
+            .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('true')                 // force-new-deployment
             .mockReturnValueOnce('4');                   // desired count is number
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1091,6 +1072,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             desiredCount: 4,
             service: 'service-456',
@@ -1099,60 +1081,13 @@ describe('Deploy to ECS', () => {
         });
     });
 
-    test('registers the task definition contents and runs task or service in their individual cluster', async () =>{
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')//task-definition
-            .mockReturnValueOnce('')//service default 
-            .mockReturnValueOnce('')//task cluster name 
-            .mockReturnValueOnce('')//service cluster name 
-            .mockReturnValueOnce('')//desired count (for services)
-            .mockReturnValueOnce('task')//task
-            .mockReturnValueOnce('')//cluster
-        
-        await run();
-        expect(core.setFailed).toHaveBeenCalledTimes(0);
-        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1,{ family: "task-def-family"});
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
-
-        const cluster = core.getInput.mock.calls [3][0];
-        const runIndividualClusters = core.getInput.mock.calls[5][0];
-
-        switch(runIndividualClusters){
-            case 'task':
-                expect(mockCreateClusterCommand).toBeCalledWith(1,{
-                cluster: cluster
-                });
-                
-                expect(mockEcsDescribeTasks).toHaveBeenNthCalledWith(1,{
-                    taskDefinition: 'task:def:arn'
-                });
-
-                break
-            case 'service':
-                expect(mockCreateClusterCommand).toBeCalledWith(1,{
-                cluster: cluster
-                });
-
-                expect(mockEcsCreateService).toHaveBeenNthCalledWith(1,{
-                    service: 'service-name',
-                    taskDefinition: 'task:def:arn',
-                    desiredCount: 1
-                });
-
-                expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1,{
-                    services: []
-                });
-        }
-
-    });
-
     test('defaults to the default cluster', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('');                    // desired count
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1164,6 +1099,7 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            capacityProviderStrategy: 'string',
             cluster: 'default',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
@@ -1191,13 +1127,12 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json')  // task-definition
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('')                      // task cluster name
-            .mockReturnValueOnce('')                      // service cluster name 
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true');                 // run-task
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1213,9 +1148,7 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json')  // task-definition
             .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('')                      // task cluster name
-            .mockReturnValueOnce('')                      // service cluster name 
+            .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
@@ -1228,6 +1161,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
             .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
 
+
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
@@ -1235,6 +1169,7 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
+            capacityProviderName:'string',
             cluster: 'somecluster',
             launchType: "EC2",
             taskDefinition: 'task:def:arn',
@@ -1250,8 +1185,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json')  // task-definition
             .mockReturnValueOnce('service-456')           // service
             .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('')                      // task cluster name 
-            .mockReturnValueOnce('')                      // service cluster name 
             .mockReturnValueOnce('true')                  // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
@@ -1263,6 +1196,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
             .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
             .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
+
  
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1275,6 +1209,7 @@ describe('Deploy to ECS', () => {
         });
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
+            capacityProviderName: 'string',
             cluster: 'somecluster',
             launchType: "EC2",
             taskDefinition: 'task:def:arn',
@@ -1285,32 +1220,31 @@ describe('Deploy to ECS', () => {
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(1);
     });
 
+
     test('run task and wait for it to stop', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json')  // task-definition
             .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('')                      // task cluster name 
-            .mockReturnValueOnce('')                      // service cluster name 
+            .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true');                 // wait-for-task-stopped
+            .mockReturnValueOnce('true')                 // wait-for-task-stopped
+
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn')
+        
         expect(mockRunTask).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"])
         expect(waitUntilTasksStopped).toHaveBeenCalledTimes(1);
     });
-
-
 
     test('error caught if AppSpec file is not formatted correctly', async () => {
         mockEcsDescribeServices.mockImplementation(
@@ -1338,7 +1272,8 @@ describe('Deploy to ECS', () => {
                     reason: 'MISSING',
                     arn: 'hello'
                 }],
-                services: []
+                services: [],
+
             })
         );
 
@@ -1352,7 +1287,8 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({
                 failures: [],
                 services: [{
-                    status: 'INACTIVE'
+                    status: 'INACTIVE',
+
                 }]
             })
         );
@@ -1367,6 +1303,7 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({
                 failures: [],
                 services: [{
+                    
                     status: 'ACTIVE',
                     deploymentController: {
                         type: 'EXTERNAL'

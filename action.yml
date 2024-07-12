@@ -66,13 +66,10 @@ inputs:
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
-  task-cluster-name: 
-    description: 'Whether to run the task or service within the same cluster or in different clusters'
+  capacity-provider-strategy:
+    description: 'Users can use their capacity provider startegy in order to deploy to ECS'
     required: false
-  service-cluster-name:
-    description: 'Whether to run the task or service within the same cluster or in different clusters'
-    required: false
- 
+
 #back to normal inputs
 outputs:
   task-definition-arn:
