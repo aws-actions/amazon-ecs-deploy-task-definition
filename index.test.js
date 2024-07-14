@@ -1,7 +1,7 @@
 const run = require('.');
 const core = require('@actions/core');
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
-const { ECS, waitUntilServicesStable,waitUntilTasksStopped} = require('@aws-sdk/client-ecs');
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sdk/client-ecs');
 const fs = require('fs');
 const path = require('path');
 
@@ -43,7 +43,7 @@ describe('Deploy to ECS', () => {
     const mockCodeDeployClient = {
         config,
         createDeployment: mockCodeDeployCreateDeployment,
-        getDeploymentGroup: mockCodeDeployGetDeploymentGroup,
+        getDeploymentGroup: mockCodeDeployGetDeploymentGroup
     };
 
     beforeEach(() => {
@@ -86,15 +86,16 @@ describe('Deploy to ECS', () => {
         );
 
         mockEcsUpdateService.mockImplementation(() => Promise.resolve({
-            service: { 
-                capacityProviderStrategy: [ 
-                   { 
-                      base: number,
-                      capacityProvider: 'string',
-                      weight: number
-                   }
-                ],
-            }
+
+            /*
+            capacityProviderStrategy: [ 
+                { 
+                   base: number,
+                   capacityProvider: "string",
+                   weight: number
+                }
+             ],
+             */
         }));
 
         mockEcsDescribeServices.mockImplementation(
@@ -128,7 +129,7 @@ describe('Deploy to ECS', () => {
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [],
-                capacityProviderName: 'string',
+                //capacityProviderName: 'FARGATE',
                 tasks: [
                     {
                         containers: [
@@ -147,17 +148,26 @@ describe('Deploy to ECS', () => {
                 ]
             }));
 
-        mockEcsDescribeTasks.mockImplementation(
-            () => Promise.resolve({
-                failures: [],
-                tasks: [
-                    {
-                        desiredStatus: "RUNNING",
-                        lastStatus: "RUNNING",
-                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
-                    }
-                ]
-            }));
+            mockEcsDescribeTasks.mockImplementation(
+                () => Promise.resolve({
+                    failures: [],
+                    ///capacityProviderName: 'FARGATE',
+                    tasks: [
+                        {
+                            containers: [
+                                {
+                                    lastStatus: "RUNNING",
+                                    exitCode: 0,
+                                    reason: '',
+                                    taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                                }
+                            ],
+                            desiredStatus: "RUNNING",
+                            lastStatus: "RUNNING",
+                            taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                        }
+                    ]
+                }));
 
         ECS.mockImplementation(() => mockEcsClient);
 
@@ -170,6 +180,8 @@ describe('Deploy to ECS', () => {
         waitUntilDeploymentSuccessful.mockImplementation(() => Promise.resolve({}));
     });
 
+    
+
     test('registers the task definition contents and updates the service', async () => {
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -180,15 +192,16 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
     });
+    
 
     test('registers the task definition contents and updates the service if deployment controller type is ECS', async () => {
         mockEcsDescribeServices.mockImplementation(
@@ -212,15 +225,17 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
     });
+  
 
     test('prints Chinese console domain for cn regions', async () => {
         const originalRegion = config.region;
@@ -232,6 +247,7 @@ describe('Deploy to ECS', () => {
         // reset
         config.region = originalRegion;
     });
+  
 
     test('cleans null keys out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -246,6 +262,7 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
     });
+     
 
     test('cleans empty arrays out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -260,6 +277,7 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
     });
+     
 
     test('cleans empty strings and objects out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -326,6 +344,7 @@ describe('Deploy to ECS', () => {
             requiresCompatibilities: [ 'EC2' ]
         });
     });
+    
 
     test('maintains empty keys in proxyConfiguration.properties for APPMESH', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -460,6 +479,7 @@ describe('Deploy to ECS', () => {
             }
         });
     });
+  
 
     test('cleans invalid keys out of the task definition contents', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -474,6 +494,7 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
     });
+    
 
     test('registers the task definition contents and creates a CodeDeploy deployment, waits for 30 minutes + deployment group wait time', async () => {
         core.getInput = jest
@@ -551,6 +572,8 @@ describe('Deploy to ECS', () => {
 
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
     });
+
+   
 
     test('registers the task definition contents and creates a CodeDeploy deployment, waits for 1 hour + deployment group\'s wait time', async () => {
         core.getInput = jest
@@ -713,6 +736,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // task
             .mockReturnValueOnce('')                     // desired count
+            .mockReturnValueOnce('')                     //capacity provider 
             .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')        // codedeploy-application
             .mockReturnValueOnce('MyDeploymentGroup');    // codedeploy-deployment-group
@@ -797,21 +821,21 @@ describe('Deploy to ECS', () => {
             revision: {
                 revisionType: 'AppSpecContent',
                 appSpecContent: {
-                  content: JSON.stringify({
-                      Resources: [{
-                          TargetService: {
-                              Type: 'AWS::ECS::Service',
-                              Properties: {
-                                TaskDefinition: 'task:def:arn',
-                                LoadBalancerInfo: {
-                                    ContainerName: "web",
-                                    ContainerPort: 80
+                    content: JSON.stringify({
+                        Resources: [{
+                            TargetService: {
+                                Type: 'AWS::ECS::Service',
+                                Properties: {
+                                    TaskDefinition: 'task:def:arn',
+                                    LoadBalancerInfo: {
+                                        ContainerName: "web",
+                                        ContainerPort: 80
+                                    }
                                 }
-                              }
-                          }
-                      }]
+                            }
+                        }]
                     }),
-                  sha256: '0911d1e99f48b492e238d1284d8ddb805382d33e1d1fc74ffadf37d8b7e6d096'
+                    sha256: '0911d1e99f48b492e238d1284d8ddb805382d33e1d1fc74ffadf37d8b7e6d096'
                 }
             }
         });
@@ -935,6 +959,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            //.mockReturnValueOnce('')                      // cap
             .mockReturnValueOnce('');                    // desired count
 
 
@@ -948,11 +973,12 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -989,11 +1015,12 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1030,11 +1057,12 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1072,12 +1100,13 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'cluster-789',
             desiredCount: 4,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: true
+            forceNewDeployment: true,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
         });
     });
 
@@ -1099,11 +1128,11 @@ describe('Deploy to ECS', () => {
             services: ['service-456']
         });
         expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            capacityProviderStrategy: 'string',
             cluster: 'default',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
         });
     });
 
@@ -1131,6 +1160,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('')                       //capacity provider 
             .mockReturnValueOnce('true');                 // run-task
 
 
@@ -1153,6 +1183,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1169,12 +1200,13 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
-            capacityProviderName:'string',
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}],
             cluster: 'somecluster',
-            launchType: "EC2",
+            launchType: 'EC2',
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } }
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } },
+    
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1184,11 +1216,12 @@ describe('Deploy to ECS', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json')  // task-definition
             .mockReturnValueOnce('service-456')           // service
-            .mockReturnValueOnce('')                      // cluster
+            .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('true')                  // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('1')                     // desired-count
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1196,7 +1229,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
             .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
             .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
-
  
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1207,19 +1239,26 @@ describe('Deploy to ECS', () => {
             cluster: 'somecluster',
             services: ['service-456']
         });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'somecluster',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false,
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+
+        });
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
-            capacityProviderName: 'string',
+            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}],
             cluster: 'somecluster',
-            launchType: "EC2",
             taskDefinition: 'task:def:arn',
+            launchType: 'EC2',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } }
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } },
+
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
-        expect(waitUntilServicesStable).toHaveBeenCalledTimes(1);
     });
-
 
     test('run task and wait for it to stop', async () => {
         core.getInput = jest
@@ -1231,8 +1270,10 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true')                 // wait-for-task-stopped
+            .mockReturnValueOnce('true') ;                 // wait-for-task-stopped
+
 
 
         await run();

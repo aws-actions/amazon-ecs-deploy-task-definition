@@ -67,8 +67,8 @@ inputs:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
   capacity-provider-strategy:
-    description: 'Users can use their capacity provider startegy in order to deploy to ECS'
-    required: false
+    description: 'Users can use their capacity provider startegy in order to deploy to ECS, Valid values are 'FARGATE', 'EC2' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited (not used) in order to use this option. MUST PROVIDE A BASE AND WEIGHT'
+    required: false  
 
 #back to normal inputs
 outputs:

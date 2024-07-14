@@ -1,7 +1,7 @@
 const path = require('path');
 const core = require('@actions/core');
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
-const { ECS, waitUntilServicesStable, waitUntilTasksStopped} = require('@aws-sdk/client-ecs');
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sdk/client-ecs');
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -32,6 +32,7 @@ async function runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, w
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+
   let awsvpcConfiguration = {}
 
 
@@ -46,26 +47,16 @@ async function runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, w
 
   const runTaskResponse = await ecs.runTask({
     startedBy: startedBy,
-    capacityProviderStrategy: capacityProviderStrategy,
     cluster: clusterName,
     taskDefinition: taskDefArn,
     overrides: {
       containerOverrides: containerOverrides
     },
     launchType: launchType,
-    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration }
+    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration },
+    capacityProviderStrategy: capacityProviderStrategy
+
   });
-
-
-
-  if (capacityProviderStrategy){
-    //if the capacity provider is given then the launch type is ommited
-    launchType = undefined;
-  }
-  else{
-    launchType = 'FARGATE';
-  }
-
 
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -143,24 +134,16 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, capacityProviderStrategy, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
-  //const capacityProviderStrategyInput = core.getInput('run-service-capacity-provider-strategy', {required: false}) || 'false';
-  //const capacityProvider = capacityProviderStrategyInput.toLowerCase() === 'true';
+  //const capacityProviderStrategy = core.getInput('capacity-provider-strategy',{required: false}) || '{}';
 
   let params = {
-    capacityProviderStrategy: capacityProviderStrategy,
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment
+    forceNewDeployment: forceNewDeployment,
+    capacityProviderStrategy: capacityProviderStrategy
   };
 
-  if (capacityProvider){
-    //if the capacity provider is given then the launch type is ommited
-    launchType = undefined;
-  }
-  else{
-    launchType = launchType || 'FARGATE';
-  }
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
@@ -412,9 +395,17 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-    const capacityProviderStrategy = core.getInput('capacity-provider-strategy',{required: false}) || '{}';
-    
-    
+    const capacityProviderStrategy = core.getInput('capacity-provider-strategy',{required: false}) || [{base: 1, capacityProvider: 'FARGATE', weight: 1}];
+
+    if(capacityProviderStrategy){
+      core.debug('Using capacity provider ommits the launchtype option')
+      launchType = undefined;
+    }
+    else{
+      core.debug('Using launch type ommits the capacity provider option')
+      launchType = 'FARGATE' ;
+    }
+
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
