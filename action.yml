@@ -64,12 +64,10 @@ inputs:
   capacity-provider-strategy:
     description: "Capacity provider startegy to deploy to ECS, valid values are 'FARGATE' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited to use."
     required: false  
-    - 
-      base: 1
+    - base: 1
       capacityProvider: FARGATE 
       weight: 1
-    -
-      base: 1
+    - base: 1
       capacityProvider: FARGATE_SPOT
       weight: 1
 
