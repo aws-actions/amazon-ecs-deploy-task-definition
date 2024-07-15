@@ -55,9 +55,6 @@ inputs:
   run-task-launch-type:
     description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'."
     required: false
-  run-task-capacity-provider-strategy:
-    description: "Allows users who use capacity provider to have the launch type ommited"
-    required: false
   run-task-started-by:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
     required: false
@@ -65,7 +62,7 @@ inputs:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
   capacity-provider-strategy:
-    description: 'Users can use their capacity provider startegy in order to deploy to ECS, Valid values are 'FARGATE' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited (not used) in order to use this option. MUST PROVIDE A BASE AND WEIGHT'
+    description: "Capacity provider startegy to deploy to ECS, valid values are 'FARGATE' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited to use."
     required: false  
     - 
       base: 1
