@@ -65,11 +65,17 @@ inputs:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
   capacity-provider-strategy:
-    - base: 1
-      capacityProvider: FARGATE
-      weight: 1
     description: 'Users can use their capacity provider startegy in order to deploy to ECS, Valid values are 'FARGATE' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited (not used) in order to use this option. MUST PROVIDE A BASE AND WEIGHT'
     required: false  
+    - 
+      base: 1
+      capacityProvider: FARGATE 
+      weight: 1
+    -
+      base: 1
+      capacityProvider: FARGATE_SPOT
+      weight: 1
+
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
