@@ -40,8 +40,6 @@ inputs:
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
-
-    # New inputs for running a single task outside of a service
   run-task:
     description: 'Whether to run the task outside of an ECS service. Task will run before the service is updated if both are provided. Will default to not run.'
     required: false
@@ -69,8 +67,6 @@ inputs:
   capacity-provider-strategy:
     description: 'Users can use their capacity provider startegy in order to deploy to ECS, Valid values are 'FARGATE', 'EC2' or 'FARGATE_SPOT'. Will default to 'FARGATE'. Launch type must be ommited (not used) in order to use this option. MUST PROVIDE A BASE AND WEIGHT'
     required: false  
-
-#back to normal inputs
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
