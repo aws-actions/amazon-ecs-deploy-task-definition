@@ -1240,7 +1240,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true') ;                 // wait-for-task-stopped
+            .mockReturnValueOnce('true');                 // wait-for-task-stopped
 
 
 

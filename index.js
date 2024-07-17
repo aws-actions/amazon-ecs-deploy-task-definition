@@ -416,7 +416,8 @@ async function run() {
     const shouldRunTaskInput = core.getInput('run-task', { required: false }) || 'false';
     const shouldRunTask = shouldRunTaskInput.toLowerCase() === 'true';
     core.debug(`shouldRunTask: ${shouldRunTask}`);
-    
+
+    //run task 
     if (shouldRunTask) {
       core.debug("Running one-off task...");
       await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
@@ -424,7 +425,6 @@ async function run() {
 
     // Update the service with the new task definition
     if (service) {
-      
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
