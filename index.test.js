@@ -85,18 +85,7 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } })
         );
 
-        mockEcsUpdateService.mockImplementation(() => Promise.resolve({
-
-            /*
-            capacityProviderStrategy: [ 
-                { 
-                   base: number,
-                   capacityProvider: "string",
-                   weight: number
-                }
-             ],
-             */
-        }));
+        mockEcsUpdateService.mockImplementation(() => Promise.resolve({}));
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -129,7 +118,6 @@ describe('Deploy to ECS', () => {
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [],
-                //capacityProviderName: 'FARGATE',
                 tasks: [
                     {
                         containers: [
@@ -151,7 +139,6 @@ describe('Deploy to ECS', () => {
             mockEcsDescribeTasks.mockImplementation(
                 () => Promise.resolve({
                     failures: [],
-                    ///capacityProviderName: 'FARGATE',
                     tasks: [
                         {
                             containers: [
@@ -196,7 +183,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=fake-region#/clusters/cluster-789/services/service-456/events");
@@ -229,7 +215,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
 
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -736,7 +721,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // task
             .mockReturnValueOnce('')                     // desired count
-            .mockReturnValueOnce('')                     //capacity provider 
             .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')        // codedeploy-application
             .mockReturnValueOnce('MyDeploymentGroup');    // codedeploy-deployment-group
@@ -959,7 +943,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
-            //.mockReturnValueOnce('')                      // cap
             .mockReturnValueOnce('');                    // desired count
 
 
@@ -976,8 +959,7 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+            forceNewDeployment: false
 
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1018,9 +1000,7 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
-
+            forceNewDeployment: false
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1060,9 +1040,7 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
-
+            forceNewDeployment: false
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1104,9 +1082,7 @@ describe('Deploy to ECS', () => {
             desiredCount: 4,
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: true,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
-
+            forceNewDeployment: true
         });
     });
 
@@ -1131,8 +1107,7 @@ describe('Deploy to ECS', () => {
             cluster: 'default',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+            forceNewDeployment: false
         });
     });
 
@@ -1160,7 +1135,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                       //capacity provider 
             .mockReturnValueOnce('true');                 // run-task
 
 
@@ -1183,7 +1157,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1200,7 +1173,6 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}],
             cluster: 'somecluster',
             launchType: 'EC2',
             taskDefinition: 'task:def:arn',
@@ -1221,7 +1193,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1243,13 +1214,11 @@ describe('Deploy to ECS', () => {
             cluster: 'somecluster',
             service: 'service-456',
             taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}]
+            forceNewDeployment: false
 
         });
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
-            capacityProviderStrategy: [{base: 1, capacityProvider: 'FARGATE', weight: 1}],
             cluster: 'somecluster',
             taskDefinition: 'task:def:arn',
             launchType: 'EC2',
@@ -1270,7 +1239,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      //capacity provider 
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true') ;                 // wait-for-task-stopped
 

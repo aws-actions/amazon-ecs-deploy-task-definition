@@ -23,12 +23,12 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 //Code to run task outside of a service aka (also known as) a one-off task
-async function runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, waitForMinutes) {
+async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
   const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
-  const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
+  const launchType = core.getInput('run-task-launch-type', { required: false })|| 'FARGATE';
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
@@ -44,7 +44,6 @@ async function runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, w
     awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
   }
 
-
   const runTaskResponse = await ecs.runTask({
     startedBy: startedBy,
     cluster: clusterName,
@@ -54,7 +53,6 @@ async function runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, w
     },
     launchType: launchType,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration },
-    capacityProviderStrategy: capacityProviderStrategy
 
   });
 
@@ -132,16 +130,14 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, capacityProviderStrategy, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
-  //const capacityProviderStrategy = core.getInput('capacity-provider-strategy',{required: false}) || '{}';
 
   let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
-    capacityProviderStrategy: capacityProviderStrategy
   };
 
   // Add the desiredCount property only if it is defined and a number.
@@ -395,17 +391,7 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-    const capacityProviderStrategy = core.getInput('capacity-provider-strategy',{required: false}) || [{base: 1, capacityProvider: 'FARGATE', weight: 1}];
-
-    if(capacityProviderStrategy){
-      core.debug('Using capacity provider ommits the launchtype option')
-      launchType = undefined;
-    }
-    else{
-      core.debug('Using launch type ommits the capacity provider option')
-      launchType = 'FARGATE' ;
-    }
-
+   
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -433,13 +419,12 @@ async function run() {
     
     if (shouldRunTask) {
       core.debug("Running one-off task...");
-      await runTask(ecs, capacityProviderStrategy, clusterName, taskDefArn, waitForMinutes);
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
     }
 
     // Update the service with the new task definition
     if (service) {
-      //const clusterName = cluster ? cluster : 'default';
-
+      
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
@@ -459,7 +444,7 @@ async function run() {
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         core.debug('Updating service...');
-        await updateEcsService(ecs, capacityProviderStrategy, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
