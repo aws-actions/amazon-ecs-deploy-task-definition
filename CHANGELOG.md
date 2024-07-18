@@ -7,8 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* Force release version upgrade to 1.6 ([3f1b093](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/3f1b09388f6d7fac25601cf8ce7859d55cd3b242))
-
+* Add CodeDeploy deployment config name parameter([4b15394](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b153949000fb656721f5a776216cb7e446d9f98))
 
 ### Bug Fixes
 
