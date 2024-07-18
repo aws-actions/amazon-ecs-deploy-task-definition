@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.5.0...v1.6.0) (2024-07-18)
+
+
+### Features
+
+* Add CodeDeploy deployment config name parameter ([4b15394](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b153949000fb656721f5a776216cb7e446d9f98))
+
+
+### Bug Fixes
+
+* pass maxWaitTime in seconds ([b5c6c3f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b5c6c3fcbdf37b6f40a448364f91bfa3f824e3d0))
+* waiter options ([a15de3c](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/a15de3cf6c410374c35333dbbf96b183206ac0b7))
+
 ## [1.5.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.4.11...v1.5.0) (2024-05-07)
 
 
