@@ -7,10 +7,11 @@
 const path = __nccwpck_require__(1017);
 const core = __nccwpck_require__(2186);
 const { CodeDeploy, waitUntilDeploymentSuccessful } = __nccwpck_require__(6692);
-const { ECS, waitUntilServicesStable } = __nccwpck_require__(8209);
+const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = __nccwpck_require__(8209);
 const yaml = __nccwpck_require__(4083);
 const fs = __nccwpck_require__(7147);
 const crypto = __nccwpck_require__(6113);
+const { default: cluster } = __nccwpck_require__(5001);
 
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
@@ -27,15 +28,124 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
+//Code to run task outside of a service aka (also known as) a one-off task
+async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
+  core.info('Running task')
+
+  const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
+  const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
+  const launchType = core.getInput('run-task-launch-type', { required: false })|| 'FARGATE';
+  const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
+  const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
+  const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+
+  let awsvpcConfiguration = {}
+
+
+  if (subnetIds != "") {
+    awsvpcConfiguration["subnets"] = subnetIds.split(',')
+  }
+
+  if (securityGroupIds != "") {
+    awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
+  }
+
+  const runTaskResponse = await ecs.runTask({
+    startedBy: startedBy,
+    cluster: clusterName,
+    taskDefinition: taskDefArn,
+    overrides: {
+      containerOverrides: containerOverrides
+    },
+    launchType: launchType,
+    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration },
+
+  });
+
+
+  core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
+
+  const taskArns = runTaskResponse.tasks.map(task => task.taskArn);
+  core.setOutput('run-task-arn', taskArns);
+
+  const region = await ecs.config.region();
+  const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
+
+  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
+
+
+  if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
+    const failure = runTaskResponse.failures[0];
+    throw new Error(`${failure.arn} is ${failure.reason}`);
+  }
+
+  // Wait for task to end
+  if (waitForTask && waitForTask.toLowerCase() === "true") {
+    await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes)
+    await tasksExitCode(ecs, clusterName, taskArns)
+  } else {
+    core.debug('Not waiting for the task to stop');
+  }
+}
+
+// Poll tasks until they enter a stopped state
+async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
+  if (waitForMinutes > MAX_WAIT_MINUTES) {
+    waitForMinutes = MAX_WAIT_MINUTES;
+  }
+
+  core.info(`Waiting for tasks to stop. Will wait for ${waitForMinutes} minutes`);
+
+  const waitTaskResponse = await waitUntilTasksStopped({
+    client: ecs,
+    minDelay: WAIT_DEFAULT_DELAY_SEC,
+    maxWaitTime: waitForMinutes * 60,
+  }, {
+    cluster: clusterName,
+    tasks: taskArns,
+  });
+
+  core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`);
+  core.info('All tasks have stopped.');
+}
+
+// Check a task's exit code and fail the job on error
+async function tasksExitCode(ecs, clusterName, taskArns) {
+  const describeResponse = await ecs.describeTasks({
+    cluster: clusterName,
+    tasks: taskArns
+  });
+
+  const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
+  const exitCodes = containers.map(container => container.exitCode)
+  const reasons = containers.map(container => container.reason)
+
+  const failuresIdx = [];
+
+  exitCodes.filter((exitCode, index) => {
+    if (exitCode !== 0) {
+      failuresIdx.push(index)
+    }
+  })
+
+  const failures = reasons.filter((_, index) => failuresIdx.indexOf(index) !== -1)
+  if (failures.length > 0) {
+    throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
+  }
+}
+
+
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
+
   let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment
+    forceNewDeployment: forceNewDeployment,
   };
+
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
@@ -231,7 +341,7 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   };
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
   if (codeDeployDescription) {
-    deploymentParams.description = codeDeployDescription
+    deploymentParams.description = (codeDeployDescription.length <= 512) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
   }
   if (codeDeployConfig) {
     deploymentParams.deploymentConfigName = codeDeployConfig
@@ -279,6 +389,7 @@ async function run() {
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
+
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
@@ -286,8 +397,7 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-
-
+   
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -306,11 +416,21 @@ async function run() {
     }
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
+    
+    // Run the task outside of the service
+    const clusterName = cluster ? cluster : 'default';
+    const shouldRunTaskInput = core.getInput('run-task', { required: false }) || 'false';
+    const shouldRunTask = shouldRunTaskInput.toLowerCase() === 'true';
+    core.debug(`shouldRunTask: ${shouldRunTask}`);
+
+    //run task 
+    if (shouldRunTask) {
+      core.debug("Running one-off task...");
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
+    }
 
     // Update the service with the new task definition
     if (service) {
-      const clusterName = cluster ? cluster : 'default';
-
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
@@ -329,9 +449,12 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
+        core.debug('Updating service...');
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
+        core.debug('Deploying service in the default cluster');
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
@@ -61739,6 +61862,14 @@ module.exports = require("buffer");
 
 "use strict";
 module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 5001:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("cluster");
 
 /***/ }),
 
