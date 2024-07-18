@@ -431,6 +431,7 @@ async function run() {
 
     // Update the service with the new task definition
     if (service) {
+      
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
