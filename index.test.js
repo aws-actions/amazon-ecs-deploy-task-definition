@@ -17,6 +17,7 @@ const mockEcsDescribeServices = jest.fn();
 const mockCodeDeployCreateDeployment = jest.fn();
 const mockCodeDeployGetDeploymentGroup = jest.fn();
 const mockRunTask = jest.fn();
+const mockWaitUntilTasksStopped = jest.fn().mockRejectedValue(new Error('failed'));
 const mockEcsDescribeTasks = jest.fn();
 const config = {
   region: () => Promise.resolve('fake-region'),
@@ -38,6 +39,7 @@ describe('Deploy to ECS', () => {
         describeServices: mockEcsDescribeServices,
         describeTasks: mockEcsDescribeTasks,
         runTask: mockRunTask,
+        waitUntilTasksStopped: mockWaitUntilTasksStopped,
     };
 
     const mockCodeDeployClient = {
@@ -1253,6 +1255,42 @@ describe('Deploy to ECS', () => {
         expect(mockRunTask).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"])
         expect(waitUntilTasksStopped).toHaveBeenCalledTimes(1);
+    });
+
+
+    test('error is caught if run task fails with (wait-for-task-stopped: true)', async () => {
+        mockEcsDescribeTasks.mockImplementation(
+            () => Promise.resolve({
+                failures: [{
+                    reason: 'TASK_FAILED',
+                    arn: "arn:aws:ecs:us-east-1:111122223333:task-definition/TaskFamilyName:* is TASK_FAILED"
+                }],
+                tasks: [],
+                executionStoppedAt: 1
+
+            })
+        );
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(0);
+
+    });
+
+    test('error is caught if run task fails with (wait-for-task-stopped: true) and with service', async () => {
+        mockEcsDescribeTasks.mockImplementation(
+            () => Promise.resolve({
+                failures: [{
+                    reason: 'SERVICE_FAILED',
+                    arn: "arn:aws:ecs:us-east-1:111122223333:service/ServiceName"
+                }],
+                services: [],
+            })
+        );
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(0);
     });
 
     test('error caught if AppSpec file is not formatted correctly', async () => {
