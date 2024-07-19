@@ -1146,6 +1146,15 @@ describe('Deploy to ECS', () => {
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockRunTask).toHaveBeenCalledTimes(1);
+        expect(mockRunTask).toHaveBeenNthCalledWith(1,{
+            startedBy: 'GitHub-Actions',
+            cluster: 'default',
+            launchType: 'FARGATE',
+            taskDefinition: 'task:def:arn',
+            overrides: {"containerOverrides": []},
+            networkConfiguration: {},
+        });
+
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
 
