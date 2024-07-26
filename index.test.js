@@ -1152,7 +1152,7 @@ describe('Deploy to ECS', () => {
             launchType: 'FARGATE',
             taskDefinition: 'task:def:arn',
             overrides: {"containerOverrides": []},
-            networkConfiguration: {},
+            networkConfiguration: {awsvpcConfiguration: {assignPublicIp: "DISABLED" }},
         });
 
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1188,7 +1188,7 @@ describe('Deploy to ECS', () => {
             launchType: 'EC2',
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } },
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
     
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1234,7 +1234,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             launchType: 'EC2',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'] } },
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
 
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);

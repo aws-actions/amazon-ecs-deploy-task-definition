@@ -32,6 +32,8 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+  const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
+
 
   let awsvpcConfiguration = {}
 
@@ -44,6 +46,10 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
     awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
   }
 
+  if(assignPublicIP != ""){
+    awsvpcConfiguration["assignPublicIp"] = assignPublicIP
+  }
+  
   const runTaskResponse = await ecs.runTask({
     startedBy: startedBy,
     cluster: clusterName,
