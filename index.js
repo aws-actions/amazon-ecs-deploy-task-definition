@@ -70,7 +70,7 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
   const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
 
-  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks/${startedBy}`);
+  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
   
 
   if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {

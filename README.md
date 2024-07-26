@@ -31,6 +31,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 ```
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
+In most cases when running a one-off task, subnet ID's, subnet groups, and assign public IP will be required. 
 
 ### Task definition file
 
