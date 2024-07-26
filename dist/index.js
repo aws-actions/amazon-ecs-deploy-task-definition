@@ -40,9 +40,7 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
 
-
   let awsvpcConfiguration = {}
-
 
   if (subnetIds != "") {
     awsvpcConfiguration["subnets"] = subnetIds.split(',')
@@ -77,7 +75,7 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
   const region = await ecs.config.region();
   const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
-  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
+  core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/task/${runTaskResponse}`);
 
 
   if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
@@ -149,7 +147,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment,
+    forceNewDeployment: forceNewDeployment
   };
 
   // Add the desiredCount property only if it is defined and a number.
@@ -346,8 +344,10 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     }
   };
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
+  let codeDeployDescriptionLimit = 512; 
+
   if (codeDeployDescription) {
-    deploymentParams.description = (codeDeployDescription.length <= 512) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
+    deploymentParams.description = (codeDeployDescription.length <= codeDeployDescriptionLimit) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
   }
   if (codeDeployConfig) {
     deploymentParams.deploymentConfigName = codeDeployConfig
