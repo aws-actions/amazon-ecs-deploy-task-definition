@@ -54,7 +54,7 @@ inputs:
     description: 'A comma-separated list of subnet IDs to assign to a task when run outside of a service. Will default to none.'
     required: false
   run-task-assign-public-IP:
-    description: 'Whether the task's elastic network interface receives a public IP address. The default value is DISABLED.'
+    description: "Whether the task's elastic network interface receives a public IP address. The default value is DISABLED."
     required: false
   run-task-launch-type:
     description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'."
