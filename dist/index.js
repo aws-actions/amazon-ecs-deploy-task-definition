@@ -11,7 +11,7 @@ const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = __nccwpck_requir
 const yaml = __nccwpck_require__(4083);
 const fs = __nccwpck_require__(7147);
 const crypto = __nccwpck_require__(6113);
-const { default: cluster } = __nccwpck_require__(5001);
+//const { default: cluster } = require('cluster');
 
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
@@ -62722,14 +62722,6 @@ module.exports = require("buffer");
 
 "use strict";
 module.exports = require("child_process");
-
-/***/ }),
-
-/***/ 5001:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("cluster");
 
 /***/ }),
 

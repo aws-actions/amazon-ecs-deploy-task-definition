@@ -5,7 +5,7 @@ const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sd
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
-const { default: cluster } = require('cluster');
+//const { default: cluster } = require('cluster');
 
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
