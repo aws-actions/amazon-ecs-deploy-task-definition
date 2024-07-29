@@ -872,7 +872,6 @@ describe('Deploy to ECS', () => {
             applicationName: 'Custom-Application',
             deploymentGroupName: 'Custom-Deployment-Group',
             deploymentConfigName: 'CodeDeployDefault.AllAtOnce',
-            description: 'Custom-Deployment',
             revision: {
                 revisionType: 'AppSpecContent',
                 appSpecContent: {

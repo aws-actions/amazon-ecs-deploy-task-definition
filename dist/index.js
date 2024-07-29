@@ -11,8 +11,6 @@ const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = __nccwpck_requir
 const yaml = __nccwpck_require__(4083);
 const fs = __nccwpck_require__(7147);
 const crypto = __nccwpck_require__(6113);
-//const { default: cluster } = require('cluster');
-
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
 
@@ -345,11 +343,6 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     }
   };
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
-  let codeDeployDescriptionLimit = 512; 
-
-  if (codeDeployDescription) {
-    deploymentParams.description = (codeDeployDescription.length <= codeDeployDescriptionLimit) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
-  }
   if (codeDeployConfig) {
     deploymentParams.deploymentConfigName = codeDeployConfig
   }
