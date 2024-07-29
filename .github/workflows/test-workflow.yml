@@ -33,3 +33,53 @@ jobs:
         service: github-actions-deploy-task-def-integ-test
         cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
+
+    - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
+      uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
+      with:
+        task-definition: task-definition.json
+        cluster: github-actions-deploy-task-def-integ-test
+        run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-launch-type: FARGATE
+        wait-for-task-stopped: false 
+
+    - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
+      uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
+      with:
+        task-definition: task-definition.json
+        cluster: github-actions-deploy-task-def-integ-test
+        run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-launch-type: FARGATE
+        wait-for-task-stopped: true
+
+    - name: Deploy Amazon ECS task definition With A Servcie, Stand-Alone Task & Wait For Task Stopped Being False
+      uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+        run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-assign-public-IP: ENABLED
+        run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-launch-type: FARGATE
+        wait-for-task-stopped: false
+
+    - name: Deploy Amazon ECS task definition With A Service, Stand-Alone Task & Wait For Task Stopped Being True
+      uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+        run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-assign-public-IP: ENABLED
+        run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-launch-type: FARGATE
+        wait-for-task-stopped: true
