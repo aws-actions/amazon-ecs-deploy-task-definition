@@ -45,7 +45,7 @@ jobs:
       uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
       with:
         task-definition: task-definition.json
-        cluster: github-actions-deploy-task-def-integ-test
+        cluster: ${{ env.ECS_CLUSTER }}
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-security-groups: sg-067ebcde49c0f3ad8
@@ -56,7 +56,7 @@ jobs:
       uses: shesaave/amazon-ecs-deploy-task-definition@c279797b5851a4a8e05656a935b4847778fecd44
       with:
         task-definition: task-definition.json
-        cluster: github-actions-deploy-task-def-integ-test
+        cluster: ${{ env.ECS_CLUSTER }}
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-security-groups: sg-067ebcde49c0f3ad8
