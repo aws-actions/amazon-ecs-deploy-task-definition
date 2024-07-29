@@ -42,7 +42,7 @@ inputs:
     required: false
   #one off task inputs
   run-task:
-    description: 'Whether to run the task outside of an ECS service. Task will run before the service is updated if both are provided. Will default to not run.'
+    description: 'A boolean indicating whether to run the task outside of an ECS service. Task will run before the service is updated if both are provided. Default value is false .'
     required: false
   run-task-container-overrides:
     description: 'A JSON array of container override objects which should applied when running a task outside of a service. Warning: Do not expose this field to untrusted inputs. More details: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerOverride.html'
