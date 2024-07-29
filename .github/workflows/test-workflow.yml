@@ -37,9 +37,8 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition.json
-        run-task: github-actions-deploy-task-def-integ-test
-        service: github-actions-deploy-task-def-integ-test
-        cluster: github-actions-deploy-task-def-integ-test
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
