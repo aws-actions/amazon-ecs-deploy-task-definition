@@ -40,7 +40,6 @@ inputs:
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
-  #one off task inputs
   run-task:
     description: 'A boolean indicating whether to run a stand-alone task in a ECS cluster. Task will run before the service is updated if both are provided. Default value is false .'
     required: false
@@ -64,8 +63,7 @@ inputs:
     required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
-    required: false
-#back to original inputs 
+    required: false 
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'

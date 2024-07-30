@@ -20,8 +20,8 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
-//Code to run task outside of a service aka (also known as) a one-off task
-async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
+//method to run a stand-alone task with dersired inputs
+async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
@@ -55,9 +55,7 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
     },
     launchType: launchType,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration },
-
   });
-
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 
@@ -66,7 +64,6 @@ async function runTask(ecs,clusterName, taskDefArn, waitForMinutes) {
 
   const region = await ecs.config.region();
   const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
-
 
   core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
   
@@ -130,7 +127,6 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
     throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
   }
 }
-
 
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
@@ -425,7 +421,6 @@ async function run() {
 
     // Update the service with the new task definition
     if (service) {
-      
       // Determine the deployment controller
       const describeResponse = await ecs.describeServices({
         services: [service],
