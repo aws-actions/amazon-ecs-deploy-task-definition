@@ -1129,7 +1129,7 @@ describe('Deploy to ECS', () => {
             launchType: 'FARGATE',
             taskDefinition: 'task:def:arn',
             overrides: {"containerOverrides": []},
-            networkConfiguration: {awsvpcConfiguration: {assignPublicIp: "DISABLED" }},
+            networkConfiguration: {awsvpcConfiguration: {assignPublicIp: "DISABLED" }}
         });
 
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1251,7 +1251,6 @@ describe('Deploy to ECS', () => {
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(0);
-
     });
 
     test('error is caught if run task fails with (wait-for-task-stopped: true) and with service', async () => {
