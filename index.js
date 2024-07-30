@@ -5,7 +5,6 @@ const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sd
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
-
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
 
@@ -21,7 +20,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
-// Run task outside of a service
+// Method to run a stand-alone task with desired inputs
 async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   core.info('Running task')
 
@@ -31,6 +30,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
+  const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
+
   let awsvpcConfiguration = {}
 
   if (subnetIds != "") {
@@ -41,6 +42,10 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
     awsvpcConfiguration["securityGroups"] = securityGroupIds.split(',')
   }
 
+  if(assignPublicIP != ""){
+    awsvpcConfiguration["assignPublicIp"] = assignPublicIP
+  }
+  
   const runTaskResponse = await ecs.runTask({
     startedBy: startedBy,
     cluster: clusterName,
@@ -125,12 +130,14 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
   core.debug('Updating the service');
+
   let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment
   };
+
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
@@ -376,6 +383,7 @@ async function run() {
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
+
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
@@ -383,8 +391,7 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-
-
+   
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -434,9 +441,12 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
+        core.debug('Updating service...');
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
+        core.debug('Deploying service in the default cluster');
         await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
