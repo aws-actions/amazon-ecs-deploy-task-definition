@@ -1277,7 +1277,7 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toBeCalledWith("arn:aws:ecs:fake-region:account_id:task/arn is TASK_FAILED");
     });
 
-    test('error is caught if run task fails with (wait-for-task-stopped: true) and with service', async () => {
+    test('error is caught if run task fails with (wait-for-task-stopped: false) and with service', async () => {
         core.getInput = jest
         .fn()
         .mockReturnValueOnce('task-definition.json')  // task-definition
