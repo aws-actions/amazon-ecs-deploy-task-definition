@@ -3,15 +3,6 @@ on:
     branches:
       - integ-tests
 
-env:
-  AWS_REGION: us-west-2
-  ECR_REPOSITORY: cdk-hnb659fds-container-assets-708414441733-us-west-2
-  ECS_SERVICE: github-actions-deploy-task-def-integ-test
-  ECS_CLUSTER: github-actions-deploy-task-def-integ-test          
-  ECS_TASK_DEFINITION: task-definition.json 
-  ECS_TASK_DEFINITION_RUN_TASK: task-definition-run-task.json
-  CONTAINER_NAME: web  
-
 name: Integration Test
 
 jobs:
@@ -37,8 +28,8 @@ jobs:
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION_RUN_TASK }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        task-definition: task-definition-run-task.json
+        cluster: github-actions-deploy-task-def-integ-test 
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-assign-public-IP: ENABLED
@@ -49,8 +40,8 @@ jobs:
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION_RUN_TASK }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        task-definition: task-definition-run-task.json
+        cluster: github-actions-deploy-task-def-integ-test 
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-assign-public-IP: ENABLED
@@ -61,7 +52,7 @@ jobs:
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        task-definition: task-definition.json
+        service: github-actions-deploy-task-def-integ-test 
+        cluster: github-actions-deploy-task-def-integ-test 
         wait-for-service-stability: true
