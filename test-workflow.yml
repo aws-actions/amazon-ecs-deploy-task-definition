@@ -29,16 +29,22 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-test 
+        cluster: github-actions-deploy-task-def-integ-test
         run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-security-groups: sg-148d093a
+        run-task-launch-type: FARGATE
         wait-for-task-stopped: false 
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-test 
+        cluster: github-actions-deploy-task-def-integ-test
         run-task: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-security-groups: sg-148d093a
+        run-task-launch-type: FARGATE
         wait-for-task-stopped: true
 
     - name: Deploy Amazon ECS task definition
@@ -46,5 +52,5 @@ jobs:
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test 
-        cluster: github-actions-deploy-task-def-integ-test 
+        cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
