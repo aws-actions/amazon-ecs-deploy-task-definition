@@ -32,7 +32,7 @@ jobs:
         cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
-        run-task-security-groups: sg-148d093a
+        run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
         wait-for-task-stopped: false 
 
@@ -43,7 +43,7 @@ jobs:
         cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
-        run-task-security-groups: sg-148d093a
+        run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
         wait-for-task-stopped: true
 
