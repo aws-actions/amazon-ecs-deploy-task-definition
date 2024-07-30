@@ -1,0 +1,37 @@
+{
+  "containerDefinitions": [
+    {
+      "entryPoint": [
+        "sh",
+        "-c"
+      ],
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "command": [
+        "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS Sample App</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center> <h1>Amazon ECS Sample App</h1> <h2>Congratulations!</h2> <p>Your application is now running on a container in Amazon ECS.</p> </div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
+      ],
+      "cpu": 256,
+      "memoryReservation": 512,
+      "image": "public.ecr.aws/docker/library/hello-world:nanoserver",
+      "essential": true,
+      "name": "sample-app"
+    }
+  ],
+  "memory": "512",
+  "family": "github-actions-deploy-task-def-integ-tests",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "awsvpcConfiguration": {
+    "subnets": [ "subnet-0b55b050c50fa69fc", "subnet-0e6bad97ae3070da7", "subnet-06e1eee5d79c9c759", "subnet-04f946511ec06f6cc", "subnet-0db3feae90e6e3739", "subnet-06135d9ae548a05c3"],
+    "securityGroups": ["sg-09039e6de81d27e9c"],
+    "assignPublicIp": "ENABLED"
+  },
+  "cpu": "256"
+}
