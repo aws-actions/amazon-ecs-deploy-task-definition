@@ -1237,36 +1237,85 @@ describe('Deploy to ECS', () => {
     });
 
     test('error is caught if run task fails with (wait-for-task-stopped: true)', async () => {
-        mockEcsDescribeTasks.mockImplementation(
+        core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-definition.json')  // task-definition
+        .mockReturnValueOnce('')                      // service
+        .mockReturnValueOnce('somecluster')           // cluster
+        .mockReturnValueOnce('')                      // wait-for-service-stability
+        .mockReturnValueOnce('')                      // wait-for-minutes
+        .mockReturnValueOnce('')                      // force-new-deployment
+        .mockReturnValueOnce('')                      // desired-count
+        .mockReturnValueOnce('true')                  // run-task
+        .mockReturnValueOnce('true');                 // wait-for-task-stopped
+
+        mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [{
                     reason: 'TASK_FAILED',
-                    arn: "arn:aws:ecs:us-east-1:111122223333:task-definition/TaskFamilyName:* is TASK_FAILED"
+                    arn: "arn:aws:ecs:fake-region:account_id:task/arn"
                 }],
-                tasks: [],
-                executionStoppedAt: 1
+                tasks: [
+                    {
+                        containers: [
+                            {
+                                lastStatus: "RUNNING",
+                                exitCode: 0,
+                                reason: '',
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            }
+                        ],
+                        desiredStatus: "RUNNING",
+                        lastStatus: "STOPPED",
+                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                    }
+                ]
             })
         );
 
         await run();
-        expect(core.setFailed).toHaveBeenCalledTimes(0);
-        expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(0);
+        expect(core.setFailed).toBeCalledWith("arn:aws:ecs:fake-region:account_id:task/arn is TASK_FAILED");
     });
 
     test('error is caught if run task fails with (wait-for-task-stopped: true) and with service', async () => {
-        mockEcsDescribeTasks.mockImplementation(
+        core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-definition.json')  // task-definition
+        .mockReturnValueOnce('')                      // service
+        .mockReturnValueOnce('somecluster')           // cluster
+        .mockReturnValueOnce('')                      // wait-for-service-stability
+        .mockReturnValueOnce('')                      // wait-for-minutes
+        .mockReturnValueOnce('')                      // force-new-deployment
+        .mockReturnValueOnce('')                      // desired-count
+        .mockReturnValueOnce('true')                  // run-task
+        .mockReturnValueOnce('false');                 // wait-for-task-stopped
+        
+        mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [{
-                    reason: 'SERVICE_FAILED',
-                    arn: "arn:aws:ecs:us-east-1:111122223333:service/ServiceName"
+                    reason: 'TASK_FAILED',
+                    arn: "arn:aws:ecs:fake-region:account_id:task/arn"
                 }],
-                services: [],
+                tasks: [
+                    {
+                        containers: [
+                            {
+                                lastStatus: "RUNNING",
+                                exitCode: 0,
+                                reason: '',
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            }
+                        ],
+                        desiredStatus: "RUNNING",
+                        lastStatus: "STOPPED",
+                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                    }
+                ]
             })
         );
 
         await run();
-        expect(core.setFailed).toHaveBeenCalledTimes(0);
-        expect(mockEcsDescribeTasks).toHaveBeenCalledTimes(0);
+        expect(core.setFailed).toBeCalledWith("arn:aws:ecs:fake-region:account_id:task/arn is TASK_FAILED");
     });
 
     test('error caught if AppSpec file is not formatted correctly', async () => {
