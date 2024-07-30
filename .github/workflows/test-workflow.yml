@@ -47,7 +47,7 @@ jobs:
         task-definition: task-definition.json
         cluster: ${{ env.ECS_CLUSTER }}
         run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-subnets: subnet-0b55b050c50fa69fc, subnet-0e6bad97ae3070da7, subnet-04f946511ec06f6cc, subnet-06135d9ae548a05c3
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
         wait-for-task-stopped: false 
@@ -58,7 +58,7 @@ jobs:
         task-definition: task-definition.json
         cluster: ${{ env.ECS_CLUSTER }}
         run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-subnets: subnet-0b55b050c50fa69fc, subnet-0e6bad97ae3070da7, subnet-04f946511ec06f6cc, subnet-06135d9ae548a05c3
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
         wait-for-task-stopped: true
@@ -71,7 +71,7 @@ jobs:
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
         run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-subnets: subnet-0b55b050c50fa69fc, subnet-0e6bad97ae3070da7, subnet-04f946511ec06f6cc, subnet-06135d9ae548a05c3
         run-task-assign-public-IP: ENABLED
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
@@ -85,7 +85,7 @@ jobs:
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
         run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-subnets: subnet-0b55b050c50fa69fc, subnet-0e6bad97ae3070da7, subnet-04f946511ec06f6cc, subnet-06135d9ae548a05c3
         run-task-assign-public-IP: ENABLED
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
