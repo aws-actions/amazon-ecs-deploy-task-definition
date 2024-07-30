@@ -4,7 +4,7 @@ on:
       - integ-tests
 
 env:
-  AWS_REGION: us-east-1 
+  AWS_REGION: us-west-2
   ECR_REPOSITORY: cdk-hnb659fds-container-assets-708414441733-us-west-2
   ECS_SERVICE: github-actions-deploy-task-def-integ-test
   ECS_CLUSTER: github-actions-deploy-task-def-integ-test          
