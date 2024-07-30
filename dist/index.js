@@ -26,13 +26,13 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'registeredBy'
 ];
 
-//method to run a stand-alone task with dersired inputs
+// Method to run a stand-alone task with desired inputs
 async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
   const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
-  const launchType = core.getInput('run-task-launch-type', { required: false })|| 'FARGATE';
+  const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
@@ -60,7 +60,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
       containerOverrides: containerOverrides
     },
     launchType: launchType,
-    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration },
+    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? {} : { awsvpcConfiguration: awsvpcConfiguration }
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -72,7 +72,6 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
   const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
 
   core.info(`Task running: https://${consoleHostname}/ecs/home?region=${region}#/clusters/${clusterName}/tasks`);
-  
 
   if (runTaskResponse.failures && runTaskResponse.failures.length > 0) {
     const failure = runTaskResponse.failures[0];
@@ -338,7 +337,12 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
       }
     }
   };
+
   // If it hasn't been set then we don't even want to pass it to the api call to maintain previous behaviour.
+  if (codeDeployDescription) {
+    // CodeDeploy Deployment Descriptions have a max length of 512 characters, so truncate if necessary
+    deploymentParams.description = (codeDeployDescription.length <= 512) ? codeDeployDescription : `${codeDeployDescription.substring(0,511)}…`;
+  }
   if (codeDeployConfig) {
     deploymentParams.deploymentConfigName = codeDeployConfig
   }
@@ -412,16 +416,14 @@ async function run() {
     }
     const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
-    
+
     // Run the task outside of the service
     const clusterName = cluster ? cluster : 'default';
     const shouldRunTaskInput = core.getInput('run-task', { required: false }) || 'false';
     const shouldRunTask = shouldRunTaskInput.toLowerCase() === 'true';
     core.debug(`shouldRunTask: ${shouldRunTask}`);
-
-    //run task 
     if (shouldRunTask) {
-      core.debug("Running one-off task...");
+      core.debug("Running ad-hoc task...");
       await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
     }
 
@@ -64585,10 +64587,23 @@ function resolveCollection(CN, ctx, token, onError, tagName, tag) {
         coll.tag = tagName;
     return coll;
 }
-function composeCollection(CN, ctx, token, tagToken, onError) {
+function composeCollection(CN, ctx, token, props, onError) {
+    const tagToken = props.tag;
     const tagName = !tagToken
         ? null
         : ctx.directives.tagName(tagToken.source, msg => onError(tagToken, 'TAG_RESOLVE_FAILED', msg));
+    if (token.type === 'block-seq') {
+        const { anchor, newlineAfterProp: nl } = props;
+        const lastProp = anchor && tagToken
+            ? anchor.offset > tagToken.offset
+                ? anchor
+                : tagToken
+            : (anchor ?? tagToken);
+        if (lastProp && (!nl || nl.offset < lastProp.offset)) {
+            const message = 'Missing newline after block sequence props';
+            onError(lastProp, 'MISSING_CHAR', message);
+        }
+    }
     const expType = token.type === 'block-map'
         ? 'map'
         : token.type === 'block-seq'
@@ -64602,8 +64617,7 @@ function composeCollection(CN, ctx, token, tagToken, onError) {
         !tagName ||
         tagName === '!' ||
         (tagName === YAMLMap.YAMLMap.tagName && expType === 'map') ||
-        (tagName === YAMLSeq.YAMLSeq.tagName && expType === 'seq') ||
-        !expType) {
+        (tagName === YAMLSeq.YAMLSeq.tagName && expType === 'seq')) {
         return resolveCollection(CN, ctx, token, onError, tagName);
     }
     let tag = ctx.schema.tags.find(t => t.tag === tagName && t.collection === expType);
@@ -64726,7 +64740,7 @@ function composeNode(ctx, token, props, onError) {
         case 'block-map':
         case 'block-seq':
         case 'flow-collection':
-            node = composeCollection.composeCollection(CN, ctx, token, tag, onError);
+            node = composeCollection.composeCollection(CN, ctx, token, props, onError);
             if (anchor)
                 node.anchor = anchor.source.substring(1);
             break;
@@ -65164,7 +65178,7 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError, ta
                 }
                 continue;
             }
-            if (keyProps.hasNewlineAfterProp || utilContainsNewline.containsNewline(key)) {
+            if (keyProps.newlineAfterProp || utilContainsNewline.containsNewline(key)) {
                 onError(key ?? start[start.length - 1], 'MULTILINE_IMPLICIT_KEY', 'Implicit keys need to be on a single line');
             }
         }
@@ -66006,11 +66020,11 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIn
     let comment = '';
     let commentSep = '';
     let hasNewline = false;
-    let hasNewlineAfterProp = false;
     let reqSpace = false;
     let tab = null;
     let anchor = null;
     let tag = null;
+    let newlineAfterProp = null;
     let comma = null;
     let found = null;
     let start = null;
@@ -66064,7 +66078,7 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIn
                 atNewline = true;
                 hasNewline = true;
                 if (anchor || tag)
-                    hasNewlineAfterProp = true;
+                    newlineAfterProp = token;
                 hasSpace = true;
                 break;
             case 'anchor':
@@ -66138,9 +66152,9 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIn
         spaceBefore,
         comment,
         hasNewline,
-        hasNewlineAfterProp,
         anchor,
         tag,
+        newlineAfterProp,
         end,
         start: start ?? end
     };
@@ -67479,7 +67493,6 @@ class Collection extends Node.NodeBase {
         }
     }
 }
-Collection.maxFlowStringSingleLineLength = 60;
 
 exports.Collection = Collection;
 exports.collectionFromPath = collectionFromPath;
@@ -68940,15 +68953,11 @@ class Lexer {
             if (!this.atEnd && !this.hasChars(4))
                 return this.setNext('line-start');
             const s = this.peek(3);
-            if (s === '---' && isEmpty(this.charAt(3))) {
+            if ((s === '---' || s === '...') && isEmpty(this.charAt(3))) {
                 yield* this.pushCount(3);
                 this.indentValue = 0;
                 this.indentNext = 0;
-                return 'doc';
-            }
-            else if (s === '...' && isEmpty(this.charAt(3))) {
-                yield* this.pushCount(3);
-                return 'stream';
+                return s === '---' ? 'doc' : 'stream';
             }
         }
         this.indentValue = yield* this.pushSpaces(false);
@@ -71693,6 +71702,8 @@ const FOLD_QUOTED = 'quoted';
 function foldFlowLines(text, indent, mode = 'flow', { indentAtStart, lineWidth = 80, minContentWidth = 20, onFold, onOverflow } = {}) {
     if (!lineWidth || lineWidth < 0)
         return text;
+    if (lineWidth < minContentWidth)
+        minContentWidth = 0;
     const endStep = Math.max(1 + minContentWidth, 1 + lineWidth - indent.length);
     if (text.length <= endStep)
         return text;

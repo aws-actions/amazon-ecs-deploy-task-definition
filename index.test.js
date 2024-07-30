@@ -39,7 +39,7 @@ describe('Deploy to ECS', () => {
         describeServices: mockEcsDescribeServices,
         describeTasks: mockEcsDescribeTasks,
         runTask: mockRunTask,
-        waitUntilTasksStopped: mockWaitUntilTasksStopped,
+        waitUntilTasksStopped: mockWaitUntilTasksStopped
     };
 
     const mockCodeDeployClient = {
@@ -168,8 +168,6 @@ describe('Deploy to ECS', () => {
 
         waitUntilDeploymentSuccessful.mockImplementation(() => Promise.resolve({}));
     });
-
-    
 
     test('registers the task definition contents and updates the service', async () => {
         await run();
@@ -872,6 +870,7 @@ describe('Deploy to ECS', () => {
             applicationName: 'Custom-Application',
             deploymentGroupName: 'Custom-Deployment-Group',
             deploymentConfigName: 'CodeDeployDefault.AllAtOnce',
+            description: 'Custom-Deployment',
             revision: {
                 revisionType: 'AppSpecContent',
                 appSpecContent: {
@@ -1138,7 +1137,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true');                 // run-task
 
-
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
@@ -1174,7 +1172,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
             .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
             .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
-
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);

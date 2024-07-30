@@ -243,7 +243,6 @@ In the following example, the service would not be updated until the ad-hoc task
 
 Overrides and VPC networking options are available as well. See [actions.yml](actions.yml) for more details.
 
-
 ## Troubleshooting
 
 This action emits debug logs to help troubleshoot deployment failures.  To see the debug logs, create a secret named `ACTIONS_STEP_DEBUG` with value `true` in your repository.
