@@ -187,7 +187,6 @@ describe('Deploy to ECS', () => {
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/events?region=fake-region");
     });
-    
 
     test('registers the task definition contents and updates the service if deployment controller type is ECS', async () => {
         mockEcsDescribeServices.mockImplementation(
@@ -557,7 +556,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValueOnce('60');                  // wait-for-minutes
+            .mockReturnValueOnce('60');                 // wait-for-minutes
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -634,7 +633,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
             .mockReturnValueOnce('1000');               // wait-for-minutes
-        
+
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
                 failures: [],
@@ -1165,8 +1164,7 @@ describe('Deploy to ECS', () => {
             launchType: 'EC2',
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
-    
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } }
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1247,7 +1245,6 @@ describe('Deploy to ECS', () => {
                 }],
                 tasks: [],
                 executionStoppedAt: 1
-
             })
         );
 
