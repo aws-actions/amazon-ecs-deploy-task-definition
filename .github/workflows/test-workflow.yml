@@ -26,7 +26,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
+      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test 
@@ -38,7 +38,7 @@ jobs:
         wait-for-task-stopped: false 
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
+      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test 
@@ -50,7 +50,7 @@ jobs:
         wait-for-task-stopped: true
 
     - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
+      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test 
