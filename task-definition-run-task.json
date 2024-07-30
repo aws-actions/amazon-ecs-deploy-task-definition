@@ -22,6 +22,6 @@
     "FARGATE"
   ],
   "networkMode": "awsvpc",
-  "cpu": "16"
+  "cpu": "256"
   
 }
