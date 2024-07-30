@@ -61,7 +61,7 @@ jobs:
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
-        task-definition: task-definition.json
+        task-definition: task-definition-run-task.json
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
