@@ -4,12 +4,12 @@ on:
       - integ-tests
 
 env:
-  AWS_REGION: us-west-2 
-  ECR_REPOSITORY: cdk-hnb659fds-container-assets-708414441733-us-west-2 
-  ECS_SERVICE: github-actions-deploy-task-def-integ-test    
-  ECS_CLUSTER: github-actions-deploy-task-def-integ-test                
+  AWS_REGION: us-east-1 
+  ECR_REPOSITORY: one-off-input
+  ECS_SERVICE: app-testing-service04
+  ECS_CLUSTER: one-off-cluster01            
   ECS_TASK_DEFINITION: task-definition.json 
-  CONTAINER_NAME: web      
+  CONTAINER_NAME: app     
 
 name: Integration Test
 
@@ -31,7 +31,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
+        aws-region: us-east-1
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
