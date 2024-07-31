@@ -25,29 +25,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-test
-        run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
-        run-task-security-groups: sg-067ebcde49c0f3ad8
-        run-task-launch-type: FARGATE
-        wait-for-task-stopped: false 
-
-    - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-test
-        run-task: true
-        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
-        run-task-security-groups: sg-067ebcde49c0f3ad8
-        run-task-launch-type: FARGATE
-        wait-for-task-stopped: true
-
-    - name: Deploy Amazon ECS task definition with ECS Service
+    - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: task-definition.json
