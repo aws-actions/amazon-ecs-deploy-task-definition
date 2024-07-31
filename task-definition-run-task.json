@@ -1,5 +1,4 @@
 {
-  
   "containerDefinitions": [
       {
           "memory": 32,
@@ -23,5 +22,4 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256"
-  
 }

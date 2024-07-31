@@ -16,7 +16,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:b758d9f2-aea6-4592-906f-aae8754d98b4
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:73193632-fdb5-4eea-b8b8-7c9afb374ce0
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -26,18 +26,18 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
-      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
+      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
-        run-task-security-groups:	sg-067ebcde49c0f3ad8
+        run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
-        wait-for-task-stopped: false 
+        wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
-      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
+      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -48,9 +48,9 @@ jobs:
         wait-for-task-stopped: true
 
     - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@b3a528eb690c86037acd19fd6a2a86337f4e3657
+      uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition.json
-        service: github-actions-deploy-task-def-integ-test 
+        service: github-actions-deploy-task-def-integ-test
         cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
