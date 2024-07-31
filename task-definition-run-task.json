@@ -1,0 +1,25 @@
+{
+  "containerDefinitions": [
+      {
+          "memory": 32,
+          "essential": true,
+          "entryPoint": ["ping"],
+          "name": "alpine_ping",
+          "readonlyRootFilesystem": true,
+          "image": "alpine:3.4",
+          "command": [
+              "-c",
+              "4",
+              "example.com"
+          ],
+          "cpu": 16
+      }
+  ],
+  "memory": "512",
+  "family": "github-actions-deploy-task-def-integ-tests",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "256"
+}
