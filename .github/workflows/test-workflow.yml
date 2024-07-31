@@ -25,7 +25,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being False
+    - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition-run-task.json
@@ -36,7 +36,7 @@ jobs:
         run-task-launch-type: FARGATE
         wait-for-task-stopped: false
 
-    - name: Deploy Amazon ECS task definition With Wait For Task Stopped Being True
+    - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition-run-task.json
@@ -47,7 +47,7 @@ jobs:
         run-task-launch-type: FARGATE
         wait-for-task-stopped: true
 
-    - name: Deploy Amazon ECS task definition
+    - name: Deploy Amazon ECS task definition with ECS Service
       uses: aws-actions/amazon-ecs-deploy-task-definition@1a69daea10712415b65b5c90f8c41b1b6b556ab5
       with:
         task-definition: task-definition.json
