@@ -29,7 +29,7 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-tests
+        cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-security-groups: sg-067ebcde49c0f3ad8
@@ -39,8 +39,8 @@ jobs:
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: task-definition-run-task.json
-        cluster: github-actions-deploy-task-def-integ-tests
+        task-definition: github-actions-deploy-task-def-integ-tests
+        cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-security-groups: sg-067ebcde49c0f3ad8
@@ -52,5 +52,5 @@ jobs:
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
-        cluster: github-actions-deploy-task-def-integ-tests
+        cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
