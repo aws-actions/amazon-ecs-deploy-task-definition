@@ -20,7 +20,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:ecb0a69e-514e-4d6c-b21e-dda87ed159e4
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:518fd60b-f3b8-4d19-b90d-48a31f572f6e
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -28,9 +28,9 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsDeployTaskIntegrationTests
         role-session-name: deploy_task_integration_tests
         aws-region: us-west-2
-        
+
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
-      uses: aws-actions/amazon-ecs-deploy-task-definition@abe77ebded86b685c231c58bd5936280c6fcc011
+      uses: aws-actions/amazon-ecs-deploy-task-definition@c09125f04e4ef2ddc8ac37691634298dc7707d40
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -39,10 +39,10 @@ jobs:
         run-task-assign-public-IP: ENABLED
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
-        wait-for-task-stopped: false
+        wait-for-task-stopped: false 
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@abe77ebded86b685c231c58bd5936280c6fcc011
+      uses: aws-actions/amazon-ecs-deploy-task-definition@c09125f04e4ef2ddc8ac37691634298dc7707d40
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -54,7 +54,7 @@ jobs:
         wait-for-task-stopped: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@abe77ebded86b685c231c58bd5936280c6fcc011
+      uses: aws-actions/amazon-ecs-deploy-task-definition@c09125f04e4ef2ddc8ac37691634298dc7707d40
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
