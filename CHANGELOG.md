@@ -9,8 +9,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 * AWS SDK v3 upgrade contains some backward incompatible changes.
 
-Co-authored-by: Satej <satejs93@gmail.com>
-
 ### Features
 
 * add ad-hoc task runs ([#304](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/304)) ([b3a528e](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b3a528eb690c86037acd19fd6a2a86337f4e3657))
