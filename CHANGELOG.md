@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.6.0...v2.0.0) (2024-08-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* AWS SDK v3 upgrade contains some backward incompatible changes.
+
+Co-authored-by: Satej <satejs93@gmail.com>
+
+### Features
+
+* add ad-hoc task runs ([#304](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/304)) ([b3a528e](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b3a528eb690c86037acd19fd6a2a86337f4e3657))
+* add new parameters and tests to one-off task feature ([#593](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/593)) ([67393b6](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/67393b6dddfbf0653b20b162dcdd0d3821366bc4))
+
+
+### Bug Fixes
+
+* Link to events v2 url ([#588](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/588)) ([1a69dae](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/1a69daea10712415b65b5c90f8c41b1b6b556ab5))
+
+
+* force version upgrade to 2.0.0 ([#600](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/600)) ([b302a5c](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b302a5c51be2ebb294abf1daa5ebeeb47cfaa54d))
+
 ## [1.6.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.5.0...v1.6.0) (2024-07-18)
 
 
