@@ -9,24 +9,21 @@ All notable changes to this project will be documented in this file. See [standa
 
 * AWS SDK v3 upgrade contains some backward incompatible changes.
 
-Co-authored-by: Satej <satejs93@gmail.com>
-
 ### Features
 
 * add ad-hoc task runs ([#304](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/304)) ([b3a528e](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b3a528eb690c86037acd19fd6a2a86337f4e3657))
 * add new parameters and tests to one-off task feature ([#593](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/593)) ([67393b6](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/67393b6dddfbf0653b20b162dcdd0d3821366bc4))
-
+* Add CodeDeploy deployment config name parameter ([4b15394](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b153949000fb656721f5a776216cb7e446d9f98))
 
 ### Bug Fixes
 
 * Link to events v2 url ([#588](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/588)) ([1a69dae](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/1a69daea10712415b65b5c90f8c41b1b6b556ab5))
-
-
-* force version upgrade to 2.0.0 ([#600](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/600)) ([b302a5c](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b302a5c51be2ebb294abf1daa5ebeeb47cfaa54d))
+* pass maxWaitTime in seconds ([b5c6c3f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/b5c6c3fcbdf37b6f40a448364f91bfa3f824e3d0))
+* waiter options ([a15de3c](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/a15de3cf6c410374c35333dbbf96b183206ac0b7))
 
 ## [1.6.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.5.0...v1.6.0) (2024-07-18)
 
-
+### Please note that this is a backward incompatible release with the upgrade to AWS SDK v3. We recommend using v2 of this Github action which includes the SDK upgrade, and update your task definition parameters to adhere to the specification defined in AWS documentation [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html).
 ### Features
 
 * Add CodeDeploy deployment config name parameter ([4b15394](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/4b153949000fb656721f5a776216cb7e446d9f98))
