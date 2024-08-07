@@ -22,7 +22,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
         task-definition: task-definition.json
         service: my-service
@@ -95,7 +95,7 @@ The task definition file can be updated prior to deployment with the new contain
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: my-service
@@ -165,7 +165,7 @@ For ECS services that uses the `CODE_DEPLOY` deployment controller, additional c
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
         task-definition: task-definition.json
         service: my-service
@@ -231,7 +231,7 @@ In the following example, the service would not be updated until the ad-hoc task
 
 ```yaml
     - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
         task-definition: task-definition.json
         service: my-service
