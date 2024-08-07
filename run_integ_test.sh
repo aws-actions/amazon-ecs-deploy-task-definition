@@ -3,7 +3,7 @@
 set -ex
 
 # Update the integ test action workflow file with the commit ID to test
-sed -i "s|aws-actions/amazon-ecs-deploy-task-definition@v1|aws-actions/amazon-ecs-deploy-task-definition@$GIT_COMMIT_ID|g" test-workflow.yml
+sed -i "s|aws-actions/amazon-ecs-deploy-task-definition@v2|aws-actions/amazon-ecs-deploy-task-definition@$GIT_COMMIT_ID|g" test-workflow.yml
 sed -i "s|BUILD_ID|$CODEBUILD_BUILD_ID|g" test-workflow.yml
 
 mkdir -p .github/workflows
