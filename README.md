@@ -156,7 +156,6 @@ Running a service requires the following minimum set of permissions:
 ```
  
 Running a one-off/stand-alone task requires the following minimum set of permissions:
- 
 ```json
 {
    "Version": "2012-10-17",
