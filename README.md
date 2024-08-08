@@ -159,32 +159,31 @@ Running a one-off/stand-alone task requires the following minimum set of permiss
  
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "VisualEditor0",
-            "Effect": "Allow",
-            "Action": [
-                "ecs:RunTask",
-                "ecs:RegisterTaskDefinition",
-                "ecs:DescribeTasks"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "PassRolesInTaskDefinition",
-            "Effect":"Allow",
-            "Action": [
-               "iam:PassRole"
-            ],
-            "Resource":[
-               "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
-               "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
-            ]
-         }
-    ]
+   "Version": "2012-10-17",
+   "Statement":[
+      {
+         "Sid": "VisualEditor0",
+         "Effect": "Allow",
+         "Action":[
+            "ecs:RunTask",
+            "ecs:RegisterTaskDefinition",
+            "ecs:DescribeTasks"
+         ],
+         "Resource": "*"
+      },
+      {
+         "Sid": "PassRolesInTaskDefinition",
+         "Effect":"Allow",
+         "Action":[
+            "iam:PassRole"
+         ],
+         "Resource":[
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
+            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
+         ]
+      }
+   ]
 }
- 
 ```
 Note: the policy above assumes the account has opted in to the ECS long ARN format.
 
