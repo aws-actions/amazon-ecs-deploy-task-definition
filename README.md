@@ -116,9 +116,7 @@ We recommend following [Amazon IAM best practices](https://docs.aws.amazon.com/I
 * [Monitor the activity](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#keep-a-log) of the credentials used in GitHub Actions workflows.
 
 ## Permissions
- 
 Running a service requires the following minimum set of permissions:
- 
 ```json
 {
    "Version":"2012-10-17",
@@ -164,7 +162,7 @@ Running a one-off/stand-alone task requires the following minimum set of permiss
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "RegisterTaskDefinition and runTask",
+            "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
                 "ecs:RunTask",
@@ -174,15 +172,15 @@ Running a one-off/stand-alone task requires the following minimum set of permiss
             "Resource": "*"
         },
         {
-         "Sid":"PassRolesInTaskDefinition",
-         "Effect":"Allow",
-         "Action":[
-            "iam:PassRole"
-         ],
-         "Resource":[
-            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
-            "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
-         ]
+            "Sid": "PassRolesInTaskDefinition",
+            "Effect":"Allow",
+            "Action": [
+               "iam:PassRole"
+            ],
+            "Resource":[
+               "arn:aws:iam::<aws_account_id>:role/<task_definition_task_role_name>",
+               "arn:aws:iam::<aws_account_id>:role/<task_definition_task_execution_role_name>"
+            ]
          }
     ]
 }
