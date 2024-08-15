@@ -116,6 +116,7 @@ We recommend following [Amazon IAM best practices](https://docs.aws.amazon.com/I
 * [Monitor the activity](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#keep-a-log) of the credentials used in GitHub Actions workflows.
 
 ## Permissions
+
 Running a service requires the following minimum set of permissions:
 ```json
 {
