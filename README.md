@@ -268,7 +268,7 @@ In the following example, the service would not be updated until the ad-hoc task
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [actions.yml](actions.yml) for more details.
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details.
 
 ## Troubleshooting
 
