@@ -32,6 +32,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
 In most cases when running a one-off task, subnet ID's, subnet groups, and assign public IP will be required. 
+Assign public IP will only be applied when a subnet or security group is defined. 
 
 ### Task definition file
 
@@ -269,7 +270,8 @@ In the following example, the service would not be updated until the ad-hoc task
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details.
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE` 
+launch type requires `awsvpc` network mode in your task definition and you must specify a network configuration.
 
 ## Troubleshooting
 
