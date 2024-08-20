@@ -64,6 +64,9 @@ inputs:
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
+  enable-ecs-managed-tags:
+    description: "Determines whether to turn on Amazon ECS managed tags 'aws:ecs:serviceName' and 'aws:ecs:clusterName' for the tasks in the service."
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'

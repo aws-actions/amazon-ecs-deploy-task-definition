@@ -128,14 +128,15 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 }
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags) {
   core.debug('Updating the service');
 
   let params = {
     cluster: clusterName,
     service: service,
     taskDefinition: taskDefArn,
-    forceNewDeployment: forceNewDeployment
+    forceNewDeployment: forceNewDeployment,
+    enableECSManagedTags: enableECSManagedTags
   };
 
   // Add the desiredCount property only if it is defined and a number.
@@ -391,6 +392,8 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
+    const enableECSManagedTagsInput = core.getInput('enable-ecs-managed-tags', { required: false }) || 'false';
+    const enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
    
     // Register the task definition
     core.debug('Registering the task definition');
@@ -442,7 +445,7 @@ async function run() {
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         core.debug('Updating service...');
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
