@@ -21,7 +21,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Method to run a stand-alone task with desired inputs
-async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
+async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
@@ -54,7 +54,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes) {
       containerOverrides: containerOverrides
     },
     launchType: launchType,
-    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration }
+    networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
+    enableECSManagedTags: enableECSManagedTags
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -421,7 +422,7 @@ async function run() {
     core.debug(`shouldRunTask: ${shouldRunTask}`);
     if (shouldRunTask) {
       core.debug("Running ad-hoc task...");
-      await runTask(ecs, clusterName, taskDefArn, waitForMinutes);
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags);
     }
 
     // Update the service with the new task definition

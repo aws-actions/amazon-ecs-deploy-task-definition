@@ -1121,9 +1121,9 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('true');                 // run-task
 
         await run();
@@ -1138,7 +1138,8 @@ describe('Deploy to ECS', () => {
             launchType: 'FARGATE',
             taskDefinition: 'task:def:arn',
             overrides: {"containerOverrides": []},
-            networkConfiguration: null
+            networkConfiguration: null,
+            enableECSManagedTags: false
         });
 
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1174,7 +1175,8 @@ describe('Deploy to ECS', () => {
             launchType: 'EC2',
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } }
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
+            enableECSManagedTags: false
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1220,7 +1222,8 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             launchType: 'EC2',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
-            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } }
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
+            enableECSManagedTags: false
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1257,9 +1260,9 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('true')                  // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true')                  // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1276,7 +1279,8 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             launchType: 'EC2',
             overrides: { containerOverrides: [] },
-            networkConfiguration: null
+            networkConfiguration: null,
+            enableECSManagedTags: false
         });
     });
 
@@ -1453,7 +1457,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('1')                    // desired count is number
-            .mockReturnValueOnce('true');                // enable-ecs-managed-tags
+            .mockReturnValueOnce('true');                // enable-
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
