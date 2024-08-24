@@ -16,11 +16,11 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:00dc9c2d-36a7-4e33-acee-8a1f9dc23517
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:aae19f82-c7ca-427a-99bf-dc43b9aee902
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -54,7 +54,7 @@ jobs:
         wait-for-task-stopped: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@6b5f48e0936ab1a33c2592b6a1e1737e10a5f68a
+      uses: aws-actions/amazon-ecs-deploy-task-definition@5ae7be6fcfec491494b3dbe937800837321d81d9
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
