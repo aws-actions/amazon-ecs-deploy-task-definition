@@ -1155,7 +1155,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('true')                  // enable-ecs-managed-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1176,7 +1176,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
-            enableECSManagedTags: false
+            enableECSManagedTags: true
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1445,36 +1445,5 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenCalledTimes(2);
         expect(core.setFailed).toHaveBeenNthCalledWith(1, 'Failed to register task definition in ECS: Could not parse');
         expect(core.setFailed).toHaveBeenNthCalledWith(2, 'Could not parse');
-    });
-
-    test('deployment with enable-ecs-managed-tags', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('1')                    // desired count is number
-            .mockReturnValueOnce('true');                // enable-
-
-        await run();
-        expect(core.setFailed).toHaveBeenCalledTimes(0);
-
-        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
-        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
-            cluster: 'cluster-789',
-            services: ['service-456']
-        });
-        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            cluster: 'cluster-789',
-            desiredCount: 1,
-            service: 'service-456',
-            taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            enableECSManagedTags: true
-        });
     });
 });
