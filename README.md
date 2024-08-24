@@ -106,7 +106,7 @@ The task definition file can be updated prior to deployment with the new contain
 
 ### Tags
 
-To turn on [Amazon ECS-managed tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html#managed-tags) `aws:ecs:serviceName` and `aws:ecs:clusterName` for the tasks in the service or the task set `enable-ecs-managed-tags`:
+To turn on [Amazon ECS-managed tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html#managed-tags) `aws:ecs:serviceName` and `aws:ecs:clusterName` for the tasks in the service or the standalone tasks by setting `enable-ecs-managed-tags`:
 
 ```yaml
       - name: Deploy Amazon ECS task definition
