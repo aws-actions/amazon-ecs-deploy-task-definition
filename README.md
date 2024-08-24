@@ -104,6 +104,21 @@ The task definition file can be updated prior to deployment with the new contain
         wait-for-service-stability: true
 ```
 
+### Tags
+
+To turn on [Amazon ECS-managed tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html#managed-tags) `aws:ecs:serviceName` and `aws:ecs:clusterName` for the tasks in the service or the standalone tasks by setting `enable-ecs-managed-tags`:
+
+```yaml
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: task-definition.json
+          service: my-service
+          cluster: my-cluster
+          wait-for-service-stability: true
+          enable-ecs-managed-tags: true
+```
+
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.
