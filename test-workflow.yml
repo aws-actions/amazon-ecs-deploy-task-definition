@@ -39,7 +39,7 @@ jobs:
         run-task-assign-public-IP: ENABLED
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
-        wait-for-task-stopped: false 
+        wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -52,6 +52,7 @@ jobs:
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
         wait-for-task-stopped: true
+        enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -60,3 +61,4 @@ jobs:
         service: github-actions-deploy-task-def-integ-test
         cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
+        enable-ecs-managed-tags: true
