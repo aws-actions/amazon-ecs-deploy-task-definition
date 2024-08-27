@@ -20,7 +20,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:aae19f82-c7ca-427a-99bf-dc43b9aee902
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:42940957-86b2-4285-9d9d-03775a2c2654
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -39,7 +39,7 @@ jobs:
         run-task-assign-public-IP: ENABLED
         run-task-security-groups: sg-067ebcde49c0f3ad8
         run-task-launch-type: FARGATE
-        wait-for-task-stopped: false 
+        wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -55,7 +55,7 @@ jobs:
         enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@5ae7be6fcfec491494b3dbe937800837321d81d9
+      uses: aws-actions/amazon-ecs-deploy-task-definition@0a0f8ee08e00301f9fe77c7b20f922574aaed924
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
