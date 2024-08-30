@@ -714,7 +714,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // desired count
             .mockReturnValueOnce('')                     // enable-ecs-managed-tags
             .mockReturnValueOnce('')                     // propagate-task
-            .mockReturnValueOnce('')                     // run-task-tags
             .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')        // codedeploy-application
             .mockReturnValueOnce('MyDeploymentGroup');   // codedeploy-deployment-group
@@ -1132,7 +1131,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // run-task-tags
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true');                 // run-task
@@ -1169,7 +1167,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // run-task-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1208,7 +1205,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // run-task-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1259,7 +1255,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // run-task-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true');                 // wait-for-task-stopped
 
@@ -1285,7 +1280,6 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // run-task-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true')                  // wait-for-task-stopped
             .mockReturnValueOnce('someJoe')               // run-task-started-by
@@ -1363,7 +1357,6 @@ describe('Deploy to ECS', () => {
         .mockReturnValueOnce('')                      // desired-count
         .mockReturnValueOnce('')                      // enable-ecs-managed-tags
         .mockReturnValueOnce('')                      // propagate-tags
-        .mockReturnValueOnce('')                      // run-task-tags
         .mockReturnValueOnce('true')                  // run-task
         .mockReturnValueOnce('false');                // wait-for-task-stopped
         

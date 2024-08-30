@@ -27,7 +27,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Method to run a stand-alone task with desired inputs
-async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags, runTaskTags) {
+async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
@@ -37,6 +37,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
+  const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
 
   let awsvpcConfiguration = {}
 
@@ -62,7 +63,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
     launchType: launchType,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
     enableECSManagedTags: enableECSManagedTags,
-    tags: runTaskTags
+    tags: tags
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -404,7 +405,6 @@ async function run() {
     const enableECSManagedTagsInput = core.getInput('enable-ecs-managed-tags', { required: false }) || 'false';
     const enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
     const propagateTags = core.getInput('propagate-tags', { required: false }) || 'NONE';
-    const runTaskTags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
 
     // Register the task definition
     core.debug('Registering the task definition');
@@ -432,7 +432,7 @@ async function run() {
     core.debug(`shouldRunTask: ${shouldRunTask}`);
     if (shouldRunTask) {
       core.debug("Running ad-hoc task...");
-      await runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags, runTaskTags);
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags);
     }
 
     // Update the service with the new task definition
