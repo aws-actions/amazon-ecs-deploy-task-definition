@@ -31,6 +31,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
+  const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
 
   let awsvpcConfiguration = {}
 
@@ -55,7 +56,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
     },
     launchType: launchType,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
-    enableECSManagedTags: enableECSManagedTags
+    enableECSManagedTags: enableECSManagedTags,
+    tags: tags
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -129,7 +131,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 }
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
   core.debug('Updating the service');
 
   let params = {
@@ -137,7 +139,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     service: service,
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
-    enableECSManagedTags: enableECSManagedTags
+    enableECSManagedTags: enableECSManagedTags,
+    propagateTags: propagateTags
   };
 
   // Add the desiredCount property only if it is defined and a number.
@@ -395,7 +398,8 @@ async function run() {
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
     const enableECSManagedTagsInput = core.getInput('enable-ecs-managed-tags', { required: false }) || 'false';
     const enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
-   
+    const propagateTags = core.getInput('propagate-tags', { required: false }) || 'NONE';
+
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -446,7 +450,7 @@ async function run() {
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         core.debug('Updating service...');
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment

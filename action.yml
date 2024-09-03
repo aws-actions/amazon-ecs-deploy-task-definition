@@ -61,11 +61,17 @@ inputs:
   run-task-started-by:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
     required: false
+  run-task-tags:
+    description: 'A JSON array of tags'
+    required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
     required: false
   enable-ecs-managed-tags:
     description: "Determines whether to turn on Amazon ECS managed tags 'aws:ecs:serviceName' and 'aws:ecs:clusterName' for the tasks in the service."
+    required: false
+  propagate-tags:
+    description: "Determines to propagate the tags from the 'SERVICE' to the task. Will default to 'NONE'"
     required: false
 outputs:
   task-definition-arn:

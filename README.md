@@ -119,6 +119,19 @@ To turn on [Amazon ECS-managed tags](https://docs.aws.amazon.com/AmazonECS/lates
           enable-ecs-managed-tags: true
 ```
 
+You can propagate your custom tags from your existing service using `propagate-tags`:
+
+```yaml
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: task-definition.json
+          service: my-service
+          cluster: my-cluster
+          wait-for-service-stability: true
+          propagate-tags: SERVICE
+```
+
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.
@@ -287,6 +300,27 @@ In the following example, the service would not be updated until the ad-hoc task
 
 Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE` 
 launch type requires `awsvpc` network mode in your task definition and you must specify a network configuration.
+
+### Tags
+
+To tag your tasks:
+
+* to turn on Amazon ECS-managed tags (`aws:ecs:clusterName`), use `enable-ecs-managed-tags`
+* for custom tags, use `run-task-tags`
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+        run-task: true
+        enable-ecs-managed-tags: true
+        run-task-tags: '[{"key": "project", "value": "myproject"}]'
+        wait-for-task-stopped: true
+```
 
 ## Troubleshooting
 
