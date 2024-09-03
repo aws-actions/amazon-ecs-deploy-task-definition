@@ -1173,7 +1173,9 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('EC2')                   // run-task-launch-type
             .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
             .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
+            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
+            .mockReturnValueOnce('')                      // run-task-assign-public-IP
+            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]'); // run-task-tags
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1188,7 +1190,7 @@ describe('Deploy to ECS', () => {
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
             enableECSManagedTags: false,
-            tags: []
+            tags: [{"key": "project", "value": "myproject"}]
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
