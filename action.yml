@@ -77,7 +77,7 @@ outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
   codedeploy-deployment-id:
-    description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
+    description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller)'
 runs:
   using: 'node20'
   main: 'dist/index.js'
