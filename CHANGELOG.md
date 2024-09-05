@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.0.0...v2.1.0) (2024-09-05)
+
+
+### Features
+
+* Enable AWS managed tags ([#622](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/622)) ([5ae7be6](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/5ae7be6fcfec491494b3dbe937800837321d81d9))
+* Tags for services and ad-hoc run ([#629](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/629)) ([1b137d4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/1b137d48136614359c0c3a573120ab771daa6320))
+
+
+### Bug Fixes
+
+* set networkConfiguration to null when using bridge network mode ([#617](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/617)) ([0a1e247](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/0a1e24711a61a2279b2bf40c6877fdbfd117997e))
+
 ## [2.0.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v1.6.0...v2.0.0) (2024-08-06)
 
 
