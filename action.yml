@@ -5,7 +5,7 @@ branding:
   color: 'orange'
 inputs:
   task-definition:
-    description: 'The path to the ECS task definition file to register'
+    description: 'The path to the ECS task definition file to register.'
     required: true
   desired-count:
     description: 'The number of instantiations of the task to place and keep running in your service.'
@@ -14,7 +14,7 @@ inputs:
     description: 'The name of the ECS service to deploy to. If no service is given, the action will not deploy the task, but only register the task definition.'
     required: false
   cluster:
-    description: "The name of the ECS service's cluster.  Will default to the 'default' cluster"
+    description: "The name of the ECS service's cluster.  Will default to the 'default' cluster."
     required: false
   wait-for-service-stability:
     description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
@@ -62,7 +62,7 @@ inputs:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
     required: false
   run-task-tags:
-    description: 'A JSON array of tags'
+    description: 'A JSON array of tags.'
     required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
@@ -71,13 +71,13 @@ inputs:
     description: "Determines whether to turn on Amazon ECS managed tags 'aws:ecs:serviceName' and 'aws:ecs:clusterName' for the tasks in the service."
     required: false
   propagate-tags:
-    description: "Determines to propagate the tags from the 'SERVICE' to the task. Will default to 'NONE'"
+    description: "Determines to propagate the tags from the 'SERVICE' to the task. Will default to 'NONE'."
     required: false
 outputs:
   task-definition-arn:
-    description: 'The ARN of the registered ECS task definition'
+    description: 'The ARN of the registered ECS task definition.'
   codedeploy-deployment-id:
-    description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller'
+    description: 'The deployment ID of the CodeDeploy deployment (if the ECS service uses the CODE_DEPLOY deployment controller).'
 runs:
   using: 'node20'
   main: 'dist/index.js'
