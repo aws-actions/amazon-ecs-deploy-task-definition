@@ -1,17 +1,16 @@
 name: Approval Workflow
 
 on:
-    workflow_dispatch:
-    # pull_request_review:
-    #   types: [submitted]
+    # workflow_dispatch:
+    pull_request_review:
+      types: [submitted]
 jobs:
     approved:
-        # if: github.event.review.state == 'approved'
+        if: github.event.review.state == 'approved'
         runs-on: ubuntu-latest
         steps:
             - name: Run Integration Tests
               run: |
                 echo "Testing echo"
                 echo "$GITHUB_HEAD_REF"
-                echo "$GITHUB_REF"
                 echo "$GITHUB_REF_NAME"
