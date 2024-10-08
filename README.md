@@ -7,8 +7,8 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 <!-- toc -->
 
 - [Usage](#usage)
-    + [Task definition file](#task-definition-file)
-    + [Task definition container image values](#task-definition-container-image-values)
+  - [Task definition file](#task-definition-file)
+  - [Task definition container image values](#task-definition-container-image-values)
 - [Credentials and Region](#credentials-and-region)
 - [Permissions](#permissions)
 - [AWS CodeDeploy Support](#aws-codedeploy-support)
@@ -31,14 +31,15 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 ```
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
-In most cases when running a one-off task, subnet ID's, subnet groups, and assign public IP will be required. 
-Assign public IP will only be applied when a subnet or security group is defined. 
+In most cases when running a one-off task, subnet ID's, subnet groups, and assign public IP will be required.
+Assign public IP will only be applied when a subnet or security group is defined.
 
 ### Task definition file
 
 It is highly recommended to treat the task definition "as code" by checking it into your git repository as a JSON file.  Changes to any task definition attributes like container images, environment variables, CPU, and memory can be deployed with this GitHub action by editing your task definition file and pushing a new git commit.
 
 An existing task definition can be downloaded to a JSON file with the following command.  Account IDs can be removed from the file by removing the `taskDefinitionArn` attribute, and updating the `executionRoleArn` and `taskRoleArn` attribute values to contain role names instead of role ARNs.
+
 ```sh
 aws ecs describe-task-definition \
    --task-definition my-task-definition-family \
@@ -46,12 +47,14 @@ aws ecs describe-task-definition \
 ```
 
 Alternatively, you can start a new task definition file from scratch with the following command.  In the generated file, fill in your attribute values and remove any attributes not needed for your application.
+
 ```sh
 aws ecs register-task-definition \
    --generate-cli-skeleton > task-definition.json
 ```
 
 If you do not wish to store your task definition as a file in your git repository, your GitHub Actions workflow can download the existing task definition.
+
 ```yaml
     - name: Download task definition
       run: |
@@ -104,6 +107,18 @@ The task definition file can be updated prior to deployment with the new contain
         wait-for-service-stability: true
 ```
 
+If you're using CloudFormation tools such as AWS CDK, Serverless Framework, or others to construct your task definition, you can directly pass the ARN of the task definition. For example:
+
+```yaml
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: arn:aws:ecs:<region>:<aws_account_id>:task-definition/<task_definition_name>:<revision_number>
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+```
+
 ### Tags
 
 To turn on [Amazon ECS-managed tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html#managed-tags) `aws:ecs:serviceName` and `aws:ecs:clusterName` for the tasks in the service or the standalone tasks by setting `enable-ecs-managed-tags`:
@@ -138,15 +153,16 @@ This action relies on the [default behavior of the AWS SDK for Javascript](https
 Use [the `aws-actions/configure-aws-credentials` action](https://github.com/aws-actions/configure-aws-credentials) to configure the GitHub Actions environment with environment variables containing AWS credentials and your desired region.
 
 We recommend following [Amazon IAM best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) for the AWS credentials used in GitHub Actions workflows, including:
-* Do not store credentials in your repository's code.  You may use [GitHub Actions secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets) to store credentials and redact credentials from GitHub Actions workflow logs.
-* [Create an individual IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users) with an access key for use in GitHub Actions workflows, preferably one per repository. Do not use the AWS account root user access key.
-* [Grant least privilege](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to the credentials used in GitHub Actions workflows.  Grant only the permissions required to perform the actions in your GitHub Actions workflows.  See the Permissions section below for the permissions required by this action.
-* [Rotate the credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#rotate-credentials) used in GitHub Actions workflows regularly.
-* [Monitor the activity](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#keep-a-log) of the credentials used in GitHub Actions workflows.
+- Do not store credentials in your repository's code.  You may use [GitHub Actions secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets) to store credentials and redact credentials from GitHub Actions workflow logs.
+- [Create an individual IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users) with an access key for use in GitHub Actions workflows, preferably one per repository. Do not use the AWS account root user access key.
+- [Grant least privilege](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to the credentials used in GitHub Actions workflows.  Grant only the permissions required to perform the actions in your GitHub Actions workflows.  See the Permissions section below for the permissions required by this action.
+- [Rotate the credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#rotate-credentials) used in GitHub Actions workflows regularly.
+- [Monitor the activity](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#keep-a-log) of the credentials used in GitHub Actions workflows.
 
 ## Permissions
 
 Running a service requires the following minimum set of permissions:
+
 ```json
 {
    "Version":"2012-10-17",
@@ -184,8 +200,9 @@ Running a service requires the following minimum set of permissions:
    ]
 }
 ```
- 
+
 Running a one-off/stand-alone task requires the following minimum set of permissions:
+
 ```json
 {
    "Version": "2012-10-17",
@@ -214,6 +231,7 @@ Running a one-off/stand-alone task requires the following minimum set of permiss
    ]
 }
 ```
+
 Note: the policy above assumes the account has opted in to the ECS long ARN format.
 
 ## AWS CodeDeploy Support
@@ -298,15 +316,15 @@ In the following example, the service would not be updated until the ad-hoc task
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE` 
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE`
 launch type requires `awsvpc` network mode in your task definition and you must specify a network configuration.
 
 ### Tags
 
 To tag your tasks:
 
-* to turn on Amazon ECS-managed tags (`aws:ecs:clusterName`), use `enable-ecs-managed-tags`
-* for custom tags, use `run-task-tags`
+- to turn on Amazon ECS-managed tags (`aws:ecs:clusterName`), use `enable-ecs-managed-tags`
+- for custom tags, use `run-task-tags`
 
 ```yaml
     - name: Deploy to Amazon ECS
@@ -333,4 +351,3 @@ This code is made available under the MIT license.
 ## Security Disclosures
 
 If you would like to report a potential security issue in this project, please do not create a GitHub issue.  Instead, please follow the instructions [here](https://aws.amazon.com/security/vulnerability-reporting/) or [email AWS security directly](mailto:aws-security@amazon.com).
-
