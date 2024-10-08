@@ -383,7 +383,7 @@ async function run() {
     });
 
     // Get inputs
-    const taskDefinitionInput = core.getInput('task-definition', { required: true });
+    const taskDefinitionContent = core.getInput('task-definition', { required: true });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
