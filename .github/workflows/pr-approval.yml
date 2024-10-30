@@ -1,0 +1,15 @@
+name: PR Approval
+
+on:
+    pull_request_review:
+        types: [submitted]
+    workflow_dispatch:
+jobs:
+  integ_tests:
+      if: github.event.review.state == 'approved'
+      name: Run Integration Tests
+      uses: aws-actions/amazon-ecs-deploy-task-definition/.github/workflows/test-workflow.yml@integ-tests
+      with:
+        call_local_action: 'true'
+      secrets:
+        account_id: ${{ secrets.AWS_ACCOUNT_ID }}

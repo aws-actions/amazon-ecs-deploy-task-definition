@@ -5,6 +5,7 @@ queue_rules:
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
       - status-success=Analyze (javascript)
+      - status-success=Run Integration Tests
 
 pull_request_rules:
   - name: Automatically merge on CI success and review approval
@@ -16,6 +17,7 @@ pull_request_rules:
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
       - status-success=Analyze (javascript)
+      - status-success=Run Integration Tests
       - label!=work-in-progress
       - -title~=(WIP|wip)
       - -merged
