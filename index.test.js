@@ -183,7 +183,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -216,7 +215,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -951,7 +949,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -992,7 +989,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1033,7 +1029,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1076,7 +1071,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
     });
@@ -1102,7 +1096,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE'
         });
     });
@@ -1273,7 +1266,6 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
-            enableECSManagedTags: false,
             propagateTags: 'NONE',
         });
         expect(mockRunTask).toHaveBeenCalledWith({
