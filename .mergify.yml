@@ -2,6 +2,7 @@ queue_rules:
   - name: default
     conditions:
       # Conditions to get out of the queue (= merged)
+      - status-success=Run Integration Tests
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
       - status-success=Analyze (javascript)
@@ -13,6 +14,7 @@ pull_request_rules:
       - "#approved-reviews-by>=1"
       - approved-reviews-by=@aws-actions/aws-ecs-devx
       - -approved-reviews-by~=author
+      - status-success=Run Integration Tests
       - status-success=Run Unit Tests
       - status-success=Semantic Pull Request
       - status-success=Analyze (javascript)
@@ -26,7 +28,7 @@ pull_request_rules:
         method: squash
         name: default
 
-  - name: Automatically approve and merge Dependabot PRs
+  - name: Automatically approve Dependabot PRs
     conditions:
       - base=master
       - author=dependabot[bot]
@@ -40,6 +42,21 @@ pull_request_rules:
     actions:
       review:
         type: APPROVE
+
+    - name: Automatically merge Dependabot PRs
+    conditions:
+      - base=master
+      - "#approved-reviews-by>=1"
+      - author=dependabot[bot]
+      - status-success=Run Integration Tests
+      - status-success=Run Unit Tests
+      - status-success=Semantic Pull Request
+      - status-success=Analyze (javascript)
+      - -title~=(WIP|wip)
+      - -label~=(blocked|do-not-merge)
+      - -merged
+      - -closed
+    actions:
       queue:
         method: squash
         name: default
