@@ -20,7 +20,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:0f28c6c7-d98d-4638-af9a-85b3841ca569
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:042fa977-e0b8-4255-aad8-74207eb334a0
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -30,7 +30,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1c5ffb2f00bfb22364f723fdf895c3df6264c0b9
+      uses: aws-actions/amazon-ecs-deploy-task-definition@bad59f3be276362adfb56617b92ea9356916f176
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -42,7 +42,7 @@ jobs:
         wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1c5ffb2f00bfb22364f723fdf895c3df6264c0b9
+      uses: aws-actions/amazon-ecs-deploy-task-definition@bad59f3be276362adfb56617b92ea9356916f176
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -55,7 +55,7 @@ jobs:
         enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@1c5ffb2f00bfb22364f723fdf895c3df6264c0b9
+      uses: aws-actions/amazon-ecs-deploy-task-definition@bad59f3be276362adfb56617b92ea9356916f176
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
