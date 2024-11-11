@@ -2899,7 +2899,7 @@ exports.checkBypass = checkBypass;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveHttpAuthSchemeConfig = exports.defaultCodeDeployHttpAuthSchemeProvider = exports.defaultCodeDeployHttpAuthSchemeParametersProvider = void 0;
-const core_1 = __nccwpck_require__(8704);
+const core_1 = __nccwpck_require__(9191);
 const util_middleware_1 = __nccwpck_require__(6324);
 const defaultCodeDeployHttpAuthSchemeParametersProvider = async (config, context, input) => {
     return {
@@ -2954,7 +2954,7 @@ exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultEndpointResolver = void 0;
-const util_endpoints_1 = __nccwpck_require__(3068);
+const util_endpoints_1 = __nccwpck_require__(1911);
 const util_endpoints_2 = __nccwpck_require__(9674);
 const ruleset_1 = __nccwpck_require__(8635);
 const cache = new util_endpoints_2.EndpointCache({
@@ -3222,10 +3222,10 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/CodeDeployClient.ts
-var import_middleware_host_header = __nccwpck_require__(2590);
-var import_middleware_logger = __nccwpck_require__(5242);
-var import_middleware_recursion_detection = __nccwpck_require__(1568);
-var import_middleware_user_agent = __nccwpck_require__(2959);
+var import_middleware_host_header = __nccwpck_require__(9477);
+var import_middleware_logger = __nccwpck_require__(8703);
+var import_middleware_recursion_detection = __nccwpck_require__(1067);
+var import_middleware_user_agent = __nccwpck_require__(8534);
 var import_config_resolver = __nccwpck_require__(9316);
 var import_core = __nccwpck_require__(402);
 var import_middleware_content_length = __nccwpck_require__(7212);
@@ -3254,7 +3254,7 @@ var commonParams = {
 var import_runtimeConfig = __nccwpck_require__(4277);
 
 // src/runtimeExtensions.ts
-var import_region_config_resolver = __nccwpck_require__(6463);
+var import_region_config_resolver = __nccwpck_require__(2472);
 var import_protocol_http = __nccwpck_require__(2356);
 var import_smithy_client = __nccwpck_require__(1411);
 
@@ -3367,7 +3367,7 @@ var import_middleware_serde = __nccwpck_require__(3255);
 
 
 // src/protocols/Aws_json1_1.ts
-var import_core2 = __nccwpck_require__(8704);
+var import_core2 = __nccwpck_require__(9191);
 
 
 
@@ -8871,9 +8871,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
 const tslib_1 = __nccwpck_require__(1860);
 const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(909));
-const core_1 = __nccwpck_require__(8704);
-const credential_provider_node_1 = __nccwpck_require__(5861);
-const util_user_agent_node_1 = __nccwpck_require__(1656);
+const core_1 = __nccwpck_require__(9191);
+const credential_provider_node_1 = __nccwpck_require__(9694);
+const util_user_agent_node_1 = __nccwpck_require__(5195);
 const config_resolver_1 = __nccwpck_require__(9316);
 const hash_node_1 = __nccwpck_require__(5092);
 const middleware_retry_1 = __nccwpck_require__(9618);
@@ -8912,6 +8912,7 @@ const getRuntimeConfig = (config) => {
         streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
         useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
         useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
+        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
     };
 };
 exports.getRuntimeConfig = getRuntimeConfig;
@@ -8926,7 +8927,7 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
-const core_1 = __nccwpck_require__(8704);
+const core_1 = __nccwpck_require__(9191);
 const smithy_client_1 = __nccwpck_require__(1411);
 const url_parser_1 = __nccwpck_require__(4494);
 const util_base64_1 = __nccwpck_require__(8385);
@@ -8961,4436 +8962,14 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 1367:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveHttpAuthSchemeConfig = exports.defaultECSHttpAuthSchemeProvider = exports.defaultECSHttpAuthSchemeParametersProvider = void 0;
-const core_1 = __nccwpck_require__(1446);
-const util_middleware_1 = __nccwpck_require__(6324);
-const defaultECSHttpAuthSchemeParametersProvider = async (config, context, input) => {
-    return {
-        operation: (0, util_middleware_1.getSmithyContext)(context).operation,
-        region: (await (0, util_middleware_1.normalizeProvider)(config.region)()) ||
-            (() => {
-                throw new Error("expected `region` to be configured for `aws.auth#sigv4`");
-            })(),
-    };
-};
-exports.defaultECSHttpAuthSchemeParametersProvider = defaultECSHttpAuthSchemeParametersProvider;
-function createAwsAuthSigv4HttpAuthOption(authParameters) {
-    return {
-        schemeId: "aws.auth#sigv4",
-        signingProperties: {
-            name: "ecs",
-            region: authParameters.region,
-        },
-        propertiesExtractor: (config, context) => ({
-            signingProperties: {
-                config,
-                context,
-            },
-        }),
-    };
-}
-const defaultECSHttpAuthSchemeProvider = (authParameters) => {
-    const options = [];
-    switch (authParameters.operation) {
-        default: {
-            options.push(createAwsAuthSigv4HttpAuthOption(authParameters));
-        }
-    }
-    return options;
-};
-exports.defaultECSHttpAuthSchemeProvider = defaultECSHttpAuthSchemeProvider;
-const resolveHttpAuthSchemeConfig = (config) => {
-    const config_0 = (0, core_1.resolveAwsSdkSigV4Config)(config);
-    return {
-        ...config_0,
-    };
-};
-exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
-
-
-/***/ }),
-
-/***/ 6161:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.defaultEndpointResolver = void 0;
-const util_endpoints_1 = __nccwpck_require__(6158);
-const util_endpoints_2 = __nccwpck_require__(9674);
-const ruleset_1 = __nccwpck_require__(4282);
-const cache = new util_endpoints_2.EndpointCache({
-    size: 50,
-    params: ["Endpoint", "Region", "UseDualStack", "UseFIPS"],
-});
-const defaultEndpointResolver = (endpointParams, context = {}) => {
-    return cache.get(endpointParams, () => (0, util_endpoints_2.resolveEndpoint)(ruleset_1.ruleSet, {
-        endpointParams: endpointParams,
-        logger: context.logger,
-    }));
-};
-exports.defaultEndpointResolver = defaultEndpointResolver;
-util_endpoints_2.customEndpointFunctions.aws = util_endpoints_1.awsEndpointFunctions;
-
-
-/***/ }),
-
-/***/ 4282:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ruleSet = void 0;
-const s = "required", t = "fn", u = "argv", v = "ref";
-const a = true, b = "isSet", c = "booleanEquals", d = "error", e = "endpoint", f = "tree", g = "PartitionResult", h = { [s]: false, "type": "String" }, i = { [s]: true, "default": false, "type": "Boolean" }, j = { [v]: "Endpoint" }, k = { [t]: c, [u]: [{ [v]: "UseFIPS" }, true] }, l = { [t]: c, [u]: [{ [v]: "UseDualStack" }, true] }, m = {}, n = { [t]: "getAttr", [u]: [{ [v]: g }, "supportsFIPS"] }, o = { [t]: c, [u]: [true, { [t]: "getAttr", [u]: [{ [v]: g }, "supportsDualStack"] }] }, p = [k], q = [l], r = [{ [v]: "Region" }];
-const _data = { version: "1.0", parameters: { Region: h, UseDualStack: i, UseFIPS: i, Endpoint: h }, rules: [{ conditions: [{ [t]: b, [u]: [j] }], rules: [{ conditions: p, error: "Invalid Configuration: FIPS and custom endpoint are not supported", type: d }, { conditions: q, error: "Invalid Configuration: Dualstack and custom endpoint are not supported", type: d }, { endpoint: { url: j, properties: m, headers: m }, type: e }], type: f }, { conditions: [{ [t]: b, [u]: r }], rules: [{ conditions: [{ [t]: "aws.partition", [u]: r, assign: g }], rules: [{ conditions: [k, l], rules: [{ conditions: [{ [t]: c, [u]: [a, n] }, o], rules: [{ endpoint: { url: "https://ecs-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", type: d }], type: f }, { conditions: p, rules: [{ conditions: [{ [t]: c, [u]: [n, a] }], rules: [{ endpoint: { url: "https://ecs-fips.{Region}.{PartitionResult#dnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "FIPS is enabled but this partition does not support FIPS", type: d }], type: f }, { conditions: q, rules: [{ conditions: [o], rules: [{ endpoint: { url: "https://ecs.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "DualStack is enabled but this partition does not support DualStack", type: d }], type: f }, { endpoint: { url: "https://ecs.{Region}.{PartitionResult#dnsSuffix}", properties: m, headers: m }, type: e }], type: f }], type: f }, { error: "Invalid Configuration: Missing Region", type: d }] };
-exports.ruleSet = _data;
-
-
-/***/ }),
-
-/***/ 212:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  AccessDeniedException: () => AccessDeniedException,
-  AgentUpdateStatus: () => AgentUpdateStatus,
-  ApplicationProtocol: () => ApplicationProtocol,
-  AssignPublicIp: () => AssignPublicIp,
-  AttributeLimitExceededException: () => AttributeLimitExceededException,
-  BlockedException: () => BlockedException,
-  CPUArchitecture: () => CPUArchitecture,
-  CapacityProviderField: () => CapacityProviderField,
-  CapacityProviderStatus: () => CapacityProviderStatus,
-  CapacityProviderUpdateStatus: () => CapacityProviderUpdateStatus,
-  ClientException: () => ClientException,
-  ClusterContainsContainerInstancesException: () => ClusterContainsContainerInstancesException,
-  ClusterContainsServicesException: () => ClusterContainsServicesException,
-  ClusterContainsTasksException: () => ClusterContainsTasksException,
-  ClusterField: () => ClusterField,
-  ClusterNotFoundException: () => ClusterNotFoundException,
-  ClusterSettingName: () => ClusterSettingName,
-  Compatibility: () => Compatibility,
-  ConflictException: () => ConflictException,
-  Connectivity: () => Connectivity,
-  ContainerCondition: () => ContainerCondition,
-  ContainerInstanceField: () => ContainerInstanceField,
-  ContainerInstanceStatus: () => ContainerInstanceStatus,
-  CreateCapacityProviderCommand: () => CreateCapacityProviderCommand,
-  CreateClusterCommand: () => CreateClusterCommand,
-  CreateServiceCommand: () => CreateServiceCommand,
-  CreateTaskSetCommand: () => CreateTaskSetCommand,
-  DeleteAccountSettingCommand: () => DeleteAccountSettingCommand,
-  DeleteAttributesCommand: () => DeleteAttributesCommand,
-  DeleteCapacityProviderCommand: () => DeleteCapacityProviderCommand,
-  DeleteClusterCommand: () => DeleteClusterCommand,
-  DeleteServiceCommand: () => DeleteServiceCommand,
-  DeleteTaskDefinitionsCommand: () => DeleteTaskDefinitionsCommand,
-  DeleteTaskSetCommand: () => DeleteTaskSetCommand,
-  DeploymentControllerType: () => DeploymentControllerType,
-  DeploymentRolloutState: () => DeploymentRolloutState,
-  DeregisterContainerInstanceCommand: () => DeregisterContainerInstanceCommand,
-  DeregisterTaskDefinitionCommand: () => DeregisterTaskDefinitionCommand,
-  DescribeCapacityProvidersCommand: () => DescribeCapacityProvidersCommand,
-  DescribeClustersCommand: () => DescribeClustersCommand,
-  DescribeContainerInstancesCommand: () => DescribeContainerInstancesCommand,
-  DescribeServicesCommand: () => DescribeServicesCommand,
-  DescribeTaskDefinitionCommand: () => DescribeTaskDefinitionCommand,
-  DescribeTaskSetsCommand: () => DescribeTaskSetsCommand,
-  DescribeTasksCommand: () => DescribeTasksCommand,
-  DesiredStatus: () => DesiredStatus,
-  DeviceCgroupPermission: () => DeviceCgroupPermission,
-  DiscoverPollEndpointCommand: () => DiscoverPollEndpointCommand,
-  EBSResourceType: () => EBSResourceType,
-  ECS: () => ECS,
-  ECSClient: () => ECSClient,
-  ECSServiceException: () => ECSServiceException,
-  EFSAuthorizationConfigIAM: () => EFSAuthorizationConfigIAM,
-  EFSTransitEncryption: () => EFSTransitEncryption,
-  EnvironmentFileType: () => EnvironmentFileType,
-  ExecuteCommandCommand: () => ExecuteCommandCommand,
-  ExecuteCommandLogging: () => ExecuteCommandLogging,
-  ExecuteCommandResponseFilterSensitiveLog: () => ExecuteCommandResponseFilterSensitiveLog,
-  FirelensConfigurationType: () => FirelensConfigurationType,
-  GetTaskProtectionCommand: () => GetTaskProtectionCommand,
-  HealthStatus: () => HealthStatus,
-  InstanceHealthCheckState: () => InstanceHealthCheckState,
-  InstanceHealthCheckType: () => InstanceHealthCheckType,
-  InvalidParameterException: () => InvalidParameterException,
-  IpcMode: () => IpcMode,
-  LaunchType: () => LaunchType,
-  LimitExceededException: () => LimitExceededException,
-  ListAccountSettingsCommand: () => ListAccountSettingsCommand,
-  ListAttributesCommand: () => ListAttributesCommand,
-  ListClustersCommand: () => ListClustersCommand,
-  ListContainerInstancesCommand: () => ListContainerInstancesCommand,
-  ListServicesByNamespaceCommand: () => ListServicesByNamespaceCommand,
-  ListServicesCommand: () => ListServicesCommand,
-  ListTagsForResourceCommand: () => ListTagsForResourceCommand,
-  ListTaskDefinitionFamiliesCommand: () => ListTaskDefinitionFamiliesCommand,
-  ListTaskDefinitionsCommand: () => ListTaskDefinitionsCommand,
-  ListTasksCommand: () => ListTasksCommand,
-  LogDriver: () => LogDriver,
-  ManagedAgentName: () => ManagedAgentName,
-  ManagedDraining: () => ManagedDraining,
-  ManagedScalingStatus: () => ManagedScalingStatus,
-  ManagedTerminationProtection: () => ManagedTerminationProtection,
-  MissingVersionException: () => MissingVersionException,
-  NamespaceNotFoundException: () => NamespaceNotFoundException,
-  NetworkMode: () => NetworkMode,
-  NoUpdateAvailableException: () => NoUpdateAvailableException,
-  OSFamily: () => OSFamily,
-  PidMode: () => PidMode,
-  PlacementConstraintType: () => PlacementConstraintType,
-  PlacementStrategyType: () => PlacementStrategyType,
-  PlatformDeviceType: () => PlatformDeviceType,
-  PlatformTaskDefinitionIncompatibilityException: () => PlatformTaskDefinitionIncompatibilityException,
-  PlatformUnknownException: () => PlatformUnknownException,
-  PropagateTags: () => PropagateTags,
-  ProxyConfigurationType: () => ProxyConfigurationType,
-  PutAccountSettingCommand: () => PutAccountSettingCommand,
-  PutAccountSettingDefaultCommand: () => PutAccountSettingDefaultCommand,
-  PutAttributesCommand: () => PutAttributesCommand,
-  PutClusterCapacityProvidersCommand: () => PutClusterCapacityProvidersCommand,
-  RegisterContainerInstanceCommand: () => RegisterContainerInstanceCommand,
-  RegisterTaskDefinitionCommand: () => RegisterTaskDefinitionCommand,
-  ResourceInUseException: () => ResourceInUseException,
-  ResourceNotFoundException: () => ResourceNotFoundException,
-  ResourceType: () => ResourceType,
-  RunTaskCommand: () => RunTaskCommand,
-  ScaleUnit: () => ScaleUnit,
-  SchedulingStrategy: () => SchedulingStrategy,
-  Scope: () => Scope,
-  ServerException: () => ServerException,
-  ServiceField: () => ServiceField,
-  ServiceNotActiveException: () => ServiceNotActiveException,
-  ServiceNotFoundException: () => ServiceNotFoundException,
-  SessionFilterSensitiveLog: () => SessionFilterSensitiveLog,
-  SettingName: () => SettingName,
-  SettingType: () => SettingType,
-  SortOrder: () => SortOrder,
-  StabilityStatus: () => StabilityStatus,
-  StartTaskCommand: () => StartTaskCommand,
-  StopTaskCommand: () => StopTaskCommand,
-  SubmitAttachmentStateChangesCommand: () => SubmitAttachmentStateChangesCommand,
-  SubmitContainerStateChangeCommand: () => SubmitContainerStateChangeCommand,
-  SubmitTaskStateChangeCommand: () => SubmitTaskStateChangeCommand,
-  TagResourceCommand: () => TagResourceCommand,
-  TargetNotConnectedException: () => TargetNotConnectedException,
-  TargetNotFoundException: () => TargetNotFoundException,
-  TargetType: () => TargetType,
-  TaskDefinitionFamilyStatus: () => TaskDefinitionFamilyStatus,
-  TaskDefinitionField: () => TaskDefinitionField,
-  TaskDefinitionPlacementConstraintType: () => TaskDefinitionPlacementConstraintType,
-  TaskDefinitionStatus: () => TaskDefinitionStatus,
-  TaskField: () => TaskField,
-  TaskFilesystemType: () => TaskFilesystemType,
-  TaskSetField: () => TaskSetField,
-  TaskSetNotFoundException: () => TaskSetNotFoundException,
-  TaskStopCode: () => TaskStopCode,
-  TransportProtocol: () => TransportProtocol,
-  UlimitName: () => UlimitName,
-  UnsupportedFeatureException: () => UnsupportedFeatureException,
-  UntagResourceCommand: () => UntagResourceCommand,
-  UpdateCapacityProviderCommand: () => UpdateCapacityProviderCommand,
-  UpdateClusterCommand: () => UpdateClusterCommand,
-  UpdateClusterSettingsCommand: () => UpdateClusterSettingsCommand,
-  UpdateContainerAgentCommand: () => UpdateContainerAgentCommand,
-  UpdateContainerInstancesStateCommand: () => UpdateContainerInstancesStateCommand,
-  UpdateInProgressException: () => UpdateInProgressException,
-  UpdateServiceCommand: () => UpdateServiceCommand,
-  UpdateServicePrimaryTaskSetCommand: () => UpdateServicePrimaryTaskSetCommand,
-  UpdateTaskProtectionCommand: () => UpdateTaskProtectionCommand,
-  UpdateTaskSetCommand: () => UpdateTaskSetCommand,
-  __Client: () => import_smithy_client.Client,
-  paginateListAccountSettings: () => paginateListAccountSettings,
-  paginateListAttributes: () => paginateListAttributes,
-  paginateListClusters: () => paginateListClusters,
-  paginateListContainerInstances: () => paginateListContainerInstances,
-  paginateListServices: () => paginateListServices,
-  paginateListServicesByNamespace: () => paginateListServicesByNamespace,
-  paginateListTaskDefinitionFamilies: () => paginateListTaskDefinitionFamilies,
-  paginateListTaskDefinitions: () => paginateListTaskDefinitions,
-  paginateListTasks: () => paginateListTasks,
-  waitForServicesInactive: () => waitForServicesInactive,
-  waitForServicesStable: () => waitForServicesStable,
-  waitForTasksRunning: () => waitForTasksRunning,
-  waitForTasksStopped: () => waitForTasksStopped,
-  waitUntilServicesInactive: () => waitUntilServicesInactive,
-  waitUntilServicesStable: () => waitUntilServicesStable,
-  waitUntilTasksRunning: () => waitUntilTasksRunning,
-  waitUntilTasksStopped: () => waitUntilTasksStopped
-});
-module.exports = __toCommonJS(src_exports);
-
-// src/ECSClient.ts
-var import_middleware_host_header = __nccwpck_require__(5164);
-var import_middleware_logger = __nccwpck_require__(5832);
-var import_middleware_recursion_detection = __nccwpck_require__(9870);
-var import_middleware_user_agent = __nccwpck_require__(997);
-var import_config_resolver = __nccwpck_require__(9316);
-var import_core = __nccwpck_require__(402);
-var import_middleware_content_length = __nccwpck_require__(7212);
-var import_middleware_endpoint = __nccwpck_require__(99);
-var import_middleware_retry = __nccwpck_require__(9618);
-
-var import_httpAuthSchemeProvider = __nccwpck_require__(1367);
-
-// src/endpoint/EndpointParameters.ts
-var resolveClientEndpointParameters = /* @__PURE__ */ __name((options) => {
-  return {
-    ...options,
-    useDualstackEndpoint: options.useDualstackEndpoint ?? false,
-    useFipsEndpoint: options.useFipsEndpoint ?? false,
-    defaultSigningName: "ecs"
-  };
-}, "resolveClientEndpointParameters");
-var commonParams = {
-  UseFIPS: { type: "builtInParams", name: "useFipsEndpoint" },
-  Endpoint: { type: "builtInParams", name: "endpoint" },
-  Region: { type: "builtInParams", name: "region" },
-  UseDualStack: { type: "builtInParams", name: "useDualstackEndpoint" }
-};
-
-// src/ECSClient.ts
-var import_runtimeConfig = __nccwpck_require__(1142);
-
-// src/runtimeExtensions.ts
-var import_region_config_resolver = __nccwpck_require__(6521);
-var import_protocol_http = __nccwpck_require__(2356);
-var import_smithy_client = __nccwpck_require__(1411);
-
-// src/auth/httpAuthExtensionConfiguration.ts
-var getHttpAuthExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
-  const _httpAuthSchemes = runtimeConfig.httpAuthSchemes;
-  let _httpAuthSchemeProvider = runtimeConfig.httpAuthSchemeProvider;
-  let _credentials = runtimeConfig.credentials;
-  return {
-    setHttpAuthScheme(httpAuthScheme) {
-      const index = _httpAuthSchemes.findIndex((scheme) => scheme.schemeId === httpAuthScheme.schemeId);
-      if (index === -1) {
-        _httpAuthSchemes.push(httpAuthScheme);
-      } else {
-        _httpAuthSchemes.splice(index, 1, httpAuthScheme);
-      }
-    },
-    httpAuthSchemes() {
-      return _httpAuthSchemes;
-    },
-    setHttpAuthSchemeProvider(httpAuthSchemeProvider) {
-      _httpAuthSchemeProvider = httpAuthSchemeProvider;
-    },
-    httpAuthSchemeProvider() {
-      return _httpAuthSchemeProvider;
-    },
-    setCredentials(credentials) {
-      _credentials = credentials;
-    },
-    credentials() {
-      return _credentials;
-    }
-  };
-}, "getHttpAuthExtensionConfiguration");
-var resolveHttpAuthRuntimeConfig = /* @__PURE__ */ __name((config) => {
-  return {
-    httpAuthSchemes: config.httpAuthSchemes(),
-    httpAuthSchemeProvider: config.httpAuthSchemeProvider(),
-    credentials: config.credentials()
-  };
-}, "resolveHttpAuthRuntimeConfig");
-
-// src/runtimeExtensions.ts
-var asPartial = /* @__PURE__ */ __name((t) => t, "asPartial");
-var resolveRuntimeExtensions = /* @__PURE__ */ __name((runtimeConfig, extensions) => {
-  const extensionConfiguration = {
-    ...asPartial((0, import_region_config_resolver.getAwsRegionExtensionConfiguration)(runtimeConfig)),
-    ...asPartial((0, import_smithy_client.getDefaultExtensionConfiguration)(runtimeConfig)),
-    ...asPartial((0, import_protocol_http.getHttpHandlerExtensionConfiguration)(runtimeConfig)),
-    ...asPartial(getHttpAuthExtensionConfiguration(runtimeConfig))
-  };
-  extensions.forEach((extension) => extension.configure(extensionConfiguration));
-  return {
-    ...runtimeConfig,
-    ...(0, import_region_config_resolver.resolveAwsRegionExtensionConfiguration)(extensionConfiguration),
-    ...(0, import_smithy_client.resolveDefaultRuntimeConfig)(extensionConfiguration),
-    ...(0, import_protocol_http.resolveHttpHandlerRuntimeConfig)(extensionConfiguration),
-    ...resolveHttpAuthRuntimeConfig(extensionConfiguration)
-  };
-}, "resolveRuntimeExtensions");
-
-// src/ECSClient.ts
-var _ECSClient = class _ECSClient extends import_smithy_client.Client {
-  constructor(...[configuration]) {
-    const _config_0 = (0, import_runtimeConfig.getRuntimeConfig)(configuration || {});
-    const _config_1 = resolveClientEndpointParameters(_config_0);
-    const _config_2 = (0, import_middleware_user_agent.resolveUserAgentConfig)(_config_1);
-    const _config_3 = (0, import_middleware_retry.resolveRetryConfig)(_config_2);
-    const _config_4 = (0, import_config_resolver.resolveRegionConfig)(_config_3);
-    const _config_5 = (0, import_middleware_host_header.resolveHostHeaderConfig)(_config_4);
-    const _config_6 = (0, import_middleware_endpoint.resolveEndpointConfig)(_config_5);
-    const _config_7 = (0, import_httpAuthSchemeProvider.resolveHttpAuthSchemeConfig)(_config_6);
-    const _config_8 = resolveRuntimeExtensions(_config_7, (configuration == null ? void 0 : configuration.extensions) || []);
-    super(_config_8);
-    this.config = _config_8;
-    this.middlewareStack.use((0, import_middleware_user_agent.getUserAgentPlugin)(this.config));
-    this.middlewareStack.use((0, import_middleware_retry.getRetryPlugin)(this.config));
-    this.middlewareStack.use((0, import_middleware_content_length.getContentLengthPlugin)(this.config));
-    this.middlewareStack.use((0, import_middleware_host_header.getHostHeaderPlugin)(this.config));
-    this.middlewareStack.use((0, import_middleware_logger.getLoggerPlugin)(this.config));
-    this.middlewareStack.use((0, import_middleware_recursion_detection.getRecursionDetectionPlugin)(this.config));
-    this.middlewareStack.use(
-      (0, import_core.getHttpAuthSchemeEndpointRuleSetPlugin)(this.config, {
-        httpAuthSchemeParametersProvider: import_httpAuthSchemeProvider.defaultECSHttpAuthSchemeParametersProvider,
-        identityProviderConfigProvider: async (config) => new import_core.DefaultIdentityProviderConfig({
-          "aws.auth#sigv4": config.credentials
-        })
-      })
-    );
-    this.middlewareStack.use((0, import_core.getHttpSigningPlugin)(this.config));
-  }
-  /**
-   * Destroy underlying resources, like sockets. It's usually not necessary to do this.
-   * However in Node.js, it's best to explicitly shut down the client's agent when it is no longer needed.
-   * Otherwise, sockets might stay open for quite a long time before the server terminates them.
-   */
-  destroy() {
-    super.destroy();
-  }
-};
-__name(_ECSClient, "ECSClient");
-var ECSClient = _ECSClient;
-
-// src/ECS.ts
-
-
-// src/commands/CreateCapacityProviderCommand.ts
-
-var import_middleware_serde = __nccwpck_require__(3255);
-
-
-// src/protocols/Aws_json1_1.ts
-var import_core2 = __nccwpck_require__(1446);
-
-
-var import_uuid = __nccwpck_require__(1286);
-
-// src/models/ECSServiceException.ts
-
-var _ECSServiceException = class _ECSServiceException extends import_smithy_client.ServiceException {
-  /**
-   * @internal
-   */
-  constructor(options) {
-    super(options);
-    Object.setPrototypeOf(this, _ECSServiceException.prototype);
-  }
-};
-__name(_ECSServiceException, "ECSServiceException");
-var ECSServiceException = _ECSServiceException;
-
-// src/models/models_0.ts
-
-var _AccessDeniedException = class _AccessDeniedException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "AccessDeniedException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "AccessDeniedException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _AccessDeniedException.prototype);
-  }
-};
-__name(_AccessDeniedException, "AccessDeniedException");
-var AccessDeniedException = _AccessDeniedException;
-var AgentUpdateStatus = {
-  FAILED: "FAILED",
-  PENDING: "PENDING",
-  STAGED: "STAGED",
-  STAGING: "STAGING",
-  UPDATED: "UPDATED",
-  UPDATING: "UPDATING"
-};
-var _ClientException = class _ClientException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ClientException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ClientException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ClientException.prototype);
-  }
-};
-__name(_ClientException, "ClientException");
-var ClientException = _ClientException;
-var ManagedDraining = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var ManagedScalingStatus = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var ManagedTerminationProtection = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var CapacityProviderStatus = {
-  ACTIVE: "ACTIVE",
-  INACTIVE: "INACTIVE"
-};
-var CapacityProviderUpdateStatus = {
-  DELETE_COMPLETE: "DELETE_COMPLETE",
-  DELETE_FAILED: "DELETE_FAILED",
-  DELETE_IN_PROGRESS: "DELETE_IN_PROGRESS",
-  UPDATE_COMPLETE: "UPDATE_COMPLETE",
-  UPDATE_FAILED: "UPDATE_FAILED",
-  UPDATE_IN_PROGRESS: "UPDATE_IN_PROGRESS"
-};
-var _InvalidParameterException = class _InvalidParameterException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "InvalidParameterException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "InvalidParameterException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _InvalidParameterException.prototype);
-  }
-};
-__name(_InvalidParameterException, "InvalidParameterException");
-var InvalidParameterException = _InvalidParameterException;
-var _LimitExceededException = class _LimitExceededException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "LimitExceededException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "LimitExceededException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _LimitExceededException.prototype);
-  }
-};
-__name(_LimitExceededException, "LimitExceededException");
-var LimitExceededException = _LimitExceededException;
-var _ServerException = class _ServerException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ServerException",
-      $fault: "server",
-      ...opts
-    });
-    this.name = "ServerException";
-    this.$fault = "server";
-    Object.setPrototypeOf(this, _ServerException.prototype);
-  }
-};
-__name(_ServerException, "ServerException");
-var ServerException = _ServerException;
-var _UpdateInProgressException = class _UpdateInProgressException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "UpdateInProgressException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "UpdateInProgressException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _UpdateInProgressException.prototype);
-  }
-};
-__name(_UpdateInProgressException, "UpdateInProgressException");
-var UpdateInProgressException = _UpdateInProgressException;
-var ExecuteCommandLogging = {
-  DEFAULT: "DEFAULT",
-  NONE: "NONE",
-  OVERRIDE: "OVERRIDE"
-};
-var ClusterSettingName = {
-  CONTAINER_INSIGHTS: "containerInsights"
-};
-var _NamespaceNotFoundException = class _NamespaceNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "NamespaceNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "NamespaceNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _NamespaceNotFoundException.prototype);
-  }
-};
-__name(_NamespaceNotFoundException, "NamespaceNotFoundException");
-var NamespaceNotFoundException = _NamespaceNotFoundException;
-var _ClusterNotFoundException = class _ClusterNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ClusterNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ClusterNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ClusterNotFoundException.prototype);
-  }
-};
-__name(_ClusterNotFoundException, "ClusterNotFoundException");
-var ClusterNotFoundException = _ClusterNotFoundException;
-var DeploymentControllerType = {
-  CODE_DEPLOY: "CODE_DEPLOY",
-  ECS: "ECS",
-  EXTERNAL: "EXTERNAL"
-};
-var LaunchType = {
-  EC2: "EC2",
-  EXTERNAL: "EXTERNAL",
-  FARGATE: "FARGATE"
-};
-var AssignPublicIp = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var PlacementConstraintType = {
-  DISTINCT_INSTANCE: "distinctInstance",
-  MEMBER_OF: "memberOf"
-};
-var PlacementStrategyType = {
-  BINPACK: "binpack",
-  RANDOM: "random",
-  SPREAD: "spread"
-};
-var PropagateTags = {
-  NONE: "NONE",
-  SERVICE: "SERVICE",
-  TASK_DEFINITION: "TASK_DEFINITION"
-};
-var SchedulingStrategy = {
-  DAEMON: "DAEMON",
-  REPLICA: "REPLICA"
-};
-var LogDriver = {
-  AWSFIRELENS: "awsfirelens",
-  AWSLOGS: "awslogs",
-  FLUENTD: "fluentd",
-  GELF: "gelf",
-  JOURNALD: "journald",
-  JSON_FILE: "json-file",
-  SPLUNK: "splunk",
-  SYSLOG: "syslog"
-};
-var TaskFilesystemType = {
-  EXT3: "ext3",
-  EXT4: "ext4",
-  XFS: "xfs"
-};
-var EBSResourceType = {
-  VOLUME: "volume"
-};
-var DeploymentRolloutState = {
-  COMPLETED: "COMPLETED",
-  FAILED: "FAILED",
-  IN_PROGRESS: "IN_PROGRESS"
-};
-var ScaleUnit = {
-  PERCENT: "PERCENT"
-};
-var StabilityStatus = {
-  STABILIZING: "STABILIZING",
-  STEADY_STATE: "STEADY_STATE"
-};
-var _PlatformTaskDefinitionIncompatibilityException = class _PlatformTaskDefinitionIncompatibilityException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "PlatformTaskDefinitionIncompatibilityException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "PlatformTaskDefinitionIncompatibilityException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _PlatformTaskDefinitionIncompatibilityException.prototype);
-  }
-};
-__name(_PlatformTaskDefinitionIncompatibilityException, "PlatformTaskDefinitionIncompatibilityException");
-var PlatformTaskDefinitionIncompatibilityException = _PlatformTaskDefinitionIncompatibilityException;
-var _PlatformUnknownException = class _PlatformUnknownException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "PlatformUnknownException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "PlatformUnknownException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _PlatformUnknownException.prototype);
-  }
-};
-__name(_PlatformUnknownException, "PlatformUnknownException");
-var PlatformUnknownException = _PlatformUnknownException;
-var _UnsupportedFeatureException = class _UnsupportedFeatureException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "UnsupportedFeatureException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "UnsupportedFeatureException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _UnsupportedFeatureException.prototype);
-  }
-};
-__name(_UnsupportedFeatureException, "UnsupportedFeatureException");
-var UnsupportedFeatureException = _UnsupportedFeatureException;
-var _ServiceNotActiveException = class _ServiceNotActiveException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ServiceNotActiveException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ServiceNotActiveException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ServiceNotActiveException.prototype);
-  }
-};
-__name(_ServiceNotActiveException, "ServiceNotActiveException");
-var ServiceNotActiveException = _ServiceNotActiveException;
-var _ServiceNotFoundException = class _ServiceNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ServiceNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ServiceNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ServiceNotFoundException.prototype);
-  }
-};
-__name(_ServiceNotFoundException, "ServiceNotFoundException");
-var ServiceNotFoundException = _ServiceNotFoundException;
-var SettingName = {
-  AWSVPC_TRUNKING: "awsvpcTrunking",
-  CONTAINER_INSIGHTS: "containerInsights",
-  CONTAINER_INSTANCE_LONG_ARN_FORMAT: "containerInstanceLongArnFormat",
-  FARGATE_FIPS_MODE: "fargateFIPSMode",
-  FARGATE_TASK_RETIREMENT_WAIT_PERIOD: "fargateTaskRetirementWaitPeriod",
-  GUARD_DUTY_ACTIVATE: "guardDutyActivate",
-  SERVICE_LONG_ARN_FORMAT: "serviceLongArnFormat",
-  TAG_RESOURCE_AUTHORIZATION: "tagResourceAuthorization",
-  TASK_LONG_ARN_FORMAT: "taskLongArnFormat"
-};
-var SettingType = {
-  AWS_MANAGED: "aws_managed",
-  USER: "user"
-};
-var TargetType = {
-  CONTAINER_INSTANCE: "container-instance"
-};
-var _TargetNotFoundException = class _TargetNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "TargetNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "TargetNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _TargetNotFoundException.prototype);
-  }
-};
-__name(_TargetNotFoundException, "TargetNotFoundException");
-var TargetNotFoundException = _TargetNotFoundException;
-var _ClusterContainsContainerInstancesException = class _ClusterContainsContainerInstancesException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ClusterContainsContainerInstancesException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ClusterContainsContainerInstancesException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ClusterContainsContainerInstancesException.prototype);
-  }
-};
-__name(_ClusterContainsContainerInstancesException, "ClusterContainsContainerInstancesException");
-var ClusterContainsContainerInstancesException = _ClusterContainsContainerInstancesException;
-var _ClusterContainsServicesException = class _ClusterContainsServicesException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ClusterContainsServicesException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ClusterContainsServicesException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ClusterContainsServicesException.prototype);
-  }
-};
-__name(_ClusterContainsServicesException, "ClusterContainsServicesException");
-var ClusterContainsServicesException = _ClusterContainsServicesException;
-var _ClusterContainsTasksException = class _ClusterContainsTasksException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ClusterContainsTasksException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ClusterContainsTasksException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ClusterContainsTasksException.prototype);
-  }
-};
-__name(_ClusterContainsTasksException, "ClusterContainsTasksException");
-var ClusterContainsTasksException = _ClusterContainsTasksException;
-var Compatibility = {
-  EC2: "EC2",
-  EXTERNAL: "EXTERNAL",
-  FARGATE: "FARGATE"
-};
-var ContainerCondition = {
-  COMPLETE: "COMPLETE",
-  HEALTHY: "HEALTHY",
-  START: "START",
-  SUCCESS: "SUCCESS"
-};
-var EnvironmentFileType = {
-  S3: "s3"
-};
-var FirelensConfigurationType = {
-  FLUENTBIT: "fluentbit",
-  FLUENTD: "fluentd"
-};
-var DeviceCgroupPermission = {
-  MKNOD: "mknod",
-  READ: "read",
-  WRITE: "write"
-};
-var ApplicationProtocol = {
-  GRPC: "grpc",
-  HTTP: "http",
-  HTTP2: "http2"
-};
-var TransportProtocol = {
-  TCP: "tcp",
-  UDP: "udp"
-};
-var ResourceType = {
-  GPU: "GPU",
-  INFERENCE_ACCELERATOR: "InferenceAccelerator"
-};
-var UlimitName = {
-  CORE: "core",
-  CPU: "cpu",
-  DATA: "data",
-  FSIZE: "fsize",
-  LOCKS: "locks",
-  MEMLOCK: "memlock",
-  MSGQUEUE: "msgqueue",
-  NICE: "nice",
-  NOFILE: "nofile",
-  NPROC: "nproc",
-  RSS: "rss",
-  RTPRIO: "rtprio",
-  RTTIME: "rttime",
-  SIGPENDING: "sigpending",
-  STACK: "stack"
-};
-var IpcMode = {
-  HOST: "host",
-  NONE: "none",
-  TASK: "task"
-};
-var NetworkMode = {
-  AWSVPC: "awsvpc",
-  BRIDGE: "bridge",
-  HOST: "host",
-  NONE: "none"
-};
-var PidMode = {
-  HOST: "host",
-  TASK: "task"
-};
-var TaskDefinitionPlacementConstraintType = {
-  MEMBER_OF: "memberOf"
-};
-var ProxyConfigurationType = {
-  APPMESH: "APPMESH"
-};
-var CPUArchitecture = {
-  ARM64: "ARM64",
-  X86_64: "X86_64"
-};
-var OSFamily = {
-  LINUX: "LINUX",
-  WINDOWS_SERVER_2004_CORE: "WINDOWS_SERVER_2004_CORE",
-  WINDOWS_SERVER_2016_FULL: "WINDOWS_SERVER_2016_FULL",
-  WINDOWS_SERVER_2019_CORE: "WINDOWS_SERVER_2019_CORE",
-  WINDOWS_SERVER_2019_FULL: "WINDOWS_SERVER_2019_FULL",
-  WINDOWS_SERVER_2022_CORE: "WINDOWS_SERVER_2022_CORE",
-  WINDOWS_SERVER_2022_FULL: "WINDOWS_SERVER_2022_FULL",
-  WINDOWS_SERVER_20H2_CORE: "WINDOWS_SERVER_20H2_CORE"
-};
-var TaskDefinitionStatus = {
-  ACTIVE: "ACTIVE",
-  DELETE_IN_PROGRESS: "DELETE_IN_PROGRESS",
-  INACTIVE: "INACTIVE"
-};
-var Scope = {
-  SHARED: "shared",
-  TASK: "task"
-};
-var EFSAuthorizationConfigIAM = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var EFSTransitEncryption = {
-  DISABLED: "DISABLED",
-  ENABLED: "ENABLED"
-};
-var _TaskSetNotFoundException = class _TaskSetNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "TaskSetNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "TaskSetNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _TaskSetNotFoundException.prototype);
-  }
-};
-__name(_TaskSetNotFoundException, "TaskSetNotFoundException");
-var TaskSetNotFoundException = _TaskSetNotFoundException;
-var InstanceHealthCheckState = {
-  IMPAIRED: "IMPAIRED",
-  INITIALIZING: "INITIALIZING",
-  INSUFFICIENT_DATA: "INSUFFICIENT_DATA",
-  OK: "OK"
-};
-var InstanceHealthCheckType = {
-  CONTAINER_RUNTIME: "CONTAINER_RUNTIME"
-};
-var CapacityProviderField = {
-  TAGS: "TAGS"
-};
-var ClusterField = {
-  ATTACHMENTS: "ATTACHMENTS",
-  CONFIGURATIONS: "CONFIGURATIONS",
-  SETTINGS: "SETTINGS",
-  STATISTICS: "STATISTICS",
-  TAGS: "TAGS"
-};
-var ContainerInstanceField = {
-  CONTAINER_INSTANCE_HEALTH: "CONTAINER_INSTANCE_HEALTH",
-  TAGS: "TAGS"
-};
-var ServiceField = {
-  TAGS: "TAGS"
-};
-var TaskDefinitionField = {
-  TAGS: "TAGS"
-};
-var TaskField = {
-  TAGS: "TAGS"
-};
-var Connectivity = {
-  CONNECTED: "CONNECTED",
-  DISCONNECTED: "DISCONNECTED"
-};
-var HealthStatus = {
-  HEALTHY: "HEALTHY",
-  UNHEALTHY: "UNHEALTHY",
-  UNKNOWN: "UNKNOWN"
-};
-var ManagedAgentName = {
-  ExecuteCommandAgent: "ExecuteCommandAgent"
-};
-var TaskStopCode = {
-  ESSENTIAL_CONTAINER_EXITED: "EssentialContainerExited",
-  SERVICE_SCHEDULER_INITIATED: "ServiceSchedulerInitiated",
-  SPOT_INTERRUPTION: "SpotInterruption",
-  TASK_FAILED_TO_START: "TaskFailedToStart",
-  TERMINATION_NOTICE: "TerminationNotice",
-  USER_INITIATED: "UserInitiated"
-};
-var TaskSetField = {
-  TAGS: "TAGS"
-};
-var _TargetNotConnectedException = class _TargetNotConnectedException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "TargetNotConnectedException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "TargetNotConnectedException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _TargetNotConnectedException.prototype);
-  }
-};
-__name(_TargetNotConnectedException, "TargetNotConnectedException");
-var TargetNotConnectedException = _TargetNotConnectedException;
-var _ResourceNotFoundException = class _ResourceNotFoundException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ResourceNotFoundException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ResourceNotFoundException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ResourceNotFoundException.prototype);
-  }
-};
-__name(_ResourceNotFoundException, "ResourceNotFoundException");
-var ResourceNotFoundException = _ResourceNotFoundException;
-var ContainerInstanceStatus = {
-  ACTIVE: "ACTIVE",
-  DEREGISTERING: "DEREGISTERING",
-  DRAINING: "DRAINING",
-  REGISTERING: "REGISTERING",
-  REGISTRATION_FAILED: "REGISTRATION_FAILED"
-};
-var TaskDefinitionFamilyStatus = {
-  ACTIVE: "ACTIVE",
-  ALL: "ALL",
-  INACTIVE: "INACTIVE"
-};
-var SortOrder = {
-  ASC: "ASC",
-  DESC: "DESC"
-};
-var DesiredStatus = {
-  PENDING: "PENDING",
-  RUNNING: "RUNNING",
-  STOPPED: "STOPPED"
-};
-var _AttributeLimitExceededException = class _AttributeLimitExceededException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "AttributeLimitExceededException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "AttributeLimitExceededException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _AttributeLimitExceededException.prototype);
-  }
-};
-__name(_AttributeLimitExceededException, "AttributeLimitExceededException");
-var AttributeLimitExceededException = _AttributeLimitExceededException;
-var _ResourceInUseException = class _ResourceInUseException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ResourceInUseException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ResourceInUseException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ResourceInUseException.prototype);
-  }
-};
-__name(_ResourceInUseException, "ResourceInUseException");
-var ResourceInUseException = _ResourceInUseException;
-var PlatformDeviceType = {
-  GPU: "GPU"
-};
-var _BlockedException = class _BlockedException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "BlockedException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "BlockedException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _BlockedException.prototype);
-  }
-};
-__name(_BlockedException, "BlockedException");
-var BlockedException = _BlockedException;
-var _ConflictException = class _ConflictException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "ConflictException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "ConflictException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _ConflictException.prototype);
-    this.resourceIds = opts.resourceIds;
-  }
-};
-__name(_ConflictException, "ConflictException");
-var ConflictException = _ConflictException;
-var _MissingVersionException = class _MissingVersionException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "MissingVersionException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "MissingVersionException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _MissingVersionException.prototype);
-  }
-};
-__name(_MissingVersionException, "MissingVersionException");
-var MissingVersionException = _MissingVersionException;
-var _NoUpdateAvailableException = class _NoUpdateAvailableException extends ECSServiceException {
-  /**
-   * @internal
-   */
-  constructor(opts) {
-    super({
-      name: "NoUpdateAvailableException",
-      $fault: "client",
-      ...opts
-    });
-    this.name = "NoUpdateAvailableException";
-    this.$fault = "client";
-    Object.setPrototypeOf(this, _NoUpdateAvailableException.prototype);
-  }
-};
-__name(_NoUpdateAvailableException, "NoUpdateAvailableException");
-var NoUpdateAvailableException = _NoUpdateAvailableException;
-var SessionFilterSensitiveLog = /* @__PURE__ */ __name((obj) => ({
-  ...obj,
-  ...obj.tokenValue && { tokenValue: import_smithy_client.SENSITIVE_STRING }
-}), "SessionFilterSensitiveLog");
-var ExecuteCommandResponseFilterSensitiveLog = /* @__PURE__ */ __name((obj) => ({
-  ...obj,
-  ...obj.session && { session: SessionFilterSensitiveLog(obj.session) }
-}), "ExecuteCommandResponseFilterSensitiveLog");
-
-// src/protocols/Aws_json1_1.ts
-var se_CreateCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("CreateCapacityProvider");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_CreateCapacityProviderCommand");
-var se_CreateClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("CreateCluster");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_CreateClusterCommand");
-var se_CreateServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("CreateService");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_CreateServiceCommand");
-var se_CreateTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("CreateTaskSet");
-  let body;
-  body = JSON.stringify(se_CreateTaskSetRequest(input, context));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_CreateTaskSetCommand");
-var se_DeleteAccountSettingCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteAccountSetting");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteAccountSettingCommand");
-var se_DeleteAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteAttributes");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteAttributesCommand");
-var se_DeleteCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteCapacityProvider");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteCapacityProviderCommand");
-var se_DeleteClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteCluster");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteClusterCommand");
-var se_DeleteServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteService");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteServiceCommand");
-var se_DeleteTaskDefinitionsCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteTaskDefinitions");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteTaskDefinitionsCommand");
-var se_DeleteTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeleteTaskSet");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeleteTaskSetCommand");
-var se_DeregisterContainerInstanceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeregisterContainerInstance");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeregisterContainerInstanceCommand");
-var se_DeregisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DeregisterTaskDefinition");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DeregisterTaskDefinitionCommand");
-var se_DescribeCapacityProvidersCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeCapacityProviders");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeCapacityProvidersCommand");
-var se_DescribeClustersCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeClusters");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeClustersCommand");
-var se_DescribeContainerInstancesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeContainerInstances");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeContainerInstancesCommand");
-var se_DescribeServicesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeServices");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeServicesCommand");
-var se_DescribeTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeTaskDefinition");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeTaskDefinitionCommand");
-var se_DescribeTasksCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeTasks");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeTasksCommand");
-var se_DescribeTaskSetsCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DescribeTaskSets");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DescribeTaskSetsCommand");
-var se_DiscoverPollEndpointCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("DiscoverPollEndpoint");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_DiscoverPollEndpointCommand");
-var se_ExecuteCommandCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ExecuteCommand");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ExecuteCommandCommand");
-var se_GetTaskProtectionCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("GetTaskProtection");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_GetTaskProtectionCommand");
-var se_ListAccountSettingsCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListAccountSettings");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListAccountSettingsCommand");
-var se_ListAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListAttributes");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListAttributesCommand");
-var se_ListClustersCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListClusters");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListClustersCommand");
-var se_ListContainerInstancesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListContainerInstances");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListContainerInstancesCommand");
-var se_ListServicesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListServices");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListServicesCommand");
-var se_ListServicesByNamespaceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListServicesByNamespace");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListServicesByNamespaceCommand");
-var se_ListTagsForResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListTagsForResource");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListTagsForResourceCommand");
-var se_ListTaskDefinitionFamiliesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListTaskDefinitionFamilies");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListTaskDefinitionFamiliesCommand");
-var se_ListTaskDefinitionsCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListTaskDefinitions");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListTaskDefinitionsCommand");
-var se_ListTasksCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("ListTasks");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_ListTasksCommand");
-var se_PutAccountSettingCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("PutAccountSetting");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_PutAccountSettingCommand");
-var se_PutAccountSettingDefaultCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("PutAccountSettingDefault");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_PutAccountSettingDefaultCommand");
-var se_PutAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("PutAttributes");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_PutAttributesCommand");
-var se_PutClusterCapacityProvidersCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("PutClusterCapacityProviders");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_PutClusterCapacityProvidersCommand");
-var se_RegisterContainerInstanceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("RegisterContainerInstance");
-  let body;
-  body = JSON.stringify(se_RegisterContainerInstanceRequest(input, context));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_RegisterContainerInstanceCommand");
-var se_RegisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("RegisterTaskDefinition");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_RegisterTaskDefinitionCommand");
-var se_RunTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("RunTask");
-  let body;
-  body = JSON.stringify(se_RunTaskRequest(input, context));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_RunTaskCommand");
-var se_StartTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("StartTask");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_StartTaskCommand");
-var se_StopTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("StopTask");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_StopTaskCommand");
-var se_SubmitAttachmentStateChangesCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("SubmitAttachmentStateChanges");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_SubmitAttachmentStateChangesCommand");
-var se_SubmitContainerStateChangeCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("SubmitContainerStateChange");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_SubmitContainerStateChangeCommand");
-var se_SubmitTaskStateChangeCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("SubmitTaskStateChange");
-  let body;
-  body = JSON.stringify(se_SubmitTaskStateChangeRequest(input, context));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_SubmitTaskStateChangeCommand");
-var se_TagResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("TagResource");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_TagResourceCommand");
-var se_UntagResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UntagResource");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UntagResourceCommand");
-var se_UpdateCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateCapacityProvider");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateCapacityProviderCommand");
-var se_UpdateClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateCluster");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateClusterCommand");
-var se_UpdateClusterSettingsCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateClusterSettings");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateClusterSettingsCommand");
-var se_UpdateContainerAgentCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateContainerAgent");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateContainerAgentCommand");
-var se_UpdateContainerInstancesStateCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateContainerInstancesState");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateContainerInstancesStateCommand");
-var se_UpdateServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateService");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateServiceCommand");
-var se_UpdateServicePrimaryTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateServicePrimaryTaskSet");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateServicePrimaryTaskSetCommand");
-var se_UpdateTaskProtectionCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateTaskProtection");
-  let body;
-  body = JSON.stringify((0, import_smithy_client._json)(input));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateTaskProtectionCommand");
-var se_UpdateTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
-  const headers = sharedHeaders("UpdateTaskSet");
-  let body;
-  body = JSON.stringify(se_UpdateTaskSetRequest(input, context));
-  return buildHttpRpcRequest(context, headers, "/", void 0, body);
-}, "se_UpdateTaskSetCommand");
-var de_CreateCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_CreateCapacityProviderCommand");
-var de_CreateClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_CreateClusterCommand");
-var de_CreateServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_CreateServiceResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_CreateServiceCommand");
-var de_CreateTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_CreateTaskSetResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_CreateTaskSetCommand");
-var de_DeleteAccountSettingCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteAccountSettingCommand");
-var de_DeleteAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteAttributesCommand");
-var de_DeleteCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteCapacityProviderCommand");
-var de_DeleteClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteClusterCommand");
-var de_DeleteServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DeleteServiceResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteServiceCommand");
-var de_DeleteTaskDefinitionsCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DeleteTaskDefinitionsResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteTaskDefinitionsCommand");
-var de_DeleteTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DeleteTaskSetResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeleteTaskSetCommand");
-var de_DeregisterContainerInstanceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DeregisterContainerInstanceResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeregisterContainerInstanceCommand");
-var de_DeregisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DeregisterTaskDefinitionResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DeregisterTaskDefinitionCommand");
-var de_DescribeCapacityProvidersCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeCapacityProvidersCommand");
-var de_DescribeClustersCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeClustersCommand");
-var de_DescribeContainerInstancesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DescribeContainerInstancesResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeContainerInstancesCommand");
-var de_DescribeServicesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DescribeServicesResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeServicesCommand");
-var de_DescribeTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DescribeTaskDefinitionResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeTaskDefinitionCommand");
-var de_DescribeTasksCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DescribeTasksResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeTasksCommand");
-var de_DescribeTaskSetsCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_DescribeTaskSetsResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DescribeTaskSetsCommand");
-var de_DiscoverPollEndpointCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_DiscoverPollEndpointCommand");
-var de_ExecuteCommandCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ExecuteCommandCommand");
-var de_GetTaskProtectionCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_GetTaskProtectionResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_GetTaskProtectionCommand");
-var de_ListAccountSettingsCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListAccountSettingsCommand");
-var de_ListAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListAttributesCommand");
-var de_ListClustersCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListClustersCommand");
-var de_ListContainerInstancesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListContainerInstancesCommand");
-var de_ListServicesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListServicesCommand");
-var de_ListServicesByNamespaceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListServicesByNamespaceCommand");
-var de_ListTagsForResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListTagsForResourceCommand");
-var de_ListTaskDefinitionFamiliesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListTaskDefinitionFamiliesCommand");
-var de_ListTaskDefinitionsCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListTaskDefinitionsCommand");
-var de_ListTasksCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_ListTasksCommand");
-var de_PutAccountSettingCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_PutAccountSettingCommand");
-var de_PutAccountSettingDefaultCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_PutAccountSettingDefaultCommand");
-var de_PutAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_PutAttributesCommand");
-var de_PutClusterCapacityProvidersCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_PutClusterCapacityProvidersCommand");
-var de_RegisterContainerInstanceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_RegisterContainerInstanceResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_RegisterContainerInstanceCommand");
-var de_RegisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_RegisterTaskDefinitionResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_RegisterTaskDefinitionCommand");
-var de_RunTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_RunTaskResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_RunTaskCommand");
-var de_StartTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_StartTaskResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_StartTaskCommand");
-var de_StopTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_StopTaskResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_StopTaskCommand");
-var de_SubmitAttachmentStateChangesCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_SubmitAttachmentStateChangesCommand");
-var de_SubmitContainerStateChangeCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_SubmitContainerStateChangeCommand");
-var de_SubmitTaskStateChangeCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_SubmitTaskStateChangeCommand");
-var de_TagResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_TagResourceCommand");
-var de_UntagResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UntagResourceCommand");
-var de_UpdateCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateCapacityProviderCommand");
-var de_UpdateClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateClusterCommand");
-var de_UpdateClusterSettingsCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = (0, import_smithy_client._json)(data);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateClusterSettingsCommand");
-var de_UpdateContainerAgentCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateContainerAgentResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateContainerAgentCommand");
-var de_UpdateContainerInstancesStateCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateContainerInstancesStateResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateContainerInstancesStateCommand");
-var de_UpdateServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateServiceResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateServiceCommand");
-var de_UpdateServicePrimaryTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateServicePrimaryTaskSetResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateServicePrimaryTaskSetCommand");
-var de_UpdateTaskProtectionCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateTaskProtectionResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateTaskProtectionCommand");
-var de_UpdateTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
-  if (output.statusCode >= 300) {
-    return de_CommandError(output, context);
-  }
-  const data = await (0, import_core2.parseJsonBody)(output.body, context);
-  let contents = {};
-  contents = de_UpdateTaskSetResponse(data, context);
-  const response = {
-    $metadata: deserializeMetadata(output),
-    ...contents
-  };
-  return response;
-}, "de_UpdateTaskSetCommand");
-var de_CommandError = /* @__PURE__ */ __name(async (output, context) => {
-  const parsedOutput = {
-    ...output,
-    body: await (0, import_core2.parseJsonErrorBody)(output.body, context)
-  };
-  const errorCode = (0, import_core2.loadRestJsonErrorCode)(output, parsedOutput.body);
-  switch (errorCode) {
-    case "ClientException":
-    case "com.amazonaws.ecs#ClientException":
-      throw await de_ClientExceptionRes(parsedOutput, context);
-    case "InvalidParameterException":
-    case "com.amazonaws.ecs#InvalidParameterException":
-      throw await de_InvalidParameterExceptionRes(parsedOutput, context);
-    case "LimitExceededException":
-    case "com.amazonaws.ecs#LimitExceededException":
-      throw await de_LimitExceededExceptionRes(parsedOutput, context);
-    case "ServerException":
-    case "com.amazonaws.ecs#ServerException":
-      throw await de_ServerExceptionRes(parsedOutput, context);
-    case "UpdateInProgressException":
-    case "com.amazonaws.ecs#UpdateInProgressException":
-      throw await de_UpdateInProgressExceptionRes(parsedOutput, context);
-    case "NamespaceNotFoundException":
-    case "com.amazonaws.ecs#NamespaceNotFoundException":
-      throw await de_NamespaceNotFoundExceptionRes(parsedOutput, context);
-    case "AccessDeniedException":
-    case "com.amazonaws.ecs#AccessDeniedException":
-      throw await de_AccessDeniedExceptionRes(parsedOutput, context);
-    case "ClusterNotFoundException":
-    case "com.amazonaws.ecs#ClusterNotFoundException":
-      throw await de_ClusterNotFoundExceptionRes(parsedOutput, context);
-    case "PlatformTaskDefinitionIncompatibilityException":
-    case "com.amazonaws.ecs#PlatformTaskDefinitionIncompatibilityException":
-      throw await de_PlatformTaskDefinitionIncompatibilityExceptionRes(parsedOutput, context);
-    case "PlatformUnknownException":
-    case "com.amazonaws.ecs#PlatformUnknownException":
-      throw await de_PlatformUnknownExceptionRes(parsedOutput, context);
-    case "UnsupportedFeatureException":
-    case "com.amazonaws.ecs#UnsupportedFeatureException":
-      throw await de_UnsupportedFeatureExceptionRes(parsedOutput, context);
-    case "ServiceNotActiveException":
-    case "com.amazonaws.ecs#ServiceNotActiveException":
-      throw await de_ServiceNotActiveExceptionRes(parsedOutput, context);
-    case "ServiceNotFoundException":
-    case "com.amazonaws.ecs#ServiceNotFoundException":
-      throw await de_ServiceNotFoundExceptionRes(parsedOutput, context);
-    case "TargetNotFoundException":
-    case "com.amazonaws.ecs#TargetNotFoundException":
-      throw await de_TargetNotFoundExceptionRes(parsedOutput, context);
-    case "ClusterContainsContainerInstancesException":
-    case "com.amazonaws.ecs#ClusterContainsContainerInstancesException":
-      throw await de_ClusterContainsContainerInstancesExceptionRes(parsedOutput, context);
-    case "ClusterContainsServicesException":
-    case "com.amazonaws.ecs#ClusterContainsServicesException":
-      throw await de_ClusterContainsServicesExceptionRes(parsedOutput, context);
-    case "ClusterContainsTasksException":
-    case "com.amazonaws.ecs#ClusterContainsTasksException":
-      throw await de_ClusterContainsTasksExceptionRes(parsedOutput, context);
-    case "TaskSetNotFoundException":
-    case "com.amazonaws.ecs#TaskSetNotFoundException":
-      throw await de_TaskSetNotFoundExceptionRes(parsedOutput, context);
-    case "TargetNotConnectedException":
-    case "com.amazonaws.ecs#TargetNotConnectedException":
-      throw await de_TargetNotConnectedExceptionRes(parsedOutput, context);
-    case "ResourceNotFoundException":
-    case "com.amazonaws.ecs#ResourceNotFoundException":
-      throw await de_ResourceNotFoundExceptionRes(parsedOutput, context);
-    case "AttributeLimitExceededException":
-    case "com.amazonaws.ecs#AttributeLimitExceededException":
-      throw await de_AttributeLimitExceededExceptionRes(parsedOutput, context);
-    case "ResourceInUseException":
-    case "com.amazonaws.ecs#ResourceInUseException":
-      throw await de_ResourceInUseExceptionRes(parsedOutput, context);
-    case "BlockedException":
-    case "com.amazonaws.ecs#BlockedException":
-      throw await de_BlockedExceptionRes(parsedOutput, context);
-    case "ConflictException":
-    case "com.amazonaws.ecs#ConflictException":
-      throw await de_ConflictExceptionRes(parsedOutput, context);
-    case "MissingVersionException":
-    case "com.amazonaws.ecs#MissingVersionException":
-      throw await de_MissingVersionExceptionRes(parsedOutput, context);
-    case "NoUpdateAvailableException":
-    case "com.amazonaws.ecs#NoUpdateAvailableException":
-      throw await de_NoUpdateAvailableExceptionRes(parsedOutput, context);
-    default:
-      const parsedBody = parsedOutput.body;
-      return throwDefaultError({
-        output,
-        parsedBody,
-        errorCode
-      });
-  }
-}, "de_CommandError");
-var de_AccessDeniedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new AccessDeniedException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_AccessDeniedExceptionRes");
-var de_AttributeLimitExceededExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new AttributeLimitExceededException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_AttributeLimitExceededExceptionRes");
-var de_BlockedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new BlockedException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_BlockedExceptionRes");
-var de_ClientExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ClientException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ClientExceptionRes");
-var de_ClusterContainsContainerInstancesExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ClusterContainsContainerInstancesException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ClusterContainsContainerInstancesExceptionRes");
-var de_ClusterContainsServicesExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ClusterContainsServicesException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ClusterContainsServicesExceptionRes");
-var de_ClusterContainsTasksExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ClusterContainsTasksException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ClusterContainsTasksExceptionRes");
-var de_ClusterNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ClusterNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ClusterNotFoundExceptionRes");
-var de_ConflictExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ConflictException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ConflictExceptionRes");
-var de_InvalidParameterExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new InvalidParameterException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_InvalidParameterExceptionRes");
-var de_LimitExceededExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new LimitExceededException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_LimitExceededExceptionRes");
-var de_MissingVersionExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new MissingVersionException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_MissingVersionExceptionRes");
-var de_NamespaceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new NamespaceNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_NamespaceNotFoundExceptionRes");
-var de_NoUpdateAvailableExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new NoUpdateAvailableException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_NoUpdateAvailableExceptionRes");
-var de_PlatformTaskDefinitionIncompatibilityExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new PlatformTaskDefinitionIncompatibilityException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_PlatformTaskDefinitionIncompatibilityExceptionRes");
-var de_PlatformUnknownExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new PlatformUnknownException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_PlatformUnknownExceptionRes");
-var de_ResourceInUseExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ResourceInUseException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ResourceInUseExceptionRes");
-var de_ResourceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ResourceNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ResourceNotFoundExceptionRes");
-var de_ServerExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ServerException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ServerExceptionRes");
-var de_ServiceNotActiveExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ServiceNotActiveException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ServiceNotActiveExceptionRes");
-var de_ServiceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new ServiceNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_ServiceNotFoundExceptionRes");
-var de_TargetNotConnectedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new TargetNotConnectedException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_TargetNotConnectedExceptionRes");
-var de_TargetNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new TargetNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_TargetNotFoundExceptionRes");
-var de_TaskSetNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new TaskSetNotFoundException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_TaskSetNotFoundExceptionRes");
-var de_UnsupportedFeatureExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new UnsupportedFeatureException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_UnsupportedFeatureExceptionRes");
-var de_UpdateInProgressExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
-  const body = parsedOutput.body;
-  const deserialized = (0, import_smithy_client._json)(body);
-  const exception = new UpdateInProgressException({
-    $metadata: deserializeMetadata(parsedOutput),
-    ...deserialized
-  });
-  return (0, import_smithy_client.decorateServiceException)(exception, body);
-}, "de_UpdateInProgressExceptionRes");
-var se_CreateTaskSetRequest = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    capacityProviderStrategy: import_smithy_client._json,
-    clientToken: [],
-    cluster: [],
-    externalId: [],
-    launchType: [],
-    loadBalancers: import_smithy_client._json,
-    networkConfiguration: import_smithy_client._json,
-    platformVersion: [],
-    scale: (_) => se_Scale(_, context),
-    service: [],
-    serviceRegistries: import_smithy_client._json,
-    tags: import_smithy_client._json,
-    taskDefinition: []
-  });
-}, "se_CreateTaskSetRequest");
-var se_RegisterContainerInstanceRequest = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    attributes: import_smithy_client._json,
-    cluster: [],
-    containerInstanceArn: [],
-    instanceIdentityDocument: [],
-    instanceIdentityDocumentSignature: [],
-    platformDevices: import_smithy_client._json,
-    tags: import_smithy_client._json,
-    totalResources: (_) => se_Resources(_, context),
-    versionInfo: import_smithy_client._json
-  });
-}, "se_RegisterContainerInstanceRequest");
-var se_Resource = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    doubleValue: import_smithy_client.serializeFloat,
-    integerValue: [],
-    longValue: [],
-    name: [],
-    stringSetValue: import_smithy_client._json,
-    type: []
-  });
-}, "se_Resource");
-var se_Resources = /* @__PURE__ */ __name((input, context) => {
-  return input.filter((e) => e != null).map((entry) => {
-    return se_Resource(entry, context);
-  });
-}, "se_Resources");
-var se_RunTaskRequest = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    capacityProviderStrategy: import_smithy_client._json,
-    clientToken: [true, (_) => _ ?? (0, import_uuid.v4)()],
-    cluster: [],
-    count: [],
-    enableECSManagedTags: [],
-    enableExecuteCommand: [],
-    group: [],
-    launchType: [],
-    networkConfiguration: import_smithy_client._json,
-    overrides: import_smithy_client._json,
-    placementConstraints: import_smithy_client._json,
-    placementStrategy: import_smithy_client._json,
-    platformVersion: [],
-    propagateTags: [],
-    referenceId: [],
-    startedBy: [],
-    tags: import_smithy_client._json,
-    taskDefinition: [],
-    volumeConfigurations: import_smithy_client._json
-  });
-}, "se_RunTaskRequest");
-var se_Scale = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    unit: [],
-    value: import_smithy_client.serializeFloat
-  });
-}, "se_Scale");
-var se_SubmitTaskStateChangeRequest = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    attachments: import_smithy_client._json,
-    cluster: [],
-    containers: import_smithy_client._json,
-    executionStoppedAt: (_) => _.getTime() / 1e3,
-    managedAgents: import_smithy_client._json,
-    pullStartedAt: (_) => _.getTime() / 1e3,
-    pullStoppedAt: (_) => _.getTime() / 1e3,
-    reason: [],
-    status: [],
-    task: []
-  });
-}, "se_SubmitTaskStateChangeRequest");
-var se_UpdateTaskSetRequest = /* @__PURE__ */ __name((input, context) => {
-  return (0, import_smithy_client.take)(input, {
-    cluster: [],
-    scale: (_) => se_Scale(_, context),
-    service: [],
-    taskSet: []
-  });
-}, "se_UpdateTaskSetRequest");
-var de_Container = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerArn: import_smithy_client.expectString,
-    cpu: import_smithy_client.expectString,
-    exitCode: import_smithy_client.expectInt32,
-    gpuIds: import_smithy_client._json,
-    healthStatus: import_smithy_client.expectString,
-    image: import_smithy_client.expectString,
-    imageDigest: import_smithy_client.expectString,
-    lastStatus: import_smithy_client.expectString,
-    managedAgents: (_) => de_ManagedAgents(_, context),
-    memory: import_smithy_client.expectString,
-    memoryReservation: import_smithy_client.expectString,
-    name: import_smithy_client.expectString,
-    networkBindings: import_smithy_client._json,
-    networkInterfaces: import_smithy_client._json,
-    reason: import_smithy_client.expectString,
-    runtimeId: import_smithy_client.expectString,
-    taskArn: import_smithy_client.expectString
-  });
-}, "de_Container");
-var de_ContainerInstance = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    agentConnected: import_smithy_client.expectBoolean,
-    agentUpdateStatus: import_smithy_client.expectString,
-    attachments: import_smithy_client._json,
-    attributes: import_smithy_client._json,
-    capacityProviderName: import_smithy_client.expectString,
-    containerInstanceArn: import_smithy_client.expectString,
-    ec2InstanceId: import_smithy_client.expectString,
-    healthStatus: (_) => de_ContainerInstanceHealthStatus(_, context),
-    pendingTasksCount: import_smithy_client.expectInt32,
-    registeredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    registeredResources: (_) => de_Resources(_, context),
-    remainingResources: (_) => de_Resources(_, context),
-    runningTasksCount: import_smithy_client.expectInt32,
-    status: import_smithy_client.expectString,
-    statusReason: import_smithy_client.expectString,
-    tags: import_smithy_client._json,
-    version: import_smithy_client.expectLong,
-    versionInfo: import_smithy_client._json
-  });
-}, "de_ContainerInstance");
-var de_ContainerInstanceHealthStatus = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    details: (_) => de_InstanceHealthCheckResultList(_, context),
-    overallStatus: import_smithy_client.expectString
-  });
-}, "de_ContainerInstanceHealthStatus");
-var de_ContainerInstances = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_ContainerInstance(entry, context);
-  });
-  return retVal;
-}, "de_ContainerInstances");
-var de_Containers = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_Container(entry, context);
-  });
-  return retVal;
-}, "de_Containers");
-var de_CreateServiceResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    service: (_) => de_Service(_, context)
-  });
-}, "de_CreateServiceResponse");
-var de_CreateTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    taskSet: (_) => de_TaskSet(_, context)
-  });
-}, "de_CreateTaskSetResponse");
-var de_DeleteServiceResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    service: (_) => de_Service(_, context)
-  });
-}, "de_DeleteServiceResponse");
-var de_DeleteTaskDefinitionsResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    taskDefinitions: (_) => de_TaskDefinitionList(_, context)
-  });
-}, "de_DeleteTaskDefinitionsResponse");
-var de_DeleteTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    taskSet: (_) => de_TaskSet(_, context)
-  });
-}, "de_DeleteTaskSetResponse");
-var de_Deployment = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    capacityProviderStrategy: import_smithy_client._json,
-    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    desiredCount: import_smithy_client.expectInt32,
-    failedTasks: import_smithy_client.expectInt32,
-    fargateEphemeralStorage: import_smithy_client._json,
-    id: import_smithy_client.expectString,
-    launchType: import_smithy_client.expectString,
-    networkConfiguration: import_smithy_client._json,
-    pendingCount: import_smithy_client.expectInt32,
-    platformFamily: import_smithy_client.expectString,
-    platformVersion: import_smithy_client.expectString,
-    rolloutState: import_smithy_client.expectString,
-    rolloutStateReason: import_smithy_client.expectString,
-    runningCount: import_smithy_client.expectInt32,
-    serviceConnectConfiguration: import_smithy_client._json,
-    serviceConnectResources: import_smithy_client._json,
-    status: import_smithy_client.expectString,
-    taskDefinition: import_smithy_client.expectString,
-    updatedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    volumeConfigurations: import_smithy_client._json
-  });
-}, "de_Deployment");
-var de_Deployments = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_Deployment(entry, context);
-  });
-  return retVal;
-}, "de_Deployments");
-var de_DeregisterContainerInstanceResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerInstance: (_) => de_ContainerInstance(_, context)
-  });
-}, "de_DeregisterContainerInstanceResponse");
-var de_DeregisterTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    taskDefinition: (_) => de_TaskDefinition(_, context)
-  });
-}, "de_DeregisterTaskDefinitionResponse");
-var de_DescribeContainerInstancesResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerInstances: (_) => de_ContainerInstances(_, context),
-    failures: import_smithy_client._json
-  });
-}, "de_DescribeContainerInstancesResponse");
-var de_DescribeServicesResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    services: (_) => de_Services(_, context)
-  });
-}, "de_DescribeServicesResponse");
-var de_DescribeTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    tags: import_smithy_client._json,
-    taskDefinition: (_) => de_TaskDefinition(_, context)
-  });
-}, "de_DescribeTaskDefinitionResponse");
-var de_DescribeTaskSetsResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    taskSets: (_) => de_TaskSets(_, context)
-  });
-}, "de_DescribeTaskSetsResponse");
-var de_DescribeTasksResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    tasks: (_) => de_Tasks(_, context)
-  });
-}, "de_DescribeTasksResponse");
-var de_GetTaskProtectionResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    protectedTasks: (_) => de_ProtectedTasks(_, context)
-  });
-}, "de_GetTaskProtectionResponse");
-var de_InstanceHealthCheckResult = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    lastStatusChange: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    lastUpdated: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    status: import_smithy_client.expectString,
-    type: import_smithy_client.expectString
-  });
-}, "de_InstanceHealthCheckResult");
-var de_InstanceHealthCheckResultList = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_InstanceHealthCheckResult(entry, context);
-  });
-  return retVal;
-}, "de_InstanceHealthCheckResultList");
-var de_ManagedAgent = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    lastStartedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    lastStatus: import_smithy_client.expectString,
-    name: import_smithy_client.expectString,
-    reason: import_smithy_client.expectString
-  });
-}, "de_ManagedAgent");
-var de_ManagedAgents = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_ManagedAgent(entry, context);
-  });
-  return retVal;
-}, "de_ManagedAgents");
-var de_ProtectedTask = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    expirationDate: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    protectionEnabled: import_smithy_client.expectBoolean,
-    taskArn: import_smithy_client.expectString
-  });
-}, "de_ProtectedTask");
-var de_ProtectedTasks = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_ProtectedTask(entry, context);
-  });
-  return retVal;
-}, "de_ProtectedTasks");
-var de_RegisterContainerInstanceResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerInstance: (_) => de_ContainerInstance(_, context)
-  });
-}, "de_RegisterContainerInstanceResponse");
-var de_RegisterTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    tags: import_smithy_client._json,
-    taskDefinition: (_) => de_TaskDefinition(_, context)
-  });
-}, "de_RegisterTaskDefinitionResponse");
-var de_Resource = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    doubleValue: import_smithy_client.limitedParseDouble,
-    integerValue: import_smithy_client.expectInt32,
-    longValue: import_smithy_client.expectLong,
-    name: import_smithy_client.expectString,
-    stringSetValue: import_smithy_client._json,
-    type: import_smithy_client.expectString
-  });
-}, "de_Resource");
-var de_Resources = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_Resource(entry, context);
-  });
-  return retVal;
-}, "de_Resources");
-var de_RunTaskResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    tasks: (_) => de_Tasks(_, context)
-  });
-}, "de_RunTaskResponse");
-var de_Scale = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    unit: import_smithy_client.expectString,
-    value: import_smithy_client.limitedParseDouble
-  });
-}, "de_Scale");
-var de_Service = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    capacityProviderStrategy: import_smithy_client._json,
-    clusterArn: import_smithy_client.expectString,
-    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    createdBy: import_smithy_client.expectString,
-    deploymentConfiguration: import_smithy_client._json,
-    deploymentController: import_smithy_client._json,
-    deployments: (_) => de_Deployments(_, context),
-    desiredCount: import_smithy_client.expectInt32,
-    enableECSManagedTags: import_smithy_client.expectBoolean,
-    enableExecuteCommand: import_smithy_client.expectBoolean,
-    events: (_) => de_ServiceEvents(_, context),
-    healthCheckGracePeriodSeconds: import_smithy_client.expectInt32,
-    launchType: import_smithy_client.expectString,
-    loadBalancers: import_smithy_client._json,
-    networkConfiguration: import_smithy_client._json,
-    pendingCount: import_smithy_client.expectInt32,
-    placementConstraints: import_smithy_client._json,
-    placementStrategy: import_smithy_client._json,
-    platformFamily: import_smithy_client.expectString,
-    platformVersion: import_smithy_client.expectString,
-    propagateTags: import_smithy_client.expectString,
-    roleArn: import_smithy_client.expectString,
-    runningCount: import_smithy_client.expectInt32,
-    schedulingStrategy: import_smithy_client.expectString,
-    serviceArn: import_smithy_client.expectString,
-    serviceName: import_smithy_client.expectString,
-    serviceRegistries: import_smithy_client._json,
-    status: import_smithy_client.expectString,
-    tags: import_smithy_client._json,
-    taskDefinition: import_smithy_client.expectString,
-    taskSets: (_) => de_TaskSets(_, context)
-  });
-}, "de_Service");
-var de_ServiceEvent = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    id: import_smithy_client.expectString,
-    message: import_smithy_client.expectString
-  });
-}, "de_ServiceEvent");
-var de_ServiceEvents = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_ServiceEvent(entry, context);
-  });
-  return retVal;
-}, "de_ServiceEvents");
-var de_Services = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_Service(entry, context);
-  });
-  return retVal;
-}, "de_Services");
-var de_StartTaskResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    tasks: (_) => de_Tasks(_, context)
-  });
-}, "de_StartTaskResponse");
-var de_StopTaskResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    task: (_) => de_Task(_, context)
-  });
-}, "de_StopTaskResponse");
-var de_Task = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    attachments: import_smithy_client._json,
-    attributes: import_smithy_client._json,
-    availabilityZone: import_smithy_client.expectString,
-    capacityProviderName: import_smithy_client.expectString,
-    clusterArn: import_smithy_client.expectString,
-    connectivity: import_smithy_client.expectString,
-    connectivityAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    containerInstanceArn: import_smithy_client.expectString,
-    containers: (_) => de_Containers(_, context),
-    cpu: import_smithy_client.expectString,
-    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    desiredStatus: import_smithy_client.expectString,
-    enableExecuteCommand: import_smithy_client.expectBoolean,
-    ephemeralStorage: import_smithy_client._json,
-    executionStoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    fargateEphemeralStorage: import_smithy_client._json,
-    group: import_smithy_client.expectString,
-    healthStatus: import_smithy_client.expectString,
-    inferenceAccelerators: import_smithy_client._json,
-    lastStatus: import_smithy_client.expectString,
-    launchType: import_smithy_client.expectString,
-    memory: import_smithy_client.expectString,
-    overrides: import_smithy_client._json,
-    platformFamily: import_smithy_client.expectString,
-    platformVersion: import_smithy_client.expectString,
-    pullStartedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    pullStoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    startedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    startedBy: import_smithy_client.expectString,
-    stopCode: import_smithy_client.expectString,
-    stoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    stoppedReason: import_smithy_client.expectString,
-    stoppingAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    tags: import_smithy_client._json,
-    taskArn: import_smithy_client.expectString,
-    taskDefinitionArn: import_smithy_client.expectString,
-    version: import_smithy_client.expectLong
-  });
-}, "de_Task");
-var de_TaskDefinition = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    compatibilities: import_smithy_client._json,
-    containerDefinitions: import_smithy_client._json,
-    cpu: import_smithy_client.expectString,
-    deregisteredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    ephemeralStorage: import_smithy_client._json,
-    executionRoleArn: import_smithy_client.expectString,
-    family: import_smithy_client.expectString,
-    inferenceAccelerators: import_smithy_client._json,
-    ipcMode: import_smithy_client.expectString,
-    memory: import_smithy_client.expectString,
-    networkMode: import_smithy_client.expectString,
-    pidMode: import_smithy_client.expectString,
-    placementConstraints: import_smithy_client._json,
-    proxyConfiguration: import_smithy_client._json,
-    registeredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    registeredBy: import_smithy_client.expectString,
-    requiresAttributes: import_smithy_client._json,
-    requiresCompatibilities: import_smithy_client._json,
-    revision: import_smithy_client.expectInt32,
-    runtimePlatform: import_smithy_client._json,
-    status: import_smithy_client.expectString,
-    taskDefinitionArn: import_smithy_client.expectString,
-    taskRoleArn: import_smithy_client.expectString,
-    volumes: import_smithy_client._json
-  });
-}, "de_TaskDefinition");
-var de_TaskDefinitionList = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_TaskDefinition(entry, context);
-  });
-  return retVal;
-}, "de_TaskDefinitionList");
-var de_Tasks = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_Task(entry, context);
-  });
-  return retVal;
-}, "de_Tasks");
-var de_TaskSet = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    capacityProviderStrategy: import_smithy_client._json,
-    clusterArn: import_smithy_client.expectString,
-    computedDesiredCount: import_smithy_client.expectInt32,
-    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    externalId: import_smithy_client.expectString,
-    fargateEphemeralStorage: import_smithy_client._json,
-    id: import_smithy_client.expectString,
-    launchType: import_smithy_client.expectString,
-    loadBalancers: import_smithy_client._json,
-    networkConfiguration: import_smithy_client._json,
-    pendingCount: import_smithy_client.expectInt32,
-    platformFamily: import_smithy_client.expectString,
-    platformVersion: import_smithy_client.expectString,
-    runningCount: import_smithy_client.expectInt32,
-    scale: (_) => de_Scale(_, context),
-    serviceArn: import_smithy_client.expectString,
-    serviceRegistries: import_smithy_client._json,
-    stabilityStatus: import_smithy_client.expectString,
-    stabilityStatusAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
-    startedBy: import_smithy_client.expectString,
-    status: import_smithy_client.expectString,
-    tags: import_smithy_client._json,
-    taskDefinition: import_smithy_client.expectString,
-    taskSetArn: import_smithy_client.expectString,
-    updatedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_)))
-  });
-}, "de_TaskSet");
-var de_TaskSets = /* @__PURE__ */ __name((output, context) => {
-  const retVal = (output || []).filter((e) => e != null).map((entry) => {
-    return de_TaskSet(entry, context);
-  });
-  return retVal;
-}, "de_TaskSets");
-var de_UpdateContainerAgentResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerInstance: (_) => de_ContainerInstance(_, context)
-  });
-}, "de_UpdateContainerAgentResponse");
-var de_UpdateContainerInstancesStateResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    containerInstances: (_) => de_ContainerInstances(_, context),
-    failures: import_smithy_client._json
-  });
-}, "de_UpdateContainerInstancesStateResponse");
-var de_UpdateServicePrimaryTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    taskSet: (_) => de_TaskSet(_, context)
-  });
-}, "de_UpdateServicePrimaryTaskSetResponse");
-var de_UpdateServiceResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    service: (_) => de_Service(_, context)
-  });
-}, "de_UpdateServiceResponse");
-var de_UpdateTaskProtectionResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    failures: import_smithy_client._json,
-    protectedTasks: (_) => de_ProtectedTasks(_, context)
-  });
-}, "de_UpdateTaskProtectionResponse");
-var de_UpdateTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
-  return (0, import_smithy_client.take)(output, {
-    taskSet: (_) => de_TaskSet(_, context)
-  });
-}, "de_UpdateTaskSetResponse");
-var deserializeMetadata = /* @__PURE__ */ __name((output) => ({
-  httpStatusCode: output.statusCode,
-  requestId: output.headers["x-amzn-requestid"] ?? output.headers["x-amzn-request-id"] ?? output.headers["x-amz-request-id"],
-  extendedRequestId: output.headers["x-amz-id-2"],
-  cfId: output.headers["x-amz-cf-id"]
-}), "deserializeMetadata");
-var throwDefaultError = (0, import_smithy_client.withBaseException)(ECSServiceException);
-var buildHttpRpcRequest = /* @__PURE__ */ __name(async (context, headers, path, resolvedHostname, body) => {
-  const { hostname, protocol = "https", port, path: basePath } = await context.endpoint();
-  const contents = {
-    protocol,
-    hostname,
-    port,
-    method: "POST",
-    path: basePath.endsWith("/") ? basePath.slice(0, -1) + path : basePath + path,
-    headers
-  };
-  if (resolvedHostname !== void 0) {
-    contents.hostname = resolvedHostname;
-  }
-  if (body !== void 0) {
-    contents.body = body;
-  }
-  return new import_protocol_http.HttpRequest(contents);
-}, "buildHttpRpcRequest");
-function sharedHeaders(operation) {
-  return {
-    "content-type": "application/x-amz-json-1.1",
-    "x-amz-target": `AmazonEC2ContainerServiceV20141113.${operation}`
-  };
-}
-__name(sharedHeaders, "sharedHeaders");
-
-// src/commands/CreateCapacityProviderCommand.ts
-var _CreateCapacityProviderCommand = class _CreateCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "CreateCapacityProvider", {}).n("ECSClient", "CreateCapacityProviderCommand").f(void 0, void 0).ser(se_CreateCapacityProviderCommand).de(de_CreateCapacityProviderCommand).build() {
-};
-__name(_CreateCapacityProviderCommand, "CreateCapacityProviderCommand");
-var CreateCapacityProviderCommand = _CreateCapacityProviderCommand;
-
-// src/commands/CreateClusterCommand.ts
-
-
-
-var _CreateClusterCommand = class _CreateClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "CreateCluster", {}).n("ECSClient", "CreateClusterCommand").f(void 0, void 0).ser(se_CreateClusterCommand).de(de_CreateClusterCommand).build() {
-};
-__name(_CreateClusterCommand, "CreateClusterCommand");
-var CreateClusterCommand = _CreateClusterCommand;
-
-// src/commands/CreateServiceCommand.ts
-
-
-
-var _CreateServiceCommand = class _CreateServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "CreateService", {}).n("ECSClient", "CreateServiceCommand").f(void 0, void 0).ser(se_CreateServiceCommand).de(de_CreateServiceCommand).build() {
-};
-__name(_CreateServiceCommand, "CreateServiceCommand");
-var CreateServiceCommand = _CreateServiceCommand;
-
-// src/commands/CreateTaskSetCommand.ts
-
-
-
-var _CreateTaskSetCommand = class _CreateTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "CreateTaskSet", {}).n("ECSClient", "CreateTaskSetCommand").f(void 0, void 0).ser(se_CreateTaskSetCommand).de(de_CreateTaskSetCommand).build() {
-};
-__name(_CreateTaskSetCommand, "CreateTaskSetCommand");
-var CreateTaskSetCommand = _CreateTaskSetCommand;
-
-// src/commands/DeleteAccountSettingCommand.ts
-
-
-
-var _DeleteAccountSettingCommand = class _DeleteAccountSettingCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteAccountSetting", {}).n("ECSClient", "DeleteAccountSettingCommand").f(void 0, void 0).ser(se_DeleteAccountSettingCommand).de(de_DeleteAccountSettingCommand).build() {
-};
-__name(_DeleteAccountSettingCommand, "DeleteAccountSettingCommand");
-var DeleteAccountSettingCommand = _DeleteAccountSettingCommand;
-
-// src/commands/DeleteAttributesCommand.ts
-
-
-
-var _DeleteAttributesCommand = class _DeleteAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteAttributes", {}).n("ECSClient", "DeleteAttributesCommand").f(void 0, void 0).ser(se_DeleteAttributesCommand).de(de_DeleteAttributesCommand).build() {
-};
-__name(_DeleteAttributesCommand, "DeleteAttributesCommand");
-var DeleteAttributesCommand = _DeleteAttributesCommand;
-
-// src/commands/DeleteCapacityProviderCommand.ts
-
-
-
-var _DeleteCapacityProviderCommand = class _DeleteCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteCapacityProvider", {}).n("ECSClient", "DeleteCapacityProviderCommand").f(void 0, void 0).ser(se_DeleteCapacityProviderCommand).de(de_DeleteCapacityProviderCommand).build() {
-};
-__name(_DeleteCapacityProviderCommand, "DeleteCapacityProviderCommand");
-var DeleteCapacityProviderCommand = _DeleteCapacityProviderCommand;
-
-// src/commands/DeleteClusterCommand.ts
-
-
-
-var _DeleteClusterCommand = class _DeleteClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteCluster", {}).n("ECSClient", "DeleteClusterCommand").f(void 0, void 0).ser(se_DeleteClusterCommand).de(de_DeleteClusterCommand).build() {
-};
-__name(_DeleteClusterCommand, "DeleteClusterCommand");
-var DeleteClusterCommand = _DeleteClusterCommand;
-
-// src/commands/DeleteServiceCommand.ts
-
-
-
-var _DeleteServiceCommand = class _DeleteServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteService", {}).n("ECSClient", "DeleteServiceCommand").f(void 0, void 0).ser(se_DeleteServiceCommand).de(de_DeleteServiceCommand).build() {
-};
-__name(_DeleteServiceCommand, "DeleteServiceCommand");
-var DeleteServiceCommand = _DeleteServiceCommand;
-
-// src/commands/DeleteTaskDefinitionsCommand.ts
-
-
-
-var _DeleteTaskDefinitionsCommand = class _DeleteTaskDefinitionsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteTaskDefinitions", {}).n("ECSClient", "DeleteTaskDefinitionsCommand").f(void 0, void 0).ser(se_DeleteTaskDefinitionsCommand).de(de_DeleteTaskDefinitionsCommand).build() {
-};
-__name(_DeleteTaskDefinitionsCommand, "DeleteTaskDefinitionsCommand");
-var DeleteTaskDefinitionsCommand = _DeleteTaskDefinitionsCommand;
-
-// src/commands/DeleteTaskSetCommand.ts
-
-
-
-var _DeleteTaskSetCommand = class _DeleteTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeleteTaskSet", {}).n("ECSClient", "DeleteTaskSetCommand").f(void 0, void 0).ser(se_DeleteTaskSetCommand).de(de_DeleteTaskSetCommand).build() {
-};
-__name(_DeleteTaskSetCommand, "DeleteTaskSetCommand");
-var DeleteTaskSetCommand = _DeleteTaskSetCommand;
-
-// src/commands/DeregisterContainerInstanceCommand.ts
-
-
-
-var _DeregisterContainerInstanceCommand = class _DeregisterContainerInstanceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeregisterContainerInstance", {}).n("ECSClient", "DeregisterContainerInstanceCommand").f(void 0, void 0).ser(se_DeregisterContainerInstanceCommand).de(de_DeregisterContainerInstanceCommand).build() {
-};
-__name(_DeregisterContainerInstanceCommand, "DeregisterContainerInstanceCommand");
-var DeregisterContainerInstanceCommand = _DeregisterContainerInstanceCommand;
-
-// src/commands/DeregisterTaskDefinitionCommand.ts
-
-
-
-var _DeregisterTaskDefinitionCommand = class _DeregisterTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DeregisterTaskDefinition", {}).n("ECSClient", "DeregisterTaskDefinitionCommand").f(void 0, void 0).ser(se_DeregisterTaskDefinitionCommand).de(de_DeregisterTaskDefinitionCommand).build() {
-};
-__name(_DeregisterTaskDefinitionCommand, "DeregisterTaskDefinitionCommand");
-var DeregisterTaskDefinitionCommand = _DeregisterTaskDefinitionCommand;
-
-// src/commands/DescribeCapacityProvidersCommand.ts
-
-
-
-var _DescribeCapacityProvidersCommand = class _DescribeCapacityProvidersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeCapacityProviders", {}).n("ECSClient", "DescribeCapacityProvidersCommand").f(void 0, void 0).ser(se_DescribeCapacityProvidersCommand).de(de_DescribeCapacityProvidersCommand).build() {
-};
-__name(_DescribeCapacityProvidersCommand, "DescribeCapacityProvidersCommand");
-var DescribeCapacityProvidersCommand = _DescribeCapacityProvidersCommand;
-
-// src/commands/DescribeClustersCommand.ts
-
-
-
-var _DescribeClustersCommand = class _DescribeClustersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeClusters", {}).n("ECSClient", "DescribeClustersCommand").f(void 0, void 0).ser(se_DescribeClustersCommand).de(de_DescribeClustersCommand).build() {
-};
-__name(_DescribeClustersCommand, "DescribeClustersCommand");
-var DescribeClustersCommand = _DescribeClustersCommand;
-
-// src/commands/DescribeContainerInstancesCommand.ts
-
-
-
-var _DescribeContainerInstancesCommand = class _DescribeContainerInstancesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeContainerInstances", {}).n("ECSClient", "DescribeContainerInstancesCommand").f(void 0, void 0).ser(se_DescribeContainerInstancesCommand).de(de_DescribeContainerInstancesCommand).build() {
-};
-__name(_DescribeContainerInstancesCommand, "DescribeContainerInstancesCommand");
-var DescribeContainerInstancesCommand = _DescribeContainerInstancesCommand;
-
-// src/commands/DescribeServicesCommand.ts
-
-
-
-var _DescribeServicesCommand = class _DescribeServicesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeServices", {}).n("ECSClient", "DescribeServicesCommand").f(void 0, void 0).ser(se_DescribeServicesCommand).de(de_DescribeServicesCommand).build() {
-};
-__name(_DescribeServicesCommand, "DescribeServicesCommand");
-var DescribeServicesCommand = _DescribeServicesCommand;
-
-// src/commands/DescribeTaskDefinitionCommand.ts
-
-
-
-var _DescribeTaskDefinitionCommand = class _DescribeTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeTaskDefinition", {}).n("ECSClient", "DescribeTaskDefinitionCommand").f(void 0, void 0).ser(se_DescribeTaskDefinitionCommand).de(de_DescribeTaskDefinitionCommand).build() {
-};
-__name(_DescribeTaskDefinitionCommand, "DescribeTaskDefinitionCommand");
-var DescribeTaskDefinitionCommand = _DescribeTaskDefinitionCommand;
-
-// src/commands/DescribeTasksCommand.ts
-
-
-
-var _DescribeTasksCommand = class _DescribeTasksCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeTasks", {}).n("ECSClient", "DescribeTasksCommand").f(void 0, void 0).ser(se_DescribeTasksCommand).de(de_DescribeTasksCommand).build() {
-};
-__name(_DescribeTasksCommand, "DescribeTasksCommand");
-var DescribeTasksCommand = _DescribeTasksCommand;
-
-// src/commands/DescribeTaskSetsCommand.ts
-
-
-
-var _DescribeTaskSetsCommand = class _DescribeTaskSetsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DescribeTaskSets", {}).n("ECSClient", "DescribeTaskSetsCommand").f(void 0, void 0).ser(se_DescribeTaskSetsCommand).de(de_DescribeTaskSetsCommand).build() {
-};
-__name(_DescribeTaskSetsCommand, "DescribeTaskSetsCommand");
-var DescribeTaskSetsCommand = _DescribeTaskSetsCommand;
-
-// src/commands/DiscoverPollEndpointCommand.ts
-
-
-
-var _DiscoverPollEndpointCommand = class _DiscoverPollEndpointCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "DiscoverPollEndpoint", {}).n("ECSClient", "DiscoverPollEndpointCommand").f(void 0, void 0).ser(se_DiscoverPollEndpointCommand).de(de_DiscoverPollEndpointCommand).build() {
-};
-__name(_DiscoverPollEndpointCommand, "DiscoverPollEndpointCommand");
-var DiscoverPollEndpointCommand = _DiscoverPollEndpointCommand;
-
-// src/commands/ExecuteCommandCommand.ts
-
-
-
-var _ExecuteCommandCommand = class _ExecuteCommandCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ExecuteCommand", {}).n("ECSClient", "ExecuteCommandCommand").f(void 0, ExecuteCommandResponseFilterSensitiveLog).ser(se_ExecuteCommandCommand).de(de_ExecuteCommandCommand).build() {
-};
-__name(_ExecuteCommandCommand, "ExecuteCommandCommand");
-var ExecuteCommandCommand = _ExecuteCommandCommand;
-
-// src/commands/GetTaskProtectionCommand.ts
-
-
-
-var _GetTaskProtectionCommand = class _GetTaskProtectionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "GetTaskProtection", {}).n("ECSClient", "GetTaskProtectionCommand").f(void 0, void 0).ser(se_GetTaskProtectionCommand).de(de_GetTaskProtectionCommand).build() {
-};
-__name(_GetTaskProtectionCommand, "GetTaskProtectionCommand");
-var GetTaskProtectionCommand = _GetTaskProtectionCommand;
-
-// src/commands/ListAccountSettingsCommand.ts
-
-
-
-var _ListAccountSettingsCommand = class _ListAccountSettingsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListAccountSettings", {}).n("ECSClient", "ListAccountSettingsCommand").f(void 0, void 0).ser(se_ListAccountSettingsCommand).de(de_ListAccountSettingsCommand).build() {
-};
-__name(_ListAccountSettingsCommand, "ListAccountSettingsCommand");
-var ListAccountSettingsCommand = _ListAccountSettingsCommand;
-
-// src/commands/ListAttributesCommand.ts
-
-
-
-var _ListAttributesCommand = class _ListAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListAttributes", {}).n("ECSClient", "ListAttributesCommand").f(void 0, void 0).ser(se_ListAttributesCommand).de(de_ListAttributesCommand).build() {
-};
-__name(_ListAttributesCommand, "ListAttributesCommand");
-var ListAttributesCommand = _ListAttributesCommand;
-
-// src/commands/ListClustersCommand.ts
-
-
-
-var _ListClustersCommand = class _ListClustersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListClusters", {}).n("ECSClient", "ListClustersCommand").f(void 0, void 0).ser(se_ListClustersCommand).de(de_ListClustersCommand).build() {
-};
-__name(_ListClustersCommand, "ListClustersCommand");
-var ListClustersCommand = _ListClustersCommand;
-
-// src/commands/ListContainerInstancesCommand.ts
-
-
-
-var _ListContainerInstancesCommand = class _ListContainerInstancesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListContainerInstances", {}).n("ECSClient", "ListContainerInstancesCommand").f(void 0, void 0).ser(se_ListContainerInstancesCommand).de(de_ListContainerInstancesCommand).build() {
-};
-__name(_ListContainerInstancesCommand, "ListContainerInstancesCommand");
-var ListContainerInstancesCommand = _ListContainerInstancesCommand;
-
-// src/commands/ListServicesByNamespaceCommand.ts
-
-
-
-var _ListServicesByNamespaceCommand = class _ListServicesByNamespaceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListServicesByNamespace", {}).n("ECSClient", "ListServicesByNamespaceCommand").f(void 0, void 0).ser(se_ListServicesByNamespaceCommand).de(de_ListServicesByNamespaceCommand).build() {
-};
-__name(_ListServicesByNamespaceCommand, "ListServicesByNamespaceCommand");
-var ListServicesByNamespaceCommand = _ListServicesByNamespaceCommand;
-
-// src/commands/ListServicesCommand.ts
-
-
-
-var _ListServicesCommand = class _ListServicesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListServices", {}).n("ECSClient", "ListServicesCommand").f(void 0, void 0).ser(se_ListServicesCommand).de(de_ListServicesCommand).build() {
-};
-__name(_ListServicesCommand, "ListServicesCommand");
-var ListServicesCommand = _ListServicesCommand;
-
-// src/commands/ListTagsForResourceCommand.ts
-
-
-
-var _ListTagsForResourceCommand = class _ListTagsForResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListTagsForResource", {}).n("ECSClient", "ListTagsForResourceCommand").f(void 0, void 0).ser(se_ListTagsForResourceCommand).de(de_ListTagsForResourceCommand).build() {
-};
-__name(_ListTagsForResourceCommand, "ListTagsForResourceCommand");
-var ListTagsForResourceCommand = _ListTagsForResourceCommand;
-
-// src/commands/ListTaskDefinitionFamiliesCommand.ts
-
-
-
-var _ListTaskDefinitionFamiliesCommand = class _ListTaskDefinitionFamiliesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListTaskDefinitionFamilies", {}).n("ECSClient", "ListTaskDefinitionFamiliesCommand").f(void 0, void 0).ser(se_ListTaskDefinitionFamiliesCommand).de(de_ListTaskDefinitionFamiliesCommand).build() {
-};
-__name(_ListTaskDefinitionFamiliesCommand, "ListTaskDefinitionFamiliesCommand");
-var ListTaskDefinitionFamiliesCommand = _ListTaskDefinitionFamiliesCommand;
-
-// src/commands/ListTaskDefinitionsCommand.ts
-
-
-
-var _ListTaskDefinitionsCommand = class _ListTaskDefinitionsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListTaskDefinitions", {}).n("ECSClient", "ListTaskDefinitionsCommand").f(void 0, void 0).ser(se_ListTaskDefinitionsCommand).de(de_ListTaskDefinitionsCommand).build() {
-};
-__name(_ListTaskDefinitionsCommand, "ListTaskDefinitionsCommand");
-var ListTaskDefinitionsCommand = _ListTaskDefinitionsCommand;
-
-// src/commands/ListTasksCommand.ts
-
-
-
-var _ListTasksCommand = class _ListTasksCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "ListTasks", {}).n("ECSClient", "ListTasksCommand").f(void 0, void 0).ser(se_ListTasksCommand).de(de_ListTasksCommand).build() {
-};
-__name(_ListTasksCommand, "ListTasksCommand");
-var ListTasksCommand = _ListTasksCommand;
-
-// src/commands/PutAccountSettingCommand.ts
-
-
-
-var _PutAccountSettingCommand = class _PutAccountSettingCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "PutAccountSetting", {}).n("ECSClient", "PutAccountSettingCommand").f(void 0, void 0).ser(se_PutAccountSettingCommand).de(de_PutAccountSettingCommand).build() {
-};
-__name(_PutAccountSettingCommand, "PutAccountSettingCommand");
-var PutAccountSettingCommand = _PutAccountSettingCommand;
-
-// src/commands/PutAccountSettingDefaultCommand.ts
-
-
-
-var _PutAccountSettingDefaultCommand = class _PutAccountSettingDefaultCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "PutAccountSettingDefault", {}).n("ECSClient", "PutAccountSettingDefaultCommand").f(void 0, void 0).ser(se_PutAccountSettingDefaultCommand).de(de_PutAccountSettingDefaultCommand).build() {
-};
-__name(_PutAccountSettingDefaultCommand, "PutAccountSettingDefaultCommand");
-var PutAccountSettingDefaultCommand = _PutAccountSettingDefaultCommand;
-
-// src/commands/PutAttributesCommand.ts
-
-
-
-var _PutAttributesCommand = class _PutAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "PutAttributes", {}).n("ECSClient", "PutAttributesCommand").f(void 0, void 0).ser(se_PutAttributesCommand).de(de_PutAttributesCommand).build() {
-};
-__name(_PutAttributesCommand, "PutAttributesCommand");
-var PutAttributesCommand = _PutAttributesCommand;
-
-// src/commands/PutClusterCapacityProvidersCommand.ts
-
-
-
-var _PutClusterCapacityProvidersCommand = class _PutClusterCapacityProvidersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "PutClusterCapacityProviders", {}).n("ECSClient", "PutClusterCapacityProvidersCommand").f(void 0, void 0).ser(se_PutClusterCapacityProvidersCommand).de(de_PutClusterCapacityProvidersCommand).build() {
-};
-__name(_PutClusterCapacityProvidersCommand, "PutClusterCapacityProvidersCommand");
-var PutClusterCapacityProvidersCommand = _PutClusterCapacityProvidersCommand;
-
-// src/commands/RegisterContainerInstanceCommand.ts
-
-
-
-var _RegisterContainerInstanceCommand = class _RegisterContainerInstanceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "RegisterContainerInstance", {}).n("ECSClient", "RegisterContainerInstanceCommand").f(void 0, void 0).ser(se_RegisterContainerInstanceCommand).de(de_RegisterContainerInstanceCommand).build() {
-};
-__name(_RegisterContainerInstanceCommand, "RegisterContainerInstanceCommand");
-var RegisterContainerInstanceCommand = _RegisterContainerInstanceCommand;
-
-// src/commands/RegisterTaskDefinitionCommand.ts
-
-
-
-var _RegisterTaskDefinitionCommand = class _RegisterTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "RegisterTaskDefinition", {}).n("ECSClient", "RegisterTaskDefinitionCommand").f(void 0, void 0).ser(se_RegisterTaskDefinitionCommand).de(de_RegisterTaskDefinitionCommand).build() {
-};
-__name(_RegisterTaskDefinitionCommand, "RegisterTaskDefinitionCommand");
-var RegisterTaskDefinitionCommand = _RegisterTaskDefinitionCommand;
-
-// src/commands/RunTaskCommand.ts
-
-
-
-var _RunTaskCommand = class _RunTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "RunTask", {}).n("ECSClient", "RunTaskCommand").f(void 0, void 0).ser(se_RunTaskCommand).de(de_RunTaskCommand).build() {
-};
-__name(_RunTaskCommand, "RunTaskCommand");
-var RunTaskCommand = _RunTaskCommand;
-
-// src/commands/StartTaskCommand.ts
-
-
-
-var _StartTaskCommand = class _StartTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "StartTask", {}).n("ECSClient", "StartTaskCommand").f(void 0, void 0).ser(se_StartTaskCommand).de(de_StartTaskCommand).build() {
-};
-__name(_StartTaskCommand, "StartTaskCommand");
-var StartTaskCommand = _StartTaskCommand;
-
-// src/commands/StopTaskCommand.ts
-
-
-
-var _StopTaskCommand = class _StopTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "StopTask", {}).n("ECSClient", "StopTaskCommand").f(void 0, void 0).ser(se_StopTaskCommand).de(de_StopTaskCommand).build() {
-};
-__name(_StopTaskCommand, "StopTaskCommand");
-var StopTaskCommand = _StopTaskCommand;
-
-// src/commands/SubmitAttachmentStateChangesCommand.ts
-
-
-
-var _SubmitAttachmentStateChangesCommand = class _SubmitAttachmentStateChangesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "SubmitAttachmentStateChanges", {}).n("ECSClient", "SubmitAttachmentStateChangesCommand").f(void 0, void 0).ser(se_SubmitAttachmentStateChangesCommand).de(de_SubmitAttachmentStateChangesCommand).build() {
-};
-__name(_SubmitAttachmentStateChangesCommand, "SubmitAttachmentStateChangesCommand");
-var SubmitAttachmentStateChangesCommand = _SubmitAttachmentStateChangesCommand;
-
-// src/commands/SubmitContainerStateChangeCommand.ts
-
-
-
-var _SubmitContainerStateChangeCommand = class _SubmitContainerStateChangeCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "SubmitContainerStateChange", {}).n("ECSClient", "SubmitContainerStateChangeCommand").f(void 0, void 0).ser(se_SubmitContainerStateChangeCommand).de(de_SubmitContainerStateChangeCommand).build() {
-};
-__name(_SubmitContainerStateChangeCommand, "SubmitContainerStateChangeCommand");
-var SubmitContainerStateChangeCommand = _SubmitContainerStateChangeCommand;
-
-// src/commands/SubmitTaskStateChangeCommand.ts
-
-
-
-var _SubmitTaskStateChangeCommand = class _SubmitTaskStateChangeCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "SubmitTaskStateChange", {}).n("ECSClient", "SubmitTaskStateChangeCommand").f(void 0, void 0).ser(se_SubmitTaskStateChangeCommand).de(de_SubmitTaskStateChangeCommand).build() {
-};
-__name(_SubmitTaskStateChangeCommand, "SubmitTaskStateChangeCommand");
-var SubmitTaskStateChangeCommand = _SubmitTaskStateChangeCommand;
-
-// src/commands/TagResourceCommand.ts
-
-
-
-var _TagResourceCommand = class _TagResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "TagResource", {}).n("ECSClient", "TagResourceCommand").f(void 0, void 0).ser(se_TagResourceCommand).de(de_TagResourceCommand).build() {
-};
-__name(_TagResourceCommand, "TagResourceCommand");
-var TagResourceCommand = _TagResourceCommand;
-
-// src/commands/UntagResourceCommand.ts
-
-
-
-var _UntagResourceCommand = class _UntagResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UntagResource", {}).n("ECSClient", "UntagResourceCommand").f(void 0, void 0).ser(se_UntagResourceCommand).de(de_UntagResourceCommand).build() {
-};
-__name(_UntagResourceCommand, "UntagResourceCommand");
-var UntagResourceCommand = _UntagResourceCommand;
-
-// src/commands/UpdateCapacityProviderCommand.ts
-
-
-
-var _UpdateCapacityProviderCommand = class _UpdateCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateCapacityProvider", {}).n("ECSClient", "UpdateCapacityProviderCommand").f(void 0, void 0).ser(se_UpdateCapacityProviderCommand).de(de_UpdateCapacityProviderCommand).build() {
-};
-__name(_UpdateCapacityProviderCommand, "UpdateCapacityProviderCommand");
-var UpdateCapacityProviderCommand = _UpdateCapacityProviderCommand;
-
-// src/commands/UpdateClusterCommand.ts
-
-
-
-var _UpdateClusterCommand = class _UpdateClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateCluster", {}).n("ECSClient", "UpdateClusterCommand").f(void 0, void 0).ser(se_UpdateClusterCommand).de(de_UpdateClusterCommand).build() {
-};
-__name(_UpdateClusterCommand, "UpdateClusterCommand");
-var UpdateClusterCommand = _UpdateClusterCommand;
-
-// src/commands/UpdateClusterSettingsCommand.ts
-
-
-
-var _UpdateClusterSettingsCommand = class _UpdateClusterSettingsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateClusterSettings", {}).n("ECSClient", "UpdateClusterSettingsCommand").f(void 0, void 0).ser(se_UpdateClusterSettingsCommand).de(de_UpdateClusterSettingsCommand).build() {
-};
-__name(_UpdateClusterSettingsCommand, "UpdateClusterSettingsCommand");
-var UpdateClusterSettingsCommand = _UpdateClusterSettingsCommand;
-
-// src/commands/UpdateContainerAgentCommand.ts
-
-
-
-var _UpdateContainerAgentCommand = class _UpdateContainerAgentCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateContainerAgent", {}).n("ECSClient", "UpdateContainerAgentCommand").f(void 0, void 0).ser(se_UpdateContainerAgentCommand).de(de_UpdateContainerAgentCommand).build() {
-};
-__name(_UpdateContainerAgentCommand, "UpdateContainerAgentCommand");
-var UpdateContainerAgentCommand = _UpdateContainerAgentCommand;
-
-// src/commands/UpdateContainerInstancesStateCommand.ts
-
-
-
-var _UpdateContainerInstancesStateCommand = class _UpdateContainerInstancesStateCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateContainerInstancesState", {}).n("ECSClient", "UpdateContainerInstancesStateCommand").f(void 0, void 0).ser(se_UpdateContainerInstancesStateCommand).de(de_UpdateContainerInstancesStateCommand).build() {
-};
-__name(_UpdateContainerInstancesStateCommand, "UpdateContainerInstancesStateCommand");
-var UpdateContainerInstancesStateCommand = _UpdateContainerInstancesStateCommand;
-
-// src/commands/UpdateServiceCommand.ts
-
-
-
-var _UpdateServiceCommand = class _UpdateServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateService", {}).n("ECSClient", "UpdateServiceCommand").f(void 0, void 0).ser(se_UpdateServiceCommand).de(de_UpdateServiceCommand).build() {
-};
-__name(_UpdateServiceCommand, "UpdateServiceCommand");
-var UpdateServiceCommand = _UpdateServiceCommand;
-
-// src/commands/UpdateServicePrimaryTaskSetCommand.ts
-
-
-
-var _UpdateServicePrimaryTaskSetCommand = class _UpdateServicePrimaryTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateServicePrimaryTaskSet", {}).n("ECSClient", "UpdateServicePrimaryTaskSetCommand").f(void 0, void 0).ser(se_UpdateServicePrimaryTaskSetCommand).de(de_UpdateServicePrimaryTaskSetCommand).build() {
-};
-__name(_UpdateServicePrimaryTaskSetCommand, "UpdateServicePrimaryTaskSetCommand");
-var UpdateServicePrimaryTaskSetCommand = _UpdateServicePrimaryTaskSetCommand;
-
-// src/commands/UpdateTaskProtectionCommand.ts
-
-
-
-var _UpdateTaskProtectionCommand = class _UpdateTaskProtectionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateTaskProtection", {}).n("ECSClient", "UpdateTaskProtectionCommand").f(void 0, void 0).ser(se_UpdateTaskProtectionCommand).de(de_UpdateTaskProtectionCommand).build() {
-};
-__name(_UpdateTaskProtectionCommand, "UpdateTaskProtectionCommand");
-var UpdateTaskProtectionCommand = _UpdateTaskProtectionCommand;
-
-// src/commands/UpdateTaskSetCommand.ts
-
-
-
-var _UpdateTaskSetCommand = class _UpdateTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
-  return [
-    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
-    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
-  ];
-}).s("AmazonEC2ContainerServiceV20141113", "UpdateTaskSet", {}).n("ECSClient", "UpdateTaskSetCommand").f(void 0, void 0).ser(se_UpdateTaskSetCommand).de(de_UpdateTaskSetCommand).build() {
-};
-__name(_UpdateTaskSetCommand, "UpdateTaskSetCommand");
-var UpdateTaskSetCommand = _UpdateTaskSetCommand;
-
-// src/ECS.ts
-var commands = {
-  CreateCapacityProviderCommand,
-  CreateClusterCommand,
-  CreateServiceCommand,
-  CreateTaskSetCommand,
-  DeleteAccountSettingCommand,
-  DeleteAttributesCommand,
-  DeleteCapacityProviderCommand,
-  DeleteClusterCommand,
-  DeleteServiceCommand,
-  DeleteTaskDefinitionsCommand,
-  DeleteTaskSetCommand,
-  DeregisterContainerInstanceCommand,
-  DeregisterTaskDefinitionCommand,
-  DescribeCapacityProvidersCommand,
-  DescribeClustersCommand,
-  DescribeContainerInstancesCommand,
-  DescribeServicesCommand,
-  DescribeTaskDefinitionCommand,
-  DescribeTasksCommand,
-  DescribeTaskSetsCommand,
-  DiscoverPollEndpointCommand,
-  ExecuteCommandCommand,
-  GetTaskProtectionCommand,
-  ListAccountSettingsCommand,
-  ListAttributesCommand,
-  ListClustersCommand,
-  ListContainerInstancesCommand,
-  ListServicesCommand,
-  ListServicesByNamespaceCommand,
-  ListTagsForResourceCommand,
-  ListTaskDefinitionFamiliesCommand,
-  ListTaskDefinitionsCommand,
-  ListTasksCommand,
-  PutAccountSettingCommand,
-  PutAccountSettingDefaultCommand,
-  PutAttributesCommand,
-  PutClusterCapacityProvidersCommand,
-  RegisterContainerInstanceCommand,
-  RegisterTaskDefinitionCommand,
-  RunTaskCommand,
-  StartTaskCommand,
-  StopTaskCommand,
-  SubmitAttachmentStateChangesCommand,
-  SubmitContainerStateChangeCommand,
-  SubmitTaskStateChangeCommand,
-  TagResourceCommand,
-  UntagResourceCommand,
-  UpdateCapacityProviderCommand,
-  UpdateClusterCommand,
-  UpdateClusterSettingsCommand,
-  UpdateContainerAgentCommand,
-  UpdateContainerInstancesStateCommand,
-  UpdateServiceCommand,
-  UpdateServicePrimaryTaskSetCommand,
-  UpdateTaskProtectionCommand,
-  UpdateTaskSetCommand
-};
-var _ECS = class _ECS extends ECSClient {
-};
-__name(_ECS, "ECS");
-var ECS = _ECS;
-(0, import_smithy_client.createAggregatedClient)(commands, ECS);
-
-// src/pagination/ListAccountSettingsPaginator.ts
-
-var paginateListAccountSettings = (0, import_core.createPaginator)(ECSClient, ListAccountSettingsCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListAttributesPaginator.ts
-
-var paginateListAttributes = (0, import_core.createPaginator)(ECSClient, ListAttributesCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListClustersPaginator.ts
-
-var paginateListClusters = (0, import_core.createPaginator)(ECSClient, ListClustersCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListContainerInstancesPaginator.ts
-
-var paginateListContainerInstances = (0, import_core.createPaginator)(ECSClient, ListContainerInstancesCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListServicesByNamespacePaginator.ts
-
-var paginateListServicesByNamespace = (0, import_core.createPaginator)(ECSClient, ListServicesByNamespaceCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListServicesPaginator.ts
-
-var paginateListServices = (0, import_core.createPaginator)(ECSClient, ListServicesCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListTaskDefinitionFamiliesPaginator.ts
-
-var paginateListTaskDefinitionFamilies = (0, import_core.createPaginator)(ECSClient, ListTaskDefinitionFamiliesCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListTaskDefinitionsPaginator.ts
-
-var paginateListTaskDefinitions = (0, import_core.createPaginator)(ECSClient, ListTaskDefinitionsCommand, "nextToken", "nextToken", "maxResults");
-
-// src/pagination/ListTasksPaginator.ts
-
-var paginateListTasks = (0, import_core.createPaginator)(ECSClient, ListTasksCommand, "nextToken", "nextToken", "maxResults");
-
-// src/waiters/waitForServicesInactive.ts
-var import_util_waiter = __nccwpck_require__(5290);
-var checkState = /* @__PURE__ */ __name(async (client, input) => {
-  let reason;
-  try {
-    const result = await client.send(new DescribeServicesCommand(input));
-    reason = result;
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.failures);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.reason;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "MISSING") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.services);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.status;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "INACTIVE") {
-          return { state: import_util_waiter.WaiterState.SUCCESS, reason };
-        }
-      }
-    } catch (e) {
-    }
-  } catch (exception) {
-    reason = exception;
-  }
-  return { state: import_util_waiter.WaiterState.RETRY, reason };
-}, "checkState");
-var waitForServicesInactive = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
-  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState);
-}, "waitForServicesInactive");
-var waitUntilServicesInactive = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
-  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState);
-  return (0, import_util_waiter.checkExceptions)(result);
-}, "waitUntilServicesInactive");
-
-// src/waiters/waitForServicesStable.ts
-
-var checkState2 = /* @__PURE__ */ __name(async (client, input) => {
-  let reason;
-  try {
-    const result = await client.send(new DescribeServicesCommand(input));
-    reason = result;
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.failures);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.reason;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "MISSING") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.services);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.status;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "DRAINING") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.services);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.status;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "INACTIVE") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const filterRes_2 = result.services.filter((element_1) => {
-          return !(element_1.deployments.length == 1 && element_1.runningCount == element_1.desiredCount);
-        });
-        return filterRes_2.length == 0;
-      }, "returnComparator");
-      if (returnComparator() == true) {
-        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
-      }
-    } catch (e) {
-    }
-  } catch (exception) {
-    reason = exception;
-  }
-  return { state: import_util_waiter.WaiterState.RETRY, reason };
-}, "checkState");
-var waitForServicesStable = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
-  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState2);
-}, "waitForServicesStable");
-var waitUntilServicesStable = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
-  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState2);
-  return (0, import_util_waiter.checkExceptions)(result);
-}, "waitUntilServicesStable");
-
-// src/waiters/waitForTasksRunning.ts
-
-var checkState3 = /* @__PURE__ */ __name(async (client, input) => {
-  let reason;
-  try {
-    const result = await client.send(new DescribeTasksCommand(input));
-    reason = result;
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.tasks);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.lastStatus;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "STOPPED") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.failures);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.reason;
-        });
-        return projection_3;
-      }, "returnComparator");
-      for (const anyStringEq_4 of returnComparator()) {
-        if (anyStringEq_4 == "MISSING") {
-          return { state: import_util_waiter.WaiterState.FAILURE, reason };
-        }
-      }
-    } catch (e) {
-    }
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.tasks);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.lastStatus;
-        });
-        return projection_3;
-      }, "returnComparator");
-      let allStringEq_5 = returnComparator().length > 0;
-      for (const element_4 of returnComparator()) {
-        allStringEq_5 = allStringEq_5 && element_4 == "RUNNING";
-      }
-      if (allStringEq_5) {
-        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
-      }
-    } catch (e) {
-    }
-  } catch (exception) {
-    reason = exception;
-  }
-  return { state: import_util_waiter.WaiterState.RETRY, reason };
-}, "checkState");
-var waitForTasksRunning = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
-  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState3);
-}, "waitForTasksRunning");
-var waitUntilTasksRunning = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
-  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState3);
-  return (0, import_util_waiter.checkExceptions)(result);
-}, "waitUntilTasksRunning");
-
-// src/waiters/waitForTasksStopped.ts
-
-var checkState4 = /* @__PURE__ */ __name(async (client, input) => {
-  let reason;
-  try {
-    const result = await client.send(new DescribeTasksCommand(input));
-    reason = result;
-    try {
-      const returnComparator = /* @__PURE__ */ __name(() => {
-        const flat_1 = [].concat(...result.tasks);
-        const projection_3 = flat_1.map((element_2) => {
-          return element_2.lastStatus;
-        });
-        return projection_3;
-      }, "returnComparator");
-      let allStringEq_5 = returnComparator().length > 0;
-      for (const element_4 of returnComparator()) {
-        allStringEq_5 = allStringEq_5 && element_4 == "STOPPED";
-      }
-      if (allStringEq_5) {
-        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
-      }
-    } catch (e) {
-    }
-  } catch (exception) {
-    reason = exception;
-  }
-  return { state: import_util_waiter.WaiterState.RETRY, reason };
-}, "checkState");
-var waitForTasksStopped = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
-  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState4);
-}, "waitForTasksStopped");
-var waitUntilTasksStopped = /* @__PURE__ */ __name(async (params, input) => {
-  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
-  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState4);
-  return (0, import_util_waiter.checkExceptions)(result);
-}, "waitUntilTasksStopped");
-// Annotate the CommonJS export names for ESM import in node:
-
-0 && (0);
-
-
-
-/***/ }),
-
-/***/ 1142:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRuntimeConfig = void 0;
-const tslib_1 = __nccwpck_require__(1860);
-const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(1194));
-const core_1 = __nccwpck_require__(1446);
-const credential_provider_node_1 = __nccwpck_require__(395);
-const util_user_agent_node_1 = __nccwpck_require__(9082);
-const config_resolver_1 = __nccwpck_require__(9316);
-const hash_node_1 = __nccwpck_require__(5092);
-const middleware_retry_1 = __nccwpck_require__(9618);
-const node_config_provider_1 = __nccwpck_require__(5704);
-const node_http_handler_1 = __nccwpck_require__(1279);
-const util_body_length_node_1 = __nccwpck_require__(3638);
-const util_retry_1 = __nccwpck_require__(5518);
-const runtimeConfig_shared_1 = __nccwpck_require__(1519);
-const smithy_client_1 = __nccwpck_require__(1411);
-const util_defaults_mode_node_1 = __nccwpck_require__(5435);
-const smithy_client_2 = __nccwpck_require__(1411);
-const getRuntimeConfig = (config) => {
-    (0, smithy_client_2.emitWarningIfUnsupportedVersion)(process.version);
-    const defaultsMode = (0, util_defaults_mode_node_1.resolveDefaultsModeConfig)(config);
-    const defaultConfigProvider = () => defaultsMode().then(smithy_client_1.loadConfigsForDefaultMode);
-    const clientSharedValues = (0, runtimeConfig_shared_1.getRuntimeConfig)(config);
-    (0, core_1.emitWarningIfUnsupportedVersion)(process.version);
-    return {
-        ...clientSharedValues,
-        ...config,
-        runtime: "node",
-        defaultsMode,
-        bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
-        credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
-        defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
-        maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
-        region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
-        requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
-        retryMode: config?.retryMode ??
-            (0, node_config_provider_1.loadConfig)({
-                ...middleware_retry_1.NODE_RETRY_MODE_CONFIG_OPTIONS,
-                default: async () => (await defaultConfigProvider()).retryMode || util_retry_1.DEFAULT_RETRY_MODE,
-            }),
-        sha256: config?.sha256 ?? hash_node_1.Hash.bind(null, "sha256"),
-        streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
-        useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
-        useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
-        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
-    };
-};
-exports.getRuntimeConfig = getRuntimeConfig;
-
-
-/***/ }),
-
-/***/ 1519:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRuntimeConfig = void 0;
-const core_1 = __nccwpck_require__(1446);
-const smithy_client_1 = __nccwpck_require__(1411);
-const url_parser_1 = __nccwpck_require__(4494);
-const util_base64_1 = __nccwpck_require__(8385);
-const util_utf8_1 = __nccwpck_require__(1577);
-const httpAuthSchemeProvider_1 = __nccwpck_require__(1367);
-const endpointResolver_1 = __nccwpck_require__(6161);
-const getRuntimeConfig = (config) => {
-    return {
-        apiVersion: "2014-11-13",
-        base64Decoder: config?.base64Decoder ?? util_base64_1.fromBase64,
-        base64Encoder: config?.base64Encoder ?? util_base64_1.toBase64,
-        disableHostPrefix: config?.disableHostPrefix ?? false,
-        endpointProvider: config?.endpointProvider ?? endpointResolver_1.defaultEndpointResolver,
-        extensions: config?.extensions ?? [],
-        httpAuthSchemeProvider: config?.httpAuthSchemeProvider ?? httpAuthSchemeProvider_1.defaultECSHttpAuthSchemeProvider,
-        httpAuthSchemes: config?.httpAuthSchemes ?? [
-            {
-                schemeId: "aws.auth#sigv4",
-                identityProvider: (ipc) => ipc.getIdentityProvider("aws.auth#sigv4"),
-                signer: new core_1.AwsSdkSigV4Signer(),
-            },
-        ],
-        logger: config?.logger ?? new smithy_client_1.NoOpLogger(),
-        serviceId: config?.serviceId ?? "ECS",
-        urlParser: config?.urlParser ?? url_parser_1.parseUrl,
-        utf8Decoder: config?.utf8Decoder ?? util_utf8_1.fromUtf8,
-        utf8Encoder: config?.utf8Encoder ?? util_utf8_1.toUtf8,
-    };
-};
-exports.getRuntimeConfig = getRuntimeConfig;
-
-
-/***/ }),
-
-/***/ 9105:
+/***/ 8786:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveHttpAuthSchemeConfig = exports.defaultSSOOIDCHttpAuthSchemeProvider = exports.defaultSSOOIDCHttpAuthSchemeParametersProvider = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const util_middleware_1 = __nccwpck_require__(6324);
 const defaultSSOOIDCHttpAuthSchemeParametersProvider = async (config, context, input) => {
     return {
@@ -13455,16 +9034,16 @@ exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
 
 /***/ }),
 
-/***/ 7943:
+/***/ 7596:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultEndpointResolver = void 0;
-const util_endpoints_1 = __nccwpck_require__(6158);
+const util_endpoints_1 = __nccwpck_require__(1911);
 const util_endpoints_2 = __nccwpck_require__(9674);
-const ruleset_1 = __nccwpck_require__(9604);
+const ruleset_1 = __nccwpck_require__(5761);
 const cache = new util_endpoints_2.EndpointCache({
     size: 50,
     params: ["Endpoint", "Region", "UseDualStack", "UseFIPS"],
@@ -13481,7 +9060,7 @@ util_endpoints_2.customEndpointFunctions.aws = util_endpoints_1.awsEndpointFunct
 
 /***/ }),
 
-/***/ 9604:
+/***/ 5761:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -13496,7 +9075,7 @@ exports.ruleSet = _data;
 
 /***/ }),
 
-/***/ 3038:
+/***/ 473:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -13555,17 +9134,17 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/SSOOIDCClient.ts
-var import_middleware_host_header = __nccwpck_require__(5164);
-var import_middleware_logger = __nccwpck_require__(5832);
-var import_middleware_recursion_detection = __nccwpck_require__(9870);
-var import_middleware_user_agent = __nccwpck_require__(997);
+var import_middleware_host_header = __nccwpck_require__(9477);
+var import_middleware_logger = __nccwpck_require__(8703);
+var import_middleware_recursion_detection = __nccwpck_require__(1067);
+var import_middleware_user_agent = __nccwpck_require__(8534);
 var import_config_resolver = __nccwpck_require__(9316);
 var import_core = __nccwpck_require__(402);
 var import_middleware_content_length = __nccwpck_require__(7212);
 var import_middleware_endpoint = __nccwpck_require__(99);
 var import_middleware_retry = __nccwpck_require__(9618);
 
-var import_httpAuthSchemeProvider = __nccwpck_require__(9105);
+var import_httpAuthSchemeProvider = __nccwpck_require__(8786);
 
 // src/endpoint/EndpointParameters.ts
 var resolveClientEndpointParameters = /* @__PURE__ */ __name((options) => {
@@ -13584,10 +9163,10 @@ var commonParams = {
 };
 
 // src/SSOOIDCClient.ts
-var import_runtimeConfig = __nccwpck_require__(9136);
+var import_runtimeConfig = __nccwpck_require__(3059);
 
 // src/runtimeExtensions.ts
-var import_region_config_resolver = __nccwpck_require__(6521);
+var import_region_config_resolver = __nccwpck_require__(2472);
 var import_protocol_http = __nccwpck_require__(2356);
 var import_smithy_client = __nccwpck_require__(1411);
 
@@ -14020,7 +9599,7 @@ var StartDeviceAuthorizationRequestFilterSensitiveLog = /* @__PURE__ */ __name((
 }), "StartDeviceAuthorizationRequestFilterSensitiveLog");
 
 // src/protocols/Aws_restJson1.ts
-var import_core2 = __nccwpck_require__(1446);
+var import_core2 = __nccwpck_require__(9191);
 
 
 var se_CreateTokenCommand = /* @__PURE__ */ __name(async (input, context) => {
@@ -14526,7 +10105,7 @@ var SSOOIDC = _SSOOIDC;
 
 /***/ }),
 
-/***/ 9136:
+/***/ 3059:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -14534,10 +10113,10 @@ var SSOOIDC = _SSOOIDC;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
 const tslib_1 = __nccwpck_require__(1860);
-const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(4404));
-const core_1 = __nccwpck_require__(1446);
-const credential_provider_node_1 = __nccwpck_require__(395);
-const util_user_agent_node_1 = __nccwpck_require__(9082);
+const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(23));
+const core_1 = __nccwpck_require__(9191);
+const credential_provider_node_1 = __nccwpck_require__(9694);
+const util_user_agent_node_1 = __nccwpck_require__(5195);
 const config_resolver_1 = __nccwpck_require__(9316);
 const hash_node_1 = __nccwpck_require__(5092);
 const middleware_retry_1 = __nccwpck_require__(9618);
@@ -14545,7 +10124,7 @@ const node_config_provider_1 = __nccwpck_require__(5704);
 const node_http_handler_1 = __nccwpck_require__(1279);
 const util_body_length_node_1 = __nccwpck_require__(3638);
 const util_retry_1 = __nccwpck_require__(5518);
-const runtimeConfig_shared_1 = __nccwpck_require__(8849);
+const runtimeConfig_shared_1 = __nccwpck_require__(2880);
 const smithy_client_1 = __nccwpck_require__(1411);
 const util_defaults_mode_node_1 = __nccwpck_require__(5435);
 const smithy_client_2 = __nccwpck_require__(1411);
@@ -14563,7 +10142,7 @@ const getRuntimeConfig = (config) => {
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
         region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
         requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
@@ -14584,21 +10163,21 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 8849:
+/***/ 2880:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const core_2 = __nccwpck_require__(402);
 const smithy_client_1 = __nccwpck_require__(1411);
 const url_parser_1 = __nccwpck_require__(4494);
 const util_base64_1 = __nccwpck_require__(8385);
 const util_utf8_1 = __nccwpck_require__(1577);
-const httpAuthSchemeProvider_1 = __nccwpck_require__(9105);
-const endpointResolver_1 = __nccwpck_require__(7943);
+const httpAuthSchemeProvider_1 = __nccwpck_require__(8786);
+const endpointResolver_1 = __nccwpck_require__(7596);
 const getRuntimeConfig = (config) => {
     return {
         apiVersion: "2019-06-10",
@@ -14632,14 +10211,14 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 111:
+/***/ 3878:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveHttpAuthSchemeConfig = exports.defaultSSOHttpAuthSchemeProvider = exports.defaultSSOHttpAuthSchemeParametersProvider = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const util_middleware_1 = __nccwpck_require__(6324);
 const defaultSSOHttpAuthSchemeParametersProvider = async (config, context, input) => {
     return {
@@ -14708,16 +10287,16 @@ exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
 
 /***/ }),
 
-/***/ 9702:
+/***/ 8112:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultEndpointResolver = void 0;
-const util_endpoints_1 = __nccwpck_require__(6158);
+const util_endpoints_1 = __nccwpck_require__(1911);
 const util_endpoints_2 = __nccwpck_require__(9674);
-const ruleset_1 = __nccwpck_require__(9170);
+const ruleset_1 = __nccwpck_require__(8749);
 const cache = new util_endpoints_2.EndpointCache({
     size: 50,
     params: ["Endpoint", "Region", "UseDualStack", "UseFIPS"],
@@ -14734,7 +10313,7 @@ util_endpoints_2.customEndpointFunctions.aws = util_endpoints_1.awsEndpointFunct
 
 /***/ }),
 
-/***/ 9170:
+/***/ 8749:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -14749,7 +10328,7 @@ exports.ruleSet = _data;
 
 /***/ }),
 
-/***/ 3628:
+/***/ 4869:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -14800,17 +10379,17 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/SSOClient.ts
-var import_middleware_host_header = __nccwpck_require__(5164);
-var import_middleware_logger = __nccwpck_require__(5832);
-var import_middleware_recursion_detection = __nccwpck_require__(9870);
-var import_middleware_user_agent = __nccwpck_require__(997);
+var import_middleware_host_header = __nccwpck_require__(9477);
+var import_middleware_logger = __nccwpck_require__(8703);
+var import_middleware_recursion_detection = __nccwpck_require__(1067);
+var import_middleware_user_agent = __nccwpck_require__(8534);
 var import_config_resolver = __nccwpck_require__(9316);
 var import_core = __nccwpck_require__(402);
 var import_middleware_content_length = __nccwpck_require__(7212);
 var import_middleware_endpoint = __nccwpck_require__(99);
 var import_middleware_retry = __nccwpck_require__(9618);
 
-var import_httpAuthSchemeProvider = __nccwpck_require__(111);
+var import_httpAuthSchemeProvider = __nccwpck_require__(3878);
 
 // src/endpoint/EndpointParameters.ts
 var resolveClientEndpointParameters = /* @__PURE__ */ __name((options) => {
@@ -14829,10 +10408,10 @@ var commonParams = {
 };
 
 // src/SSOClient.ts
-var import_runtimeConfig = __nccwpck_require__(8766);
+var import_runtimeConfig = __nccwpck_require__(4895);
 
 // src/runtimeExtensions.ts
-var import_region_config_resolver = __nccwpck_require__(6521);
+var import_region_config_resolver = __nccwpck_require__(2472);
 var import_protocol_http = __nccwpck_require__(2356);
 var import_smithy_client = __nccwpck_require__(1411);
 
@@ -15057,7 +10636,7 @@ var LogoutRequestFilterSensitiveLog = /* @__PURE__ */ __name((obj) => ({
 }), "LogoutRequestFilterSensitiveLog");
 
 // src/protocols/Aws_restJson1.ts
-var import_core2 = __nccwpck_require__(1446);
+var import_core2 = __nccwpck_require__(9191);
 
 
 var se_GetRoleCredentialsCommand = /* @__PURE__ */ __name(async (input, context) => {
@@ -15346,7 +10925,7 @@ var paginateListAccounts = (0, import_core.createPaginator)(SSOClient, ListAccou
 
 /***/ }),
 
-/***/ 8766:
+/***/ 4895:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -15354,9 +10933,9 @@ var paginateListAccounts = (0, import_core.createPaginator)(SSOClient, ListAccou
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
 const tslib_1 = __nccwpck_require__(1860);
-const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(6948));
-const core_1 = __nccwpck_require__(1446);
-const util_user_agent_node_1 = __nccwpck_require__(9082);
+const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(1973));
+const core_1 = __nccwpck_require__(9191);
+const util_user_agent_node_1 = __nccwpck_require__(5195);
 const config_resolver_1 = __nccwpck_require__(9316);
 const hash_node_1 = __nccwpck_require__(5092);
 const middleware_retry_1 = __nccwpck_require__(9618);
@@ -15364,7 +10943,7 @@ const node_config_provider_1 = __nccwpck_require__(5704);
 const node_http_handler_1 = __nccwpck_require__(1279);
 const util_body_length_node_1 = __nccwpck_require__(3638);
 const util_retry_1 = __nccwpck_require__(5518);
-const runtimeConfig_shared_1 = __nccwpck_require__(1069);
+const runtimeConfig_shared_1 = __nccwpck_require__(9676);
 const smithy_client_1 = __nccwpck_require__(1411);
 const util_defaults_mode_node_1 = __nccwpck_require__(5435);
 const smithy_client_2 = __nccwpck_require__(1411);
@@ -15381,7 +10960,7 @@ const getRuntimeConfig = (config) => {
         defaultsMode,
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
         region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
         requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
@@ -15402,21 +10981,21 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 1069:
+/***/ 9676:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const core_2 = __nccwpck_require__(402);
 const smithy_client_1 = __nccwpck_require__(1411);
 const url_parser_1 = __nccwpck_require__(4494);
 const util_base64_1 = __nccwpck_require__(8385);
 const util_utf8_1 = __nccwpck_require__(1577);
-const httpAuthSchemeProvider_1 = __nccwpck_require__(111);
-const endpointResolver_1 = __nccwpck_require__(9702);
+const httpAuthSchemeProvider_1 = __nccwpck_require__(3878);
+const endpointResolver_1 = __nccwpck_require__(8112);
 const getRuntimeConfig = (config) => {
     return {
         apiVersion: "2019-06-10",
@@ -15450,17 +11029,17 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 9010:
+/***/ 8403:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.STSClient = exports.__Client = void 0;
-const middleware_host_header_1 = __nccwpck_require__(5164);
-const middleware_logger_1 = __nccwpck_require__(5832);
-const middleware_recursion_detection_1 = __nccwpck_require__(9870);
-const middleware_user_agent_1 = __nccwpck_require__(997);
+const middleware_host_header_1 = __nccwpck_require__(9477);
+const middleware_logger_1 = __nccwpck_require__(8703);
+const middleware_recursion_detection_1 = __nccwpck_require__(1067);
+const middleware_user_agent_1 = __nccwpck_require__(8534);
 const config_resolver_1 = __nccwpck_require__(9316);
 const core_1 = __nccwpck_require__(402);
 const middleware_content_length_1 = __nccwpck_require__(7212);
@@ -15468,10 +11047,10 @@ const middleware_endpoint_1 = __nccwpck_require__(99);
 const middleware_retry_1 = __nccwpck_require__(9618);
 const smithy_client_1 = __nccwpck_require__(1411);
 Object.defineProperty(exports, "__Client", ({ enumerable: true, get: function () { return smithy_client_1.Client; } }));
-const httpAuthSchemeProvider_1 = __nccwpck_require__(7122);
-const EndpointParameters_1 = __nccwpck_require__(9142);
-const runtimeConfig_1 = __nccwpck_require__(6291);
-const runtimeExtensions_1 = __nccwpck_require__(4383);
+const httpAuthSchemeProvider_1 = __nccwpck_require__(611);
+const EndpointParameters_1 = __nccwpck_require__(5139);
+const runtimeConfig_1 = __nccwpck_require__(2138);
+const runtimeExtensions_1 = __nccwpck_require__(9350);
 class STSClient extends smithy_client_1.Client {
     constructor(...[configuration]) {
         const _config_0 = (0, runtimeConfig_1.getRuntimeConfig)(configuration || {});
@@ -15508,7 +11087,7 @@ exports.STSClient = STSClient;
 
 /***/ }),
 
-/***/ 1301:
+/***/ 3311:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -15559,16 +11138,16 @@ exports.resolveHttpAuthRuntimeConfig = resolveHttpAuthRuntimeConfig;
 
 /***/ }),
 
-/***/ 7122:
+/***/ 611:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveHttpAuthSchemeConfig = exports.resolveStsAuthConfig = exports.defaultSTSHttpAuthSchemeProvider = exports.defaultSTSHttpAuthSchemeParametersProvider = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const util_middleware_1 = __nccwpck_require__(6324);
-const STSClient_1 = __nccwpck_require__(9010);
+const STSClient_1 = __nccwpck_require__(8403);
 const defaultSTSHttpAuthSchemeParametersProvider = async (config, context, input) => {
     return {
         operation: (0, util_middleware_1.getSmithyContext)(context).operation,
@@ -15634,7 +11213,7 @@ exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
 
 /***/ }),
 
-/***/ 9142:
+/***/ 5139:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -15662,16 +11241,16 @@ exports.commonParams = {
 
 /***/ }),
 
-/***/ 5900:
+/***/ 9533:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultEndpointResolver = void 0;
-const util_endpoints_1 = __nccwpck_require__(6158);
+const util_endpoints_1 = __nccwpck_require__(1911);
 const util_endpoints_2 = __nccwpck_require__(9674);
-const ruleset_1 = __nccwpck_require__(1105);
+const ruleset_1 = __nccwpck_require__(3326);
 const cache = new util_endpoints_2.EndpointCache({
     size: 50,
     params: ["Endpoint", "Region", "UseDualStack", "UseFIPS", "UseGlobalEndpoint"],
@@ -15688,7 +11267,7 @@ util_endpoints_2.customEndpointFunctions.aws = util_endpoints_1.awsEndpointFunct
 
 /***/ }),
 
-/***/ 1105:
+/***/ 3326:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -15703,7 +11282,7 @@ exports.ruleSet = _data;
 
 /***/ }),
 
-/***/ 2393:
+/***/ 744:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -15763,7 +11342,7 @@ __export(src_exports, {
   getDefaultRoleAssumerWithWebIdentity: () => getDefaultRoleAssumerWithWebIdentity2
 });
 module.exports = __toCommonJS(src_exports);
-__reExport(src_exports, __nccwpck_require__(9010), module.exports);
+__reExport(src_exports, __nccwpck_require__(8403), module.exports);
 
 // src/STS.ts
 
@@ -15772,7 +11351,7 @@ __reExport(src_exports, __nccwpck_require__(9010), module.exports);
 var import_middleware_endpoint = __nccwpck_require__(99);
 var import_middleware_serde = __nccwpck_require__(3255);
 
-var import_EndpointParameters = __nccwpck_require__(9142);
+var import_EndpointParameters = __nccwpck_require__(5139);
 
 // src/models/models_0.ts
 
@@ -15962,7 +11541,7 @@ var GetSessionTokenResponseFilterSensitiveLog = /* @__PURE__ */ __name((obj) => 
 }), "GetSessionTokenResponseFilterSensitiveLog");
 
 // src/protocols/Aws_query.ts
-var import_core = __nccwpck_require__(1446);
+var import_core = __nccwpck_require__(9191);
 var import_protocol_http = __nccwpck_require__(2356);
 
 var se_AssumeRoleCommand = /* @__PURE__ */ __name(async (input, context) => {
@@ -16863,7 +12442,7 @@ var AssumeRoleCommand = _AssumeRoleCommand;
 
 
 
-var import_EndpointParameters2 = __nccwpck_require__(9142);
+var import_EndpointParameters2 = __nccwpck_require__(5139);
 var _AssumeRoleWithSAMLCommand = class _AssumeRoleWithSAMLCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters2.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16878,7 +12457,7 @@ var AssumeRoleWithSAMLCommand = _AssumeRoleWithSAMLCommand;
 
 
 
-var import_EndpointParameters3 = __nccwpck_require__(9142);
+var import_EndpointParameters3 = __nccwpck_require__(5139);
 var _AssumeRoleWithWebIdentityCommand = class _AssumeRoleWithWebIdentityCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters3.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16893,7 +12472,7 @@ var AssumeRoleWithWebIdentityCommand = _AssumeRoleWithWebIdentityCommand;
 
 
 
-var import_EndpointParameters4 = __nccwpck_require__(9142);
+var import_EndpointParameters4 = __nccwpck_require__(5139);
 var _DecodeAuthorizationMessageCommand = class _DecodeAuthorizationMessageCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters4.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16908,7 +12487,7 @@ var DecodeAuthorizationMessageCommand = _DecodeAuthorizationMessageCommand;
 
 
 
-var import_EndpointParameters5 = __nccwpck_require__(9142);
+var import_EndpointParameters5 = __nccwpck_require__(5139);
 var _GetAccessKeyInfoCommand = class _GetAccessKeyInfoCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters5.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16923,7 +12502,7 @@ var GetAccessKeyInfoCommand = _GetAccessKeyInfoCommand;
 
 
 
-var import_EndpointParameters6 = __nccwpck_require__(9142);
+var import_EndpointParameters6 = __nccwpck_require__(5139);
 var _GetCallerIdentityCommand = class _GetCallerIdentityCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters6.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16938,7 +12517,7 @@ var GetCallerIdentityCommand = _GetCallerIdentityCommand;
 
 
 
-var import_EndpointParameters7 = __nccwpck_require__(9142);
+var import_EndpointParameters7 = __nccwpck_require__(5139);
 var _GetFederationTokenCommand = class _GetFederationTokenCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters7.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16953,7 +12532,7 @@ var GetFederationTokenCommand = _GetFederationTokenCommand;
 
 
 
-var import_EndpointParameters8 = __nccwpck_require__(9142);
+var import_EndpointParameters8 = __nccwpck_require__(5139);
 var _GetSessionTokenCommand = class _GetSessionTokenCommand extends import_smithy_client.Command.classBuilder().ep(import_EndpointParameters8.commonParams).m(function(Command, cs, config, o) {
   return [
     (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
@@ -16965,7 +12544,7 @@ __name(_GetSessionTokenCommand, "GetSessionTokenCommand");
 var GetSessionTokenCommand = _GetSessionTokenCommand;
 
 // src/STS.ts
-var import_STSClient = __nccwpck_require__(9010);
+var import_STSClient = __nccwpck_require__(8403);
 var commands = {
   AssumeRoleCommand,
   AssumeRoleWithSAMLCommand,
@@ -16983,10 +12562,9 @@ var STS = _STS;
 (0, import_smithy_client.createAggregatedClient)(commands, STS);
 
 // src/index.ts
-var import_EndpointParameters9 = __nccwpck_require__(9142);
+var import_EndpointParameters9 = __nccwpck_require__(5139);
 
 // src/defaultStsRoleAssumers.ts
-var import_client = __nccwpck_require__(7582);
 var ASSUME_ROLE_DEFAULT_REGION = "us-east-1";
 var getAccountIdFromAssumedRoleUser = /* @__PURE__ */ __name((assumedRoleUser) => {
   if (typeof (assumedRoleUser == null ? void 0 : assumedRoleUser.Arn) === "string") {
@@ -17043,7 +12621,7 @@ var getDefaultRoleAssumer = /* @__PURE__ */ __name((stsOptions, stsClientCtor) =
       throw new Error(`Invalid response from STS.assumeRole call with role ${params.RoleArn}`);
     }
     const accountId = getAccountIdFromAssumedRoleUser(AssumedRoleUser2);
-    const credentials = {
+    return {
       accessKeyId: Credentials2.AccessKeyId,
       secretAccessKey: Credentials2.SecretAccessKey,
       sessionToken: Credentials2.SessionToken,
@@ -17052,8 +12630,6 @@ var getDefaultRoleAssumer = /* @__PURE__ */ __name((stsOptions, stsClientCtor) =
       ...Credentials2.CredentialScope && { credentialScope: Credentials2.CredentialScope },
       ...accountId && { accountId }
     };
-    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_STS_ASSUME_ROLE", "i");
-    return credentials;
   };
 }, "getDefaultRoleAssumer");
 var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, stsClientCtor) => {
@@ -17084,7 +12660,7 @@ var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, s
       throw new Error(`Invalid response from STS.assumeRoleWithWebIdentity call with role ${params.RoleArn}`);
     }
     const accountId = getAccountIdFromAssumedRoleUser(AssumedRoleUser2);
-    const credentials = {
+    return {
       accessKeyId: Credentials2.AccessKeyId,
       secretAccessKey: Credentials2.SecretAccessKey,
       sessionToken: Credentials2.SessionToken,
@@ -17093,11 +12669,6 @@ var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, s
       ...Credentials2.CredentialScope && { credentialScope: Credentials2.CredentialScope },
       ...accountId && { accountId }
     };
-    if (accountId) {
-      (0, import_client.setCredentialFeature)(credentials, "RESOLVED_ACCOUNT_ID", "T");
-    }
-    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_STS_ASSUME_ROLE_WEB_ID", "k");
-    return credentials;
   };
 }, "getDefaultRoleAssumerWithWebIdentity");
 var isH2 = /* @__PURE__ */ __name((requestHandler) => {
@@ -17106,7 +12677,7 @@ var isH2 = /* @__PURE__ */ __name((requestHandler) => {
 }, "isH2");
 
 // src/defaultRoleAssumers.ts
-var import_STSClient2 = __nccwpck_require__(9010);
+var import_STSClient2 = __nccwpck_require__(8403);
 var getCustomizableStsClientCtor = /* @__PURE__ */ __name((baseCtor, customizations) => {
   var _a2;
   if (!customizations)
@@ -17136,7 +12707,7 @@ var decorateDefaultCredentialProvider = /* @__PURE__ */ __name((provider) => (in
 
 /***/ }),
 
-/***/ 6291:
+/***/ 2138:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17144,10 +12715,10 @@ var decorateDefaultCredentialProvider = /* @__PURE__ */ __name((provider) => (in
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
 const tslib_1 = __nccwpck_require__(1860);
-const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(6383));
-const core_1 = __nccwpck_require__(1446);
-const credential_provider_node_1 = __nccwpck_require__(395);
-const util_user_agent_node_1 = __nccwpck_require__(9082);
+const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(3678));
+const core_1 = __nccwpck_require__(9191);
+const credential_provider_node_1 = __nccwpck_require__(9694);
+const util_user_agent_node_1 = __nccwpck_require__(5195);
 const config_resolver_1 = __nccwpck_require__(9316);
 const core_2 = __nccwpck_require__(402);
 const hash_node_1 = __nccwpck_require__(5092);
@@ -17156,7 +12727,7 @@ const node_config_provider_1 = __nccwpck_require__(5704);
 const node_http_handler_1 = __nccwpck_require__(1279);
 const util_body_length_node_1 = __nccwpck_require__(3638);
 const util_retry_1 = __nccwpck_require__(5518);
-const runtimeConfig_shared_1 = __nccwpck_require__(960);
+const runtimeConfig_shared_1 = __nccwpck_require__(7955);
 const smithy_client_1 = __nccwpck_require__(1411);
 const util_defaults_mode_node_1 = __nccwpck_require__(5435);
 const smithy_client_2 = __nccwpck_require__(1411);
@@ -17174,7 +12745,7 @@ const getRuntimeConfig = (config) => {
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         httpAuthSchemes: config?.httpAuthSchemes ?? [
             {
                 schemeId: "aws.auth#sigv4",
@@ -17208,21 +12779,21 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 960:
+/***/ 7955:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
-const core_1 = __nccwpck_require__(1446);
+const core_1 = __nccwpck_require__(9191);
 const core_2 = __nccwpck_require__(402);
 const smithy_client_1 = __nccwpck_require__(1411);
 const url_parser_1 = __nccwpck_require__(4494);
 const util_base64_1 = __nccwpck_require__(8385);
 const util_utf8_1 = __nccwpck_require__(1577);
-const httpAuthSchemeProvider_1 = __nccwpck_require__(7122);
-const endpointResolver_1 = __nccwpck_require__(5900);
+const httpAuthSchemeProvider_1 = __nccwpck_require__(611);
+const endpointResolver_1 = __nccwpck_require__(9533);
 const getRuntimeConfig = (config) => {
     return {
         apiVersion: "2011-06-15",
@@ -17256,17 +12827,17 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 /***/ }),
 
-/***/ 4383:
+/***/ 9350:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveRuntimeExtensions = void 0;
-const region_config_resolver_1 = __nccwpck_require__(6521);
+const region_config_resolver_1 = __nccwpck_require__(2472);
 const protocol_http_1 = __nccwpck_require__(2356);
 const smithy_client_1 = __nccwpck_require__(1411);
-const httpAuthExtensionConfiguration_1 = __nccwpck_require__(1301);
+const httpAuthExtensionConfiguration_1 = __nccwpck_require__(3311);
 const asPartial = (t) => t;
 const resolveRuntimeExtensions = (runtimeConfig, extensions) => {
     const extensionConfiguration = {
@@ -17289,21 +12860,21 @@ exports.resolveRuntimeExtensions = resolveRuntimeExtensions;
 
 /***/ }),
 
-/***/ 1446:
+/***/ 9191:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const tslib_1 = __nccwpck_require__(1860);
-tslib_1.__exportStar(__nccwpck_require__(7582), exports);
-tslib_1.__exportStar(__nccwpck_require__(7321), exports);
-tslib_1.__exportStar(__nccwpck_require__(1914), exports);
+tslib_1.__exportStar(__nccwpck_require__(8639), exports);
+tslib_1.__exportStar(__nccwpck_require__(6202), exports);
+tslib_1.__exportStar(__nccwpck_require__(8273), exports);
 
 
 /***/ }),
 
-/***/ 7582:
+/***/ 8639:
 /***/ ((module) => {
 
 "use strict";
@@ -17331,19 +12902,15 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var client_exports = {};
 __export(client_exports, {
   emitWarningIfUnsupportedVersion: () => emitWarningIfUnsupportedVersion,
-  setCredentialFeature: () => setCredentialFeature,
-  setFeature: () => setFeature,
-  state: () => state
+  setFeature: () => setFeature
 });
 module.exports = __toCommonJS(client_exports);
 
 // src/submodules/client/emitWarningIfUnsupportedVersion.ts
-var state = {
-  warningEmitted: false
-};
+var warningEmitted = false;
 var emitWarningIfUnsupportedVersion = /* @__PURE__ */ __name((version) => {
-  if (version && !state.warningEmitted && parseInt(version.substring(1, version.indexOf("."))) < 18) {
-    state.warningEmitted = true;
+  if (version && !warningEmitted && parseInt(version.substring(1, version.indexOf("."))) < 18) {
+    warningEmitted = true;
     process.emitWarning(
       `NodeDeprecationWarning: The AWS SDK for JavaScript (v3) will
 no longer support Node.js 16.x on January 6, 2025.
@@ -17355,16 +12922,6 @@ More information can be found at: https://a.co/74kJMmI`
     );
   }
 }, "emitWarningIfUnsupportedVersion");
-
-// src/submodules/client/setCredentialFeature.ts
-function setCredentialFeature(credentials, feature, value) {
-  if (!credentials.$source) {
-    credentials.$source = {};
-  }
-  credentials.$source[feature] = value;
-  return credentials;
-}
-__name(setCredentialFeature, "setCredentialFeature");
 
 // src/submodules/client/setFeature.ts
 function setFeature(context, feature, value) {
@@ -17384,7 +12941,7 @@ __name(setFeature, "setFeature");
 
 /***/ }),
 
-/***/ 7321:
+/***/ 6202:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17581,14 +13138,11 @@ var NODE_SIGV4A_CONFIG_OPTIONS = {
 };
 
 // src/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4Config.ts
-var import_client = __nccwpck_require__(7582);
 var import_core2 = __nccwpck_require__(402);
 var import_signature_v4 = __nccwpck_require__(5118);
 var resolveAwsSdkSigV4Config = /* @__PURE__ */ __name((config) => {
-  let isUserSupplied = false;
   let normalizedCreds;
   if (config.credentials) {
-    isUserSupplied = true;
     normalizedCreds = (0, import_core2.memoizeIdentityProvider)(config.credentials, import_core2.isIdentityExpired, import_core2.doesIdentityRequireRefresh);
   }
   if (!normalizedCreds) {
@@ -17673,9 +13227,7 @@ var resolveAwsSdkSigV4Config = /* @__PURE__ */ __name((config) => {
     ...config,
     systemClockOffset,
     signingEscapePath,
-    credentials: isUserSupplied ? async () => normalizedCreds().then(
-      (creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_CODE", "e")
-    ) : normalizedCreds,
+    credentials: normalizedCreds,
     signer
   };
 }, "resolveAwsSdkSigV4Config");
@@ -17686,7 +13238,7 @@ var resolveAWSSDKSigV4Config = resolveAwsSdkSigV4Config;
 
 /***/ }),
 
-/***/ 1914:
+/***/ 8273:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17911,7 +13463,7 @@ var loadRestXmlErrorCode = /* @__PURE__ */ __name((output, data) => {
 
 /***/ }),
 
-/***/ 6104:
+/***/ 955:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17949,7 +13501,6 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/fromEnv.ts
-var import_client = __nccwpck_require__(7582);
 var import_property_provider = __nccwpck_require__(1238);
 var ENV_KEY = "AWS_ACCESS_KEY_ID";
 var ENV_SECRET = "AWS_SECRET_ACCESS_KEY";
@@ -17967,7 +13518,7 @@ var fromEnv = /* @__PURE__ */ __name((init) => async () => {
   const credentialScope = process.env[ENV_CREDENTIAL_SCOPE];
   const accountId = process.env[ENV_ACCOUNT_ID];
   if (accessKeyId && secretAccessKey) {
-    const credentials = {
+    return {
       accessKeyId,
       secretAccessKey,
       ...sessionToken && { sessionToken },
@@ -17975,8 +13526,6 @@ var fromEnv = /* @__PURE__ */ __name((init) => async () => {
       ...credentialScope && { credentialScope },
       ...accountId && { accountId }
     };
-    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_ENV_VARS", "g");
-    return credentials;
   }
   throw new import_property_provider.CredentialsProviderError("Unable to find environment variable credentials.", { logger: init == null ? void 0 : init.logger });
 }, "fromEnv");
@@ -17988,7 +13537,7 @@ var fromEnv = /* @__PURE__ */ __name((init) => async () => {
 
 /***/ }),
 
-/***/ 4815:
+/***/ 2514:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18042,7 +13591,7 @@ exports.checkUrl = checkUrl;
 
 /***/ }),
 
-/***/ 7030:
+/***/ 5359:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18050,13 +13599,12 @@ exports.checkUrl = checkUrl;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromHttp = void 0;
 const tslib_1 = __nccwpck_require__(1860);
-const client_1 = __nccwpck_require__(7582);
 const node_http_handler_1 = __nccwpck_require__(1279);
 const property_provider_1 = __nccwpck_require__(1238);
 const promises_1 = tslib_1.__importDefault(__nccwpck_require__(1943));
-const checkUrl_1 = __nccwpck_require__(4815);
-const requestHelpers_1 = __nccwpck_require__(4604);
-const retry_wrapper_1 = __nccwpck_require__(8692);
+const checkUrl_1 = __nccwpck_require__(2514);
+const requestHelpers_1 = __nccwpck_require__(4177);
+const retry_wrapper_1 = __nccwpck_require__(5995);
 const AWS_CONTAINER_CREDENTIALS_RELATIVE_URI = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI";
 const DEFAULT_LINK_LOCAL_HOST = "http://169.254.170.2";
 const AWS_CONTAINER_CREDENTIALS_FULL_URI = "AWS_CONTAINER_CREDENTIALS_FULL_URI";
@@ -18106,7 +13654,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
         }
         try {
             const result = await requestHandler.handle(request);
-            return (0, requestHelpers_1.getCredentials)(result.response).then((creds) => (0, client_1.setCredentialFeature)(creds, "CREDENTIALS_HTTP", "z"));
+            return (0, requestHelpers_1.getCredentials)(result.response);
         }
         catch (e) {
             throw new property_provider_1.CredentialsProviderError(String(e), { logger: options.logger });
@@ -18118,7 +13666,7 @@ exports.fromHttp = fromHttp;
 
 /***/ }),
 
-/***/ 4604:
+/***/ 4177:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18180,7 +13728,7 @@ exports.getCredentials = getCredentials;
 
 /***/ }),
 
-/***/ 8692:
+/***/ 5995:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -18205,20 +13753,20 @@ exports.retryWrapper = retryWrapper;
 
 /***/ }),
 
-/***/ 795:
+/***/ 6962:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromHttp = void 0;
-var fromHttp_1 = __nccwpck_require__(7030);
+var fromHttp_1 = __nccwpck_require__(5359);
 Object.defineProperty(exports, "fromHttp", ({ enumerable: true, get: function () { return fromHttp_1.fromHttp; } }));
 
 
 /***/ }),
 
-/***/ 6163:
+/***/ 3768:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18267,29 +13815,27 @@ module.exports = __toCommonJS(src_exports);
 
 // src/resolveAssumeRoleCredentials.ts
 
-
 var import_shared_ini_file_loader = __nccwpck_require__(4964);
 
 // src/resolveCredentialSource.ts
-var import_client = __nccwpck_require__(7582);
 var import_property_provider = __nccwpck_require__(1238);
 var resolveCredentialSource = /* @__PURE__ */ __name((credentialSource, profileName, logger) => {
   const sourceProvidersMap = {
     EcsContainer: async (options) => {
-      const { fromHttp } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(795)));
+      const { fromHttp } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6962)));
       const { fromContainerMetadata } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(566)));
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is EcsContainer");
-      return async () => (0, import_property_provider.chain)(fromHttp(options ?? {}), fromContainerMetadata(options))().then(setNamedProvider);
+      return (0, import_property_provider.chain)(fromHttp(options ?? {}), fromContainerMetadata(options));
     },
     Ec2InstanceMetadata: async (options) => {
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is Ec2InstanceMetadata");
       const { fromInstanceMetadata } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(566)));
-      return async () => fromInstanceMetadata(options)().then(setNamedProvider);
+      return fromInstanceMetadata(options);
     },
     Environment: async (options) => {
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is Environment");
-      const { fromEnv } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6104)));
-      return async () => fromEnv(options)().then(setNamedProvider);
+      const { fromEnv } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(955)));
+      return fromEnv(options);
     }
   };
   if (credentialSource in sourceProvidersMap) {
@@ -18301,7 +13847,6 @@ var resolveCredentialSource = /* @__PURE__ */ __name((credentialSource, profileN
     );
   }
 }, "resolveCredentialSource");
-var setNamedProvider = /* @__PURE__ */ __name((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_NAMED_PROVIDER", "p"), "setNamedProvider");
 
 // src/resolveAssumeRoleCredentials.ts
 var isAssumeRoleProfile = /* @__PURE__ */ __name((arg, { profile = "default", logger } = {}) => {
@@ -18328,7 +13873,7 @@ var resolveAssumeRoleCredentials = /* @__PURE__ */ __name(async (profileName, pr
   (_a = options.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-ini - resolveAssumeRoleCredentials (STS)");
   const data = profiles[profileName];
   if (!options.roleAssumer) {
-    const { getDefaultRoleAssumer } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(2393)));
+    const { getDefaultRoleAssumer } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(744)));
     options.roleAssumer = getDefaultRoleAssumer(
       {
         ...options.clientConfig,
@@ -18359,7 +13904,7 @@ var resolveAssumeRoleCredentials = /* @__PURE__ */ __name(async (profileName, pr
     isCredentialSourceWithoutRoleArn(profiles[source_profile] ?? {})
   ) : (await resolveCredentialSource(data.credential_source, profileName, options.logger)(options))();
   if (isCredentialSourceWithoutRoleArn(data)) {
-    return sourceCredsProvider.then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SOURCE_PROFILE", "o"));
+    return sourceCredsProvider;
   } else {
     const params = {
       RoleArn: data.role_arn,
@@ -18379,9 +13924,7 @@ var resolveAssumeRoleCredentials = /* @__PURE__ */ __name(async (profileName, pr
       params.TokenCode = await options.mfaCodeProvider(mfa_serial);
     }
     const sourceCreds = await sourceCredsProvider;
-    return options.roleAssumer(sourceCreds, params).then(
-      (creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SOURCE_PROFILE", "o")
-    );
+    return options.roleAssumer(sourceCreds, params);
   }
 }, "resolveAssumeRoleCredentials");
 var isCredentialSourceWithoutRoleArn = /* @__PURE__ */ __name((section) => {
@@ -18389,52 +13932,41 @@ var isCredentialSourceWithoutRoleArn = /* @__PURE__ */ __name((section) => {
 }, "isCredentialSourceWithoutRoleArn");
 
 // src/resolveProcessCredentials.ts
-
 var isProcessProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.credential_process === "string", "isProcessProfile");
-var resolveProcessCredentials = /* @__PURE__ */ __name(async (options, profile) => Promise.resolve().then(() => __toESM(__nccwpck_require__(5630))).then(
+var resolveProcessCredentials = /* @__PURE__ */ __name(async (options, profile) => Promise.resolve().then(() => __toESM(__nccwpck_require__(2549))).then(
   ({ fromProcess }) => fromProcess({
     ...options,
     profile
-  })().then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_PROCESS", "v"))
+  })()
 ), "resolveProcessCredentials");
 
 // src/resolveSsoCredentials.ts
-
-var resolveSsoCredentials = /* @__PURE__ */ __name(async (profile, profileData, options = {}) => {
-  const { fromSSO } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(8212)));
+var resolveSsoCredentials = /* @__PURE__ */ __name(async (profile, options = {}) => {
+  const { fromSSO } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6767)));
   return fromSSO({
     profile,
     logger: options.logger
-  })().then((creds) => {
-    if (profileData.sso_session) {
-      return (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SSO", "r");
-    } else {
-      return (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SSO_LEGACY", "t");
-    }
-  });
+  })();
 }, "resolveSsoCredentials");
 var isSsoProfile = /* @__PURE__ */ __name((arg) => arg && (typeof arg.sso_start_url === "string" || typeof arg.sso_account_id === "string" || typeof arg.sso_session === "string" || typeof arg.sso_region === "string" || typeof arg.sso_role_name === "string"), "isSsoProfile");
 
 // src/resolveStaticCredentials.ts
-
 var isStaticCredsProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.aws_access_key_id === "string" && typeof arg.aws_secret_access_key === "string" && ["undefined", "string"].indexOf(typeof arg.aws_session_token) > -1 && ["undefined", "string"].indexOf(typeof arg.aws_account_id) > -1, "isStaticCredsProfile");
-var resolveStaticCredentials = /* @__PURE__ */ __name(async (profile, options) => {
+var resolveStaticCredentials = /* @__PURE__ */ __name((profile, options) => {
   var _a;
   (_a = options == null ? void 0 : options.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-ini - resolveStaticCredentials");
-  const credentials = {
+  return Promise.resolve({
     accessKeyId: profile.aws_access_key_id,
     secretAccessKey: profile.aws_secret_access_key,
     sessionToken: profile.aws_session_token,
     ...profile.aws_credential_scope && { credentialScope: profile.aws_credential_scope },
     ...profile.aws_account_id && { accountId: profile.aws_account_id }
-  };
-  return (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_PROFILE", "n");
+  });
 }, "resolveStaticCredentials");
 
 // src/resolveWebIdentityCredentials.ts
-
 var isWebIdentityProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.web_identity_token_file === "string" && typeof arg.role_arn === "string" && ["undefined", "string"].indexOf(typeof arg.role_session_name) > -1, "isWebIdentityProfile");
-var resolveWebIdentityCredentials = /* @__PURE__ */ __name(async (profile, options) => Promise.resolve().then(() => __toESM(__nccwpck_require__(7654))).then(
+var resolveWebIdentityCredentials = /* @__PURE__ */ __name(async (profile, options) => Promise.resolve().then(() => __toESM(__nccwpck_require__(2427))).then(
   ({ fromTokenFile }) => fromTokenFile({
     webIdentityTokenFile: profile.web_identity_token_file,
     roleArn: profile.role_arn,
@@ -18442,7 +13974,7 @@ var resolveWebIdentityCredentials = /* @__PURE__ */ __name(async (profile, optio
     roleAssumerWithWebIdentity: options.roleAssumerWithWebIdentity,
     logger: options.logger,
     parentClientConfig: options.parentClientConfig
-  })().then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_STS_WEB_ID_TOKEN", "q"))
+  })()
 ), "resolveWebIdentityCredentials");
 
 // src/resolveProfileData.ts
@@ -18464,7 +13996,7 @@ var resolveProfileData = /* @__PURE__ */ __name(async (profileName, profiles, op
     return resolveProcessCredentials(options, profileName);
   }
   if (isSsoProfile(data)) {
-    return await resolveSsoCredentials(profileName, data, options);
+    return await resolveSsoCredentials(profileName, options);
   }
   throw new import_property_provider.CredentialsProviderError(
     `Could not resolve credentials using profile: [${profileName}] in configuration/credentials file(s).`,
@@ -18487,7 +14019,7 @@ var fromIni = /* @__PURE__ */ __name((init = {}) => async () => {
 
 /***/ }),
 
-/***/ 395:
+/***/ 9694:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18531,7 +14063,7 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/defaultProvider.ts
-var import_credential_provider_env = __nccwpck_require__(6104);
+var import_credential_provider_env = __nccwpck_require__(955);
 
 var import_shared_ini_file_loader = __nccwpck_require__(4964);
 
@@ -18543,7 +14075,7 @@ var remoteProvider = /* @__PURE__ */ __name(async (init) => {
   const { ENV_CMDS_FULL_URI, ENV_CMDS_RELATIVE_URI, fromContainerMetadata, fromInstanceMetadata } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(566)));
   if (process.env[ENV_CMDS_RELATIVE_URI] || process.env[ENV_CMDS_FULL_URI]) {
     (_a = init.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-node - remoteProvider::fromHttp/fromContainerMetadata");
-    const { fromHttp } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(795)));
+    const { fromHttp } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6962)));
     return (0, import_property_provider.chain)(fromHttp(init), fromContainerMetadata(init));
   }
   if (process.env[ENV_IMDS_DISABLED]) {
@@ -18599,25 +14131,25 @@ var defaultProvider = /* @__PURE__ */ __name((init = {}) => (0, import_property_
           { logger: init.logger }
         );
       }
-      const { fromSSO } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(8212)));
+      const { fromSSO } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6767)));
       return fromSSO(init)();
     },
     async () => {
       var _a;
       (_a = init.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-node - defaultProvider::fromIni");
-      const { fromIni } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(6163)));
+      const { fromIni } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(3768)));
       return fromIni(init)();
     },
     async () => {
       var _a;
       (_a = init.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-node - defaultProvider::fromProcess");
-      const { fromProcess } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(5630)));
+      const { fromProcess } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(2549)));
       return fromProcess(init)();
     },
     async () => {
       var _a;
       (_a = init.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-node - defaultProvider::fromTokenFile");
-      const { fromTokenFile } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(7654)));
+      const { fromTokenFile } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(2427)));
       return fromTokenFile(init)();
     },
     async () => {
@@ -18645,7 +14177,7 @@ var credentialsTreatedAsExpired = /* @__PURE__ */ __name((credentials) => (crede
 
 /***/ }),
 
-/***/ 5630:
+/***/ 2549:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18685,7 +14217,6 @@ var import_child_process = __nccwpck_require__(5317);
 var import_util = __nccwpck_require__(9023);
 
 // src/getValidatedProcessCredentials.ts
-var import_client = __nccwpck_require__(7582);
 var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, profiles) => {
   var _a;
   if (data.Version !== 1) {
@@ -18705,7 +14236,7 @@ var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, 
   if (!accountId && ((_a = profiles == null ? void 0 : profiles[profileName]) == null ? void 0 : _a.aws_account_id)) {
     accountId = profiles[profileName].aws_account_id;
   }
-  const credentials = {
+  return {
     accessKeyId: data.AccessKeyId,
     secretAccessKey: data.SecretAccessKey,
     ...data.SessionToken && { sessionToken: data.SessionToken },
@@ -18713,8 +14244,6 @@ var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, 
     ...data.CredentialScope && { credentialScope: data.CredentialScope },
     ...accountId && { accountId }
   };
-  (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_PROCESS", "w");
-  return credentials;
 }, "getValidatedProcessCredentials");
 
 // src/resolveProcessCredentials.ts
@@ -18761,7 +14290,7 @@ var fromProcess = /* @__PURE__ */ __name((init = {}) => async () => {
 
 /***/ }),
 
-/***/ 8212:
+/***/ 6767:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18798,7 +14327,7 @@ var import_client_sso;
 var init_loadSso = __esm({
   "src/loadSso.ts"() {
     "use strict";
-    import_client_sso = __nccwpck_require__(3628);
+    import_client_sso = __nccwpck_require__(4869);
   }
 });
 
@@ -18819,8 +14348,7 @@ module.exports = __toCommonJS(src_exports);
 var isSsoProfile = /* @__PURE__ */ __name((arg) => arg && (typeof arg.sso_start_url === "string" || typeof arg.sso_account_id === "string" || typeof arg.sso_session === "string" || typeof arg.sso_region === "string" || typeof arg.sso_role_name === "string"), "isSsoProfile");
 
 // src/resolveSSOCredentials.ts
-var import_client = __nccwpck_require__(7582);
-var import_token_providers = __nccwpck_require__(8967);
+var import_token_providers = __nccwpck_require__(4852);
 var import_property_provider = __nccwpck_require__(1238);
 var import_shared_ini_file_loader = __nccwpck_require__(4964);
 var SHOULD_FAIL_CREDENTIAL_CHAIN = false;
@@ -18897,7 +14425,7 @@ var resolveSSOCredentials = /* @__PURE__ */ __name(async ({
       logger
     });
   }
-  const credentials = {
+  return {
     accessKeyId,
     secretAccessKey,
     sessionToken,
@@ -18905,12 +14433,6 @@ var resolveSSOCredentials = /* @__PURE__ */ __name(async ({
     ...credentialScope && { credentialScope },
     ...accountId && { accountId }
   };
-  if (ssoSession) {
-    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_SSO", "s");
-  } else {
-    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_SSO_LEGACY", "u");
-  }
-  return credentials;
 }, "resolveSSOCredentials");
 
 // src/validateSsoProfile.ts
@@ -19006,17 +14528,16 @@ var fromSSO = /* @__PURE__ */ __name((init = {}) => async () => {
 
 /***/ }),
 
-/***/ 134:
+/***/ 8792:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromTokenFile = void 0;
-const client_1 = __nccwpck_require__(7582);
 const property_provider_1 = __nccwpck_require__(1238);
 const fs_1 = __nccwpck_require__(9896);
-const fromWebToken_1 = __nccwpck_require__(2543);
+const fromWebToken_1 = __nccwpck_require__(9272);
 const ENV_TOKEN_FILE = "AWS_WEB_IDENTITY_TOKEN_FILE";
 const ENV_ROLE_ARN = "AWS_ROLE_ARN";
 const ENV_ROLE_SESSION_NAME = "AWS_ROLE_SESSION_NAME";
@@ -19030,23 +14551,19 @@ const fromTokenFile = (init = {}) => async () => {
             logger: init.logger,
         });
     }
-    const credentials = await (0, fromWebToken_1.fromWebToken)({
+    return (0, fromWebToken_1.fromWebToken)({
         ...init,
         webIdentityToken: (0, fs_1.readFileSync)(webIdentityTokenFile, { encoding: "ascii" }),
         roleArn,
         roleSessionName,
     })();
-    if (webIdentityTokenFile === process.env[ENV_TOKEN_FILE]) {
-        (0, client_1.setCredentialFeature)(credentials, "CREDENTIALS_ENV_VARS_STS_WEB_ID_TOKEN", "h");
-    }
-    return credentials;
 };
 exports.fromTokenFile = fromTokenFile;
 
 
 /***/ }),
 
-/***/ 2543:
+/***/ 9272:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -19081,7 +14598,7 @@ const fromWebToken = (init) => async () => {
     const { roleArn, roleSessionName, webIdentityToken, providerId, policyArns, policy, durationSeconds } = init;
     let { roleAssumerWithWebIdentity } = init;
     if (!roleAssumerWithWebIdentity) {
-        const { getDefaultRoleAssumerWithWebIdentity } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(2393)));
+        const { getDefaultRoleAssumerWithWebIdentity } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(744)));
         roleAssumerWithWebIdentity = getDefaultRoleAssumerWithWebIdentity({
             ...init.clientConfig,
             credentialProviderLogger: init.logger,
@@ -19103,7 +14620,7 @@ exports.fromWebToken = fromWebToken;
 
 /***/ }),
 
-/***/ 7654:
+/***/ 2427:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19126,8 +14643,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 module.exports = __toCommonJS(src_exports);
-__reExport(src_exports, __nccwpck_require__(134), module.exports);
-__reExport(src_exports, __nccwpck_require__(2543), module.exports);
+__reExport(src_exports, __nccwpck_require__(8792), module.exports);
+__reExport(src_exports, __nccwpck_require__(9272), module.exports);
 // Annotate the CommonJS export names for ESM import in node:
 
 0 && (0);
@@ -19136,7 +14653,7 @@ __reExport(src_exports, __nccwpck_require__(2543), module.exports);
 
 /***/ }),
 
-/***/ 5164:
+/***/ 9477:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19210,7 +14727,7 @@ var getHostHeaderPlugin = /* @__PURE__ */ __name((options) => ({
 
 /***/ }),
 
-/***/ 5832:
+/***/ 8703:
 /***/ ((module) => {
 
 "use strict";
@@ -19294,7 +14811,7 @@ var getLoggerPlugin = /* @__PURE__ */ __name((options) => ({
 
 /***/ }),
 
-/***/ 9870:
+/***/ 1067:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19366,7 +14883,7 @@ var getRecursionDetectionPlugin = /* @__PURE__ */ __name((options) => ({
 
 /***/ }),
 
-/***/ 997:
+/***/ 8534:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19434,36 +14951,16 @@ function resolveUserAgentConfig(input) {
 __name(resolveUserAgentConfig, "resolveUserAgentConfig");
 
 // src/user-agent-middleware.ts
-var import_util_endpoints = __nccwpck_require__(6158);
+var import_util_endpoints = __nccwpck_require__(1911);
 var import_protocol_http = __nccwpck_require__(2356);
 
 // src/check-features.ts
-var import_core2 = __nccwpck_require__(1446);
-var ACCOUNT_ID_ENDPOINT_REGEX = /\d{12}\.ddb/;
+var import_core2 = __nccwpck_require__(9191);
 async function checkFeatures(context, config, args) {
-  var _a, _b, _c, _d, _e, _f, _g;
+  var _a;
   const request = args.request;
-  if (((_a = request == null ? void 0 : request.headers) == null ? void 0 : _a["smithy-protocol"]) === "rpc-v2-cbor") {
-    (0, import_core2.setFeature)(context, "PROTOCOL_RPC_V2_CBOR", "M");
-  }
-  if (typeof config.retryStrategy === "function") {
-    const retryStrategy = await config.retryStrategy();
-    if (typeof retryStrategy.acquireInitialRetryToken === "function") {
-      if ((_c = (_b = retryStrategy.constructor) == null ? void 0 : _b.name) == null ? void 0 : _c.includes("Adaptive")) {
-        (0, import_core2.setFeature)(context, "RETRY_MODE_ADAPTIVE", "F");
-      } else {
-        (0, import_core2.setFeature)(context, "RETRY_MODE_STANDARD", "E");
-      }
-    } else {
-      (0, import_core2.setFeature)(context, "RETRY_MODE_LEGACY", "D");
-    }
-  }
   if (typeof config.accountIdEndpointMode === "function") {
-    const endpointV2 = context.endpointV2;
-    if (String((_d = endpointV2 == null ? void 0 : endpointV2.url) == null ? void 0 : _d.hostname).match(ACCOUNT_ID_ENDPOINT_REGEX)) {
-      (0, import_core2.setFeature)(context, "ACCOUNT_ID_ENDPOINT", "O");
-    }
-    switch (await ((_e = config.accountIdEndpointMode) == null ? void 0 : _e.call(config))) {
+    switch (await ((_a = config.accountIdEndpointMode) == null ? void 0 : _a.call(config))) {
       case "disabled":
         (0, import_core2.setFeature)(context, "ACCOUNT_ID_MODE_DISABLED", "Q");
         break;
@@ -19473,16 +14970,6 @@ async function checkFeatures(context, config, args) {
       case "required":
         (0, import_core2.setFeature)(context, "ACCOUNT_ID_MODE_REQUIRED", "R");
         break;
-    }
-  }
-  const identity = (_g = (_f = context.__smithy_context) == null ? void 0 : _f.selectedHttpAuthScheme) == null ? void 0 : _g.identity;
-  if (identity == null ? void 0 : identity.$source) {
-    const credentials = identity;
-    if (credentials.accountId) {
-      (0, import_core2.setFeature)(context, "RESOLVED_ACCOUNT_ID", "T");
-    }
-    for (const [key, value] of Object.entries(credentials.$source ?? {})) {
-      (0, import_core2.setFeature)(context, key, value);
     }
   }
 }
@@ -19599,7 +15086,7 @@ var getUserAgentPlugin = /* @__PURE__ */ __name((config) => ({
 
 /***/ }),
 
-/***/ 6521:
+/***/ 2472:
 /***/ ((module) => {
 
 "use strict";
@@ -19715,7 +15202,7 @@ var resolveRegionConfig = /* @__PURE__ */ __name((input) => {
 
 /***/ }),
 
-/***/ 8967:
+/***/ 4852:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19769,7 +15256,7 @@ var REFRESH_MESSAGE = `To refresh this SSO session run 'aws sso login' with the 
 // src/getSsoOidcClient.ts
 var ssoOidcClientsHash = {};
 var getSsoOidcClient = /* @__PURE__ */ __name(async (ssoRegion) => {
-  const { SSOOIDCClient } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(3038)));
+  const { SSOOIDCClient } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(473)));
   if (ssoOidcClientsHash[ssoRegion]) {
     return ssoOidcClientsHash[ssoRegion];
   }
@@ -19780,7 +15267,7 @@ var getSsoOidcClient = /* @__PURE__ */ __name(async (ssoRegion) => {
 
 // src/getNewSsoOidcToken.ts
 var getNewSsoOidcToken = /* @__PURE__ */ __name(async (ssoToken, ssoRegion) => {
-  const { CreateTokenCommand } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(3038)));
+  const { CreateTokenCommand } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(473)));
   const ssoOidcClient = await getSsoOidcClient(ssoRegion);
   return ssoOidcClient.send(
     new CreateTokenCommand({
@@ -19928,7 +15415,7 @@ var nodeProvider = /* @__PURE__ */ __name((init = {}) => (0, import_property_pro
 
 /***/ }),
 
-/***/ 6158:
+/***/ 1911:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -20344,7 +15831,7 @@ import_util_endpoints.customEndpointFunctions.aws = awsEndpointFunctions;
 
 /***/ }),
 
-/***/ 9082:
+/***/ 5195:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -20431,7 +15918,7 @@ var createDefaultUserAgentProvider = /* @__PURE__ */ __name(({ serviceId, client
 var defaultUserAgent = createDefaultUserAgentProvider;
 
 // src/nodeAppIdConfigOptions.ts
-var import_middleware_user_agent = __nccwpck_require__(997);
+var import_middleware_user_agent = __nccwpck_require__(8534);
 var UA_APP_ID_ENV_NAME = "AWS_SDK_UA_APP_ID";
 var UA_APP_ID_INI_NAME = "sdk-ua-app-id";
 var NODE_APP_ID_CONFIG_OPTIONS = {
@@ -20443,6 +15930,4667 @@ var NODE_APP_ID_CONFIG_OPTIONS = {
 
 0 && (0);
 
+
+
+/***/ }),
+
+/***/ 1367:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveHttpAuthSchemeConfig = exports.defaultECSHttpAuthSchemeProvider = exports.defaultECSHttpAuthSchemeParametersProvider = void 0;
+const core_1 = __nccwpck_require__(8704);
+const util_middleware_1 = __nccwpck_require__(6324);
+const defaultECSHttpAuthSchemeParametersProvider = async (config, context, input) => {
+    return {
+        operation: (0, util_middleware_1.getSmithyContext)(context).operation,
+        region: (await (0, util_middleware_1.normalizeProvider)(config.region)()) ||
+            (() => {
+                throw new Error("expected `region` to be configured for `aws.auth#sigv4`");
+            })(),
+    };
+};
+exports.defaultECSHttpAuthSchemeParametersProvider = defaultECSHttpAuthSchemeParametersProvider;
+function createAwsAuthSigv4HttpAuthOption(authParameters) {
+    return {
+        schemeId: "aws.auth#sigv4",
+        signingProperties: {
+            name: "ecs",
+            region: authParameters.region,
+        },
+        propertiesExtractor: (config, context) => ({
+            signingProperties: {
+                config,
+                context,
+            },
+        }),
+    };
+}
+const defaultECSHttpAuthSchemeProvider = (authParameters) => {
+    const options = [];
+    switch (authParameters.operation) {
+        default: {
+            options.push(createAwsAuthSigv4HttpAuthOption(authParameters));
+        }
+    }
+    return options;
+};
+exports.defaultECSHttpAuthSchemeProvider = defaultECSHttpAuthSchemeProvider;
+const resolveHttpAuthSchemeConfig = (config) => {
+    const config_0 = (0, core_1.resolveAwsSdkSigV4Config)(config);
+    return {
+        ...config_0,
+    };
+};
+exports.resolveHttpAuthSchemeConfig = resolveHttpAuthSchemeConfig;
+
+
+/***/ }),
+
+/***/ 6161:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.defaultEndpointResolver = void 0;
+const util_endpoints_1 = __nccwpck_require__(3068);
+const util_endpoints_2 = __nccwpck_require__(9674);
+const ruleset_1 = __nccwpck_require__(4282);
+const cache = new util_endpoints_2.EndpointCache({
+    size: 50,
+    params: ["Endpoint", "Region", "UseDualStack", "UseFIPS"],
+});
+const defaultEndpointResolver = (endpointParams, context = {}) => {
+    return cache.get(endpointParams, () => (0, util_endpoints_2.resolveEndpoint)(ruleset_1.ruleSet, {
+        endpointParams: endpointParams,
+        logger: context.logger,
+    }));
+};
+exports.defaultEndpointResolver = defaultEndpointResolver;
+util_endpoints_2.customEndpointFunctions.aws = util_endpoints_1.awsEndpointFunctions;
+
+
+/***/ }),
+
+/***/ 4282:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ruleSet = void 0;
+const s = "required", t = "fn", u = "argv", v = "ref";
+const a = true, b = "isSet", c = "booleanEquals", d = "error", e = "endpoint", f = "tree", g = "PartitionResult", h = { [s]: false, "type": "String" }, i = { [s]: true, "default": false, "type": "Boolean" }, j = { [v]: "Endpoint" }, k = { [t]: c, [u]: [{ [v]: "UseFIPS" }, true] }, l = { [t]: c, [u]: [{ [v]: "UseDualStack" }, true] }, m = {}, n = { [t]: "getAttr", [u]: [{ [v]: g }, "supportsFIPS"] }, o = { [t]: c, [u]: [true, { [t]: "getAttr", [u]: [{ [v]: g }, "supportsDualStack"] }] }, p = [k], q = [l], r = [{ [v]: "Region" }];
+const _data = { version: "1.0", parameters: { Region: h, UseDualStack: i, UseFIPS: i, Endpoint: h }, rules: [{ conditions: [{ [t]: b, [u]: [j] }], rules: [{ conditions: p, error: "Invalid Configuration: FIPS and custom endpoint are not supported", type: d }, { conditions: q, error: "Invalid Configuration: Dualstack and custom endpoint are not supported", type: d }, { endpoint: { url: j, properties: m, headers: m }, type: e }], type: f }, { conditions: [{ [t]: b, [u]: r }], rules: [{ conditions: [{ [t]: "aws.partition", [u]: r, assign: g }], rules: [{ conditions: [k, l], rules: [{ conditions: [{ [t]: c, [u]: [a, n] }, o], rules: [{ endpoint: { url: "https://ecs-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", type: d }], type: f }, { conditions: p, rules: [{ conditions: [{ [t]: c, [u]: [n, a] }], rules: [{ endpoint: { url: "https://ecs-fips.{Region}.{PartitionResult#dnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "FIPS is enabled but this partition does not support FIPS", type: d }], type: f }, { conditions: q, rules: [{ conditions: [o], rules: [{ endpoint: { url: "https://ecs.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: m, headers: m }, type: e }], type: f }, { error: "DualStack is enabled but this partition does not support DualStack", type: d }], type: f }, { endpoint: { url: "https://ecs.{Region}.{PartitionResult#dnsSuffix}", properties: m, headers: m }, type: e }], type: f }], type: f }, { error: "Invalid Configuration: Missing Region", type: d }] };
+exports.ruleSet = _data;
+
+
+/***/ }),
+
+/***/ 212:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/index.ts
+var src_exports = {};
+__export(src_exports, {
+  AccessDeniedException: () => AccessDeniedException,
+  AgentUpdateStatus: () => AgentUpdateStatus,
+  ApplicationProtocol: () => ApplicationProtocol,
+  AssignPublicIp: () => AssignPublicIp,
+  AttributeLimitExceededException: () => AttributeLimitExceededException,
+  BlockedException: () => BlockedException,
+  CPUArchitecture: () => CPUArchitecture,
+  CapacityProviderField: () => CapacityProviderField,
+  CapacityProviderStatus: () => CapacityProviderStatus,
+  CapacityProviderUpdateStatus: () => CapacityProviderUpdateStatus,
+  ClientException: () => ClientException,
+  ClusterContainsContainerInstancesException: () => ClusterContainsContainerInstancesException,
+  ClusterContainsServicesException: () => ClusterContainsServicesException,
+  ClusterContainsTasksException: () => ClusterContainsTasksException,
+  ClusterField: () => ClusterField,
+  ClusterNotFoundException: () => ClusterNotFoundException,
+  ClusterSettingName: () => ClusterSettingName,
+  Compatibility: () => Compatibility,
+  ConflictException: () => ConflictException,
+  Connectivity: () => Connectivity,
+  ContainerCondition: () => ContainerCondition,
+  ContainerInstanceField: () => ContainerInstanceField,
+  ContainerInstanceStatus: () => ContainerInstanceStatus,
+  CreateCapacityProviderCommand: () => CreateCapacityProviderCommand,
+  CreateClusterCommand: () => CreateClusterCommand,
+  CreateServiceCommand: () => CreateServiceCommand,
+  CreateTaskSetCommand: () => CreateTaskSetCommand,
+  DeleteAccountSettingCommand: () => DeleteAccountSettingCommand,
+  DeleteAttributesCommand: () => DeleteAttributesCommand,
+  DeleteCapacityProviderCommand: () => DeleteCapacityProviderCommand,
+  DeleteClusterCommand: () => DeleteClusterCommand,
+  DeleteServiceCommand: () => DeleteServiceCommand,
+  DeleteTaskDefinitionsCommand: () => DeleteTaskDefinitionsCommand,
+  DeleteTaskSetCommand: () => DeleteTaskSetCommand,
+  DeploymentControllerType: () => DeploymentControllerType,
+  DeploymentRolloutState: () => DeploymentRolloutState,
+  DeregisterContainerInstanceCommand: () => DeregisterContainerInstanceCommand,
+  DeregisterTaskDefinitionCommand: () => DeregisterTaskDefinitionCommand,
+  DescribeCapacityProvidersCommand: () => DescribeCapacityProvidersCommand,
+  DescribeClustersCommand: () => DescribeClustersCommand,
+  DescribeContainerInstancesCommand: () => DescribeContainerInstancesCommand,
+  DescribeServiceDeploymentsCommand: () => DescribeServiceDeploymentsCommand,
+  DescribeServiceRevisionsCommand: () => DescribeServiceRevisionsCommand,
+  DescribeServicesCommand: () => DescribeServicesCommand,
+  DescribeTaskDefinitionCommand: () => DescribeTaskDefinitionCommand,
+  DescribeTaskSetsCommand: () => DescribeTaskSetsCommand,
+  DescribeTasksCommand: () => DescribeTasksCommand,
+  DesiredStatus: () => DesiredStatus,
+  DeviceCgroupPermission: () => DeviceCgroupPermission,
+  DiscoverPollEndpointCommand: () => DiscoverPollEndpointCommand,
+  EBSResourceType: () => EBSResourceType,
+  ECS: () => ECS,
+  ECSClient: () => ECSClient,
+  ECSServiceException: () => ECSServiceException,
+  EFSAuthorizationConfigIAM: () => EFSAuthorizationConfigIAM,
+  EFSTransitEncryption: () => EFSTransitEncryption,
+  EnvironmentFileType: () => EnvironmentFileType,
+  ExecuteCommandCommand: () => ExecuteCommandCommand,
+  ExecuteCommandLogging: () => ExecuteCommandLogging,
+  ExecuteCommandResponseFilterSensitiveLog: () => ExecuteCommandResponseFilterSensitiveLog,
+  FirelensConfigurationType: () => FirelensConfigurationType,
+  GetTaskProtectionCommand: () => GetTaskProtectionCommand,
+  HealthStatus: () => HealthStatus,
+  InstanceHealthCheckState: () => InstanceHealthCheckState,
+  InstanceHealthCheckType: () => InstanceHealthCheckType,
+  InvalidParameterException: () => InvalidParameterException,
+  IpcMode: () => IpcMode,
+  LaunchType: () => LaunchType,
+  LimitExceededException: () => LimitExceededException,
+  ListAccountSettingsCommand: () => ListAccountSettingsCommand,
+  ListAttributesCommand: () => ListAttributesCommand,
+  ListClustersCommand: () => ListClustersCommand,
+  ListContainerInstancesCommand: () => ListContainerInstancesCommand,
+  ListServiceDeploymentsCommand: () => ListServiceDeploymentsCommand,
+  ListServicesByNamespaceCommand: () => ListServicesByNamespaceCommand,
+  ListServicesCommand: () => ListServicesCommand,
+  ListTagsForResourceCommand: () => ListTagsForResourceCommand,
+  ListTaskDefinitionFamiliesCommand: () => ListTaskDefinitionFamiliesCommand,
+  ListTaskDefinitionsCommand: () => ListTaskDefinitionsCommand,
+  ListTasksCommand: () => ListTasksCommand,
+  LogDriver: () => LogDriver,
+  ManagedAgentName: () => ManagedAgentName,
+  ManagedDraining: () => ManagedDraining,
+  ManagedScalingStatus: () => ManagedScalingStatus,
+  ManagedTerminationProtection: () => ManagedTerminationProtection,
+  MissingVersionException: () => MissingVersionException,
+  NamespaceNotFoundException: () => NamespaceNotFoundException,
+  NetworkMode: () => NetworkMode,
+  NoUpdateAvailableException: () => NoUpdateAvailableException,
+  OSFamily: () => OSFamily,
+  PidMode: () => PidMode,
+  PlacementConstraintType: () => PlacementConstraintType,
+  PlacementStrategyType: () => PlacementStrategyType,
+  PlatformDeviceType: () => PlatformDeviceType,
+  PlatformTaskDefinitionIncompatibilityException: () => PlatformTaskDefinitionIncompatibilityException,
+  PlatformUnknownException: () => PlatformUnknownException,
+  PropagateTags: () => PropagateTags,
+  ProxyConfigurationType: () => ProxyConfigurationType,
+  PutAccountSettingCommand: () => PutAccountSettingCommand,
+  PutAccountSettingDefaultCommand: () => PutAccountSettingDefaultCommand,
+  PutAttributesCommand: () => PutAttributesCommand,
+  PutClusterCapacityProvidersCommand: () => PutClusterCapacityProvidersCommand,
+  RegisterContainerInstanceCommand: () => RegisterContainerInstanceCommand,
+  RegisterTaskDefinitionCommand: () => RegisterTaskDefinitionCommand,
+  ResourceInUseException: () => ResourceInUseException,
+  ResourceNotFoundException: () => ResourceNotFoundException,
+  ResourceType: () => ResourceType,
+  RunTaskCommand: () => RunTaskCommand,
+  ScaleUnit: () => ScaleUnit,
+  SchedulingStrategy: () => SchedulingStrategy,
+  Scope: () => Scope,
+  ServerException: () => ServerException,
+  ServiceDeploymentRollbackMonitorsStatus: () => ServiceDeploymentRollbackMonitorsStatus,
+  ServiceDeploymentStatus: () => ServiceDeploymentStatus,
+  ServiceField: () => ServiceField,
+  ServiceNotActiveException: () => ServiceNotActiveException,
+  ServiceNotFoundException: () => ServiceNotFoundException,
+  SessionFilterSensitiveLog: () => SessionFilterSensitiveLog,
+  SettingName: () => SettingName,
+  SettingType: () => SettingType,
+  SortOrder: () => SortOrder,
+  StabilityStatus: () => StabilityStatus,
+  StartTaskCommand: () => StartTaskCommand,
+  StopTaskCommand: () => StopTaskCommand,
+  SubmitAttachmentStateChangesCommand: () => SubmitAttachmentStateChangesCommand,
+  SubmitContainerStateChangeCommand: () => SubmitContainerStateChangeCommand,
+  SubmitTaskStateChangeCommand: () => SubmitTaskStateChangeCommand,
+  TagResourceCommand: () => TagResourceCommand,
+  TargetNotConnectedException: () => TargetNotConnectedException,
+  TargetNotFoundException: () => TargetNotFoundException,
+  TargetType: () => TargetType,
+  TaskDefinitionFamilyStatus: () => TaskDefinitionFamilyStatus,
+  TaskDefinitionField: () => TaskDefinitionField,
+  TaskDefinitionPlacementConstraintType: () => TaskDefinitionPlacementConstraintType,
+  TaskDefinitionStatus: () => TaskDefinitionStatus,
+  TaskField: () => TaskField,
+  TaskFilesystemType: () => TaskFilesystemType,
+  TaskSetField: () => TaskSetField,
+  TaskSetNotFoundException: () => TaskSetNotFoundException,
+  TaskStopCode: () => TaskStopCode,
+  TransportProtocol: () => TransportProtocol,
+  UlimitName: () => UlimitName,
+  UnsupportedFeatureException: () => UnsupportedFeatureException,
+  UntagResourceCommand: () => UntagResourceCommand,
+  UpdateCapacityProviderCommand: () => UpdateCapacityProviderCommand,
+  UpdateClusterCommand: () => UpdateClusterCommand,
+  UpdateClusterSettingsCommand: () => UpdateClusterSettingsCommand,
+  UpdateContainerAgentCommand: () => UpdateContainerAgentCommand,
+  UpdateContainerInstancesStateCommand: () => UpdateContainerInstancesStateCommand,
+  UpdateInProgressException: () => UpdateInProgressException,
+  UpdateServiceCommand: () => UpdateServiceCommand,
+  UpdateServicePrimaryTaskSetCommand: () => UpdateServicePrimaryTaskSetCommand,
+  UpdateTaskProtectionCommand: () => UpdateTaskProtectionCommand,
+  UpdateTaskSetCommand: () => UpdateTaskSetCommand,
+  __Client: () => import_smithy_client.Client,
+  paginateListAccountSettings: () => paginateListAccountSettings,
+  paginateListAttributes: () => paginateListAttributes,
+  paginateListClusters: () => paginateListClusters,
+  paginateListContainerInstances: () => paginateListContainerInstances,
+  paginateListServices: () => paginateListServices,
+  paginateListServicesByNamespace: () => paginateListServicesByNamespace,
+  paginateListTaskDefinitionFamilies: () => paginateListTaskDefinitionFamilies,
+  paginateListTaskDefinitions: () => paginateListTaskDefinitions,
+  paginateListTasks: () => paginateListTasks,
+  waitForServicesInactive: () => waitForServicesInactive,
+  waitForServicesStable: () => waitForServicesStable,
+  waitForTasksRunning: () => waitForTasksRunning,
+  waitForTasksStopped: () => waitForTasksStopped,
+  waitUntilServicesInactive: () => waitUntilServicesInactive,
+  waitUntilServicesStable: () => waitUntilServicesStable,
+  waitUntilTasksRunning: () => waitUntilTasksRunning,
+  waitUntilTasksStopped: () => waitUntilTasksStopped
+});
+module.exports = __toCommonJS(src_exports);
+
+// src/ECSClient.ts
+var import_middleware_host_header = __nccwpck_require__(2590);
+var import_middleware_logger = __nccwpck_require__(5242);
+var import_middleware_recursion_detection = __nccwpck_require__(1568);
+var import_middleware_user_agent = __nccwpck_require__(2959);
+var import_config_resolver = __nccwpck_require__(9316);
+var import_core = __nccwpck_require__(402);
+var import_middleware_content_length = __nccwpck_require__(7212);
+var import_middleware_endpoint = __nccwpck_require__(99);
+var import_middleware_retry = __nccwpck_require__(9618);
+
+var import_httpAuthSchemeProvider = __nccwpck_require__(1367);
+
+// src/endpoint/EndpointParameters.ts
+var resolveClientEndpointParameters = /* @__PURE__ */ __name((options) => {
+  return {
+    ...options,
+    useDualstackEndpoint: options.useDualstackEndpoint ?? false,
+    useFipsEndpoint: options.useFipsEndpoint ?? false,
+    defaultSigningName: "ecs"
+  };
+}, "resolveClientEndpointParameters");
+var commonParams = {
+  UseFIPS: { type: "builtInParams", name: "useFipsEndpoint" },
+  Endpoint: { type: "builtInParams", name: "endpoint" },
+  Region: { type: "builtInParams", name: "region" },
+  UseDualStack: { type: "builtInParams", name: "useDualstackEndpoint" }
+};
+
+// src/ECSClient.ts
+var import_runtimeConfig = __nccwpck_require__(1142);
+
+// src/runtimeExtensions.ts
+var import_region_config_resolver = __nccwpck_require__(6463);
+var import_protocol_http = __nccwpck_require__(2356);
+var import_smithy_client = __nccwpck_require__(1411);
+
+// src/auth/httpAuthExtensionConfiguration.ts
+var getHttpAuthExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
+  const _httpAuthSchemes = runtimeConfig.httpAuthSchemes;
+  let _httpAuthSchemeProvider = runtimeConfig.httpAuthSchemeProvider;
+  let _credentials = runtimeConfig.credentials;
+  return {
+    setHttpAuthScheme(httpAuthScheme) {
+      const index = _httpAuthSchemes.findIndex((scheme) => scheme.schemeId === httpAuthScheme.schemeId);
+      if (index === -1) {
+        _httpAuthSchemes.push(httpAuthScheme);
+      } else {
+        _httpAuthSchemes.splice(index, 1, httpAuthScheme);
+      }
+    },
+    httpAuthSchemes() {
+      return _httpAuthSchemes;
+    },
+    setHttpAuthSchemeProvider(httpAuthSchemeProvider) {
+      _httpAuthSchemeProvider = httpAuthSchemeProvider;
+    },
+    httpAuthSchemeProvider() {
+      return _httpAuthSchemeProvider;
+    },
+    setCredentials(credentials) {
+      _credentials = credentials;
+    },
+    credentials() {
+      return _credentials;
+    }
+  };
+}, "getHttpAuthExtensionConfiguration");
+var resolveHttpAuthRuntimeConfig = /* @__PURE__ */ __name((config) => {
+  return {
+    httpAuthSchemes: config.httpAuthSchemes(),
+    httpAuthSchemeProvider: config.httpAuthSchemeProvider(),
+    credentials: config.credentials()
+  };
+}, "resolveHttpAuthRuntimeConfig");
+
+// src/runtimeExtensions.ts
+var asPartial = /* @__PURE__ */ __name((t) => t, "asPartial");
+var resolveRuntimeExtensions = /* @__PURE__ */ __name((runtimeConfig, extensions) => {
+  const extensionConfiguration = {
+    ...asPartial((0, import_region_config_resolver.getAwsRegionExtensionConfiguration)(runtimeConfig)),
+    ...asPartial((0, import_smithy_client.getDefaultExtensionConfiguration)(runtimeConfig)),
+    ...asPartial((0, import_protocol_http.getHttpHandlerExtensionConfiguration)(runtimeConfig)),
+    ...asPartial(getHttpAuthExtensionConfiguration(runtimeConfig))
+  };
+  extensions.forEach((extension) => extension.configure(extensionConfiguration));
+  return {
+    ...runtimeConfig,
+    ...(0, import_region_config_resolver.resolveAwsRegionExtensionConfiguration)(extensionConfiguration),
+    ...(0, import_smithy_client.resolveDefaultRuntimeConfig)(extensionConfiguration),
+    ...(0, import_protocol_http.resolveHttpHandlerRuntimeConfig)(extensionConfiguration),
+    ...resolveHttpAuthRuntimeConfig(extensionConfiguration)
+  };
+}, "resolveRuntimeExtensions");
+
+// src/ECSClient.ts
+var _ECSClient = class _ECSClient extends import_smithy_client.Client {
+  constructor(...[configuration]) {
+    const _config_0 = (0, import_runtimeConfig.getRuntimeConfig)(configuration || {});
+    const _config_1 = resolveClientEndpointParameters(_config_0);
+    const _config_2 = (0, import_middleware_user_agent.resolveUserAgentConfig)(_config_1);
+    const _config_3 = (0, import_middleware_retry.resolveRetryConfig)(_config_2);
+    const _config_4 = (0, import_config_resolver.resolveRegionConfig)(_config_3);
+    const _config_5 = (0, import_middleware_host_header.resolveHostHeaderConfig)(_config_4);
+    const _config_6 = (0, import_middleware_endpoint.resolveEndpointConfig)(_config_5);
+    const _config_7 = (0, import_httpAuthSchemeProvider.resolveHttpAuthSchemeConfig)(_config_6);
+    const _config_8 = resolveRuntimeExtensions(_config_7, (configuration == null ? void 0 : configuration.extensions) || []);
+    super(_config_8);
+    this.config = _config_8;
+    this.middlewareStack.use((0, import_middleware_user_agent.getUserAgentPlugin)(this.config));
+    this.middlewareStack.use((0, import_middleware_retry.getRetryPlugin)(this.config));
+    this.middlewareStack.use((0, import_middleware_content_length.getContentLengthPlugin)(this.config));
+    this.middlewareStack.use((0, import_middleware_host_header.getHostHeaderPlugin)(this.config));
+    this.middlewareStack.use((0, import_middleware_logger.getLoggerPlugin)(this.config));
+    this.middlewareStack.use((0, import_middleware_recursion_detection.getRecursionDetectionPlugin)(this.config));
+    this.middlewareStack.use(
+      (0, import_core.getHttpAuthSchemeEndpointRuleSetPlugin)(this.config, {
+        httpAuthSchemeParametersProvider: import_httpAuthSchemeProvider.defaultECSHttpAuthSchemeParametersProvider,
+        identityProviderConfigProvider: async (config) => new import_core.DefaultIdentityProviderConfig({
+          "aws.auth#sigv4": config.credentials
+        })
+      })
+    );
+    this.middlewareStack.use((0, import_core.getHttpSigningPlugin)(this.config));
+  }
+  /**
+   * Destroy underlying resources, like sockets. It's usually not necessary to do this.
+   * However in Node.js, it's best to explicitly shut down the client's agent when it is no longer needed.
+   * Otherwise, sockets might stay open for quite a long time before the server terminates them.
+   */
+  destroy() {
+    super.destroy();
+  }
+};
+__name(_ECSClient, "ECSClient");
+var ECSClient = _ECSClient;
+
+// src/ECS.ts
+
+
+// src/commands/CreateCapacityProviderCommand.ts
+
+var import_middleware_serde = __nccwpck_require__(3255);
+
+
+// src/protocols/Aws_json1_1.ts
+var import_core2 = __nccwpck_require__(8704);
+
+
+var import_uuid = __nccwpck_require__(1286);
+
+// src/models/ECSServiceException.ts
+
+var _ECSServiceException = class _ECSServiceException extends import_smithy_client.ServiceException {
+  /**
+   * @internal
+   */
+  constructor(options) {
+    super(options);
+    Object.setPrototypeOf(this, _ECSServiceException.prototype);
+  }
+};
+__name(_ECSServiceException, "ECSServiceException");
+var ECSServiceException = _ECSServiceException;
+
+// src/models/models_0.ts
+
+var _AccessDeniedException = class _AccessDeniedException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "AccessDeniedException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "AccessDeniedException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _AccessDeniedException.prototype);
+  }
+};
+__name(_AccessDeniedException, "AccessDeniedException");
+var AccessDeniedException = _AccessDeniedException;
+var AgentUpdateStatus = {
+  FAILED: "FAILED",
+  PENDING: "PENDING",
+  STAGED: "STAGED",
+  STAGING: "STAGING",
+  UPDATED: "UPDATED",
+  UPDATING: "UPDATING"
+};
+var _ClientException = class _ClientException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ClientException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ClientException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ClientException.prototype);
+  }
+};
+__name(_ClientException, "ClientException");
+var ClientException = _ClientException;
+var ManagedDraining = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var ManagedScalingStatus = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var ManagedTerminationProtection = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var CapacityProviderStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE"
+};
+var CapacityProviderUpdateStatus = {
+  DELETE_COMPLETE: "DELETE_COMPLETE",
+  DELETE_FAILED: "DELETE_FAILED",
+  DELETE_IN_PROGRESS: "DELETE_IN_PROGRESS",
+  UPDATE_COMPLETE: "UPDATE_COMPLETE",
+  UPDATE_FAILED: "UPDATE_FAILED",
+  UPDATE_IN_PROGRESS: "UPDATE_IN_PROGRESS"
+};
+var _InvalidParameterException = class _InvalidParameterException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "InvalidParameterException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "InvalidParameterException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _InvalidParameterException.prototype);
+  }
+};
+__name(_InvalidParameterException, "InvalidParameterException");
+var InvalidParameterException = _InvalidParameterException;
+var _LimitExceededException = class _LimitExceededException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "LimitExceededException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "LimitExceededException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _LimitExceededException.prototype);
+  }
+};
+__name(_LimitExceededException, "LimitExceededException");
+var LimitExceededException = _LimitExceededException;
+var _ServerException = class _ServerException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ServerException",
+      $fault: "server",
+      ...opts
+    });
+    this.name = "ServerException";
+    this.$fault = "server";
+    Object.setPrototypeOf(this, _ServerException.prototype);
+  }
+};
+__name(_ServerException, "ServerException");
+var ServerException = _ServerException;
+var _UpdateInProgressException = class _UpdateInProgressException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "UpdateInProgressException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "UpdateInProgressException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _UpdateInProgressException.prototype);
+  }
+};
+__name(_UpdateInProgressException, "UpdateInProgressException");
+var UpdateInProgressException = _UpdateInProgressException;
+var ExecuteCommandLogging = {
+  DEFAULT: "DEFAULT",
+  NONE: "NONE",
+  OVERRIDE: "OVERRIDE"
+};
+var ClusterSettingName = {
+  CONTAINER_INSIGHTS: "containerInsights"
+};
+var _NamespaceNotFoundException = class _NamespaceNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "NamespaceNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "NamespaceNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _NamespaceNotFoundException.prototype);
+  }
+};
+__name(_NamespaceNotFoundException, "NamespaceNotFoundException");
+var NamespaceNotFoundException = _NamespaceNotFoundException;
+var _ClusterNotFoundException = class _ClusterNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ClusterNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ClusterNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ClusterNotFoundException.prototype);
+  }
+};
+__name(_ClusterNotFoundException, "ClusterNotFoundException");
+var ClusterNotFoundException = _ClusterNotFoundException;
+var DeploymentControllerType = {
+  CODE_DEPLOY: "CODE_DEPLOY",
+  ECS: "ECS",
+  EXTERNAL: "EXTERNAL"
+};
+var LaunchType = {
+  EC2: "EC2",
+  EXTERNAL: "EXTERNAL",
+  FARGATE: "FARGATE"
+};
+var AssignPublicIp = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var PlacementConstraintType = {
+  DISTINCT_INSTANCE: "distinctInstance",
+  MEMBER_OF: "memberOf"
+};
+var PlacementStrategyType = {
+  BINPACK: "binpack",
+  RANDOM: "random",
+  SPREAD: "spread"
+};
+var PropagateTags = {
+  NONE: "NONE",
+  SERVICE: "SERVICE",
+  TASK_DEFINITION: "TASK_DEFINITION"
+};
+var SchedulingStrategy = {
+  DAEMON: "DAEMON",
+  REPLICA: "REPLICA"
+};
+var LogDriver = {
+  AWSFIRELENS: "awsfirelens",
+  AWSLOGS: "awslogs",
+  FLUENTD: "fluentd",
+  GELF: "gelf",
+  JOURNALD: "journald",
+  JSON_FILE: "json-file",
+  SPLUNK: "splunk",
+  SYSLOG: "syslog"
+};
+var TaskFilesystemType = {
+  EXT3: "ext3",
+  EXT4: "ext4",
+  NTFS: "ntfs",
+  XFS: "xfs"
+};
+var EBSResourceType = {
+  VOLUME: "volume"
+};
+var DeploymentRolloutState = {
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  IN_PROGRESS: "IN_PROGRESS"
+};
+var ScaleUnit = {
+  PERCENT: "PERCENT"
+};
+var StabilityStatus = {
+  STABILIZING: "STABILIZING",
+  STEADY_STATE: "STEADY_STATE"
+};
+var _PlatformTaskDefinitionIncompatibilityException = class _PlatformTaskDefinitionIncompatibilityException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "PlatformTaskDefinitionIncompatibilityException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "PlatformTaskDefinitionIncompatibilityException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _PlatformTaskDefinitionIncompatibilityException.prototype);
+  }
+};
+__name(_PlatformTaskDefinitionIncompatibilityException, "PlatformTaskDefinitionIncompatibilityException");
+var PlatformTaskDefinitionIncompatibilityException = _PlatformTaskDefinitionIncompatibilityException;
+var _PlatformUnknownException = class _PlatformUnknownException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "PlatformUnknownException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "PlatformUnknownException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _PlatformUnknownException.prototype);
+  }
+};
+__name(_PlatformUnknownException, "PlatformUnknownException");
+var PlatformUnknownException = _PlatformUnknownException;
+var _UnsupportedFeatureException = class _UnsupportedFeatureException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "UnsupportedFeatureException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "UnsupportedFeatureException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _UnsupportedFeatureException.prototype);
+  }
+};
+__name(_UnsupportedFeatureException, "UnsupportedFeatureException");
+var UnsupportedFeatureException = _UnsupportedFeatureException;
+var _ServiceNotActiveException = class _ServiceNotActiveException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ServiceNotActiveException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ServiceNotActiveException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ServiceNotActiveException.prototype);
+  }
+};
+__name(_ServiceNotActiveException, "ServiceNotActiveException");
+var ServiceNotActiveException = _ServiceNotActiveException;
+var _ServiceNotFoundException = class _ServiceNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ServiceNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ServiceNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ServiceNotFoundException.prototype);
+  }
+};
+__name(_ServiceNotFoundException, "ServiceNotFoundException");
+var ServiceNotFoundException = _ServiceNotFoundException;
+var SettingName = {
+  AWSVPC_TRUNKING: "awsvpcTrunking",
+  CONTAINER_INSIGHTS: "containerInsights",
+  CONTAINER_INSTANCE_LONG_ARN_FORMAT: "containerInstanceLongArnFormat",
+  FARGATE_FIPS_MODE: "fargateFIPSMode",
+  FARGATE_TASK_RETIREMENT_WAIT_PERIOD: "fargateTaskRetirementWaitPeriod",
+  GUARD_DUTY_ACTIVATE: "guardDutyActivate",
+  SERVICE_LONG_ARN_FORMAT: "serviceLongArnFormat",
+  TAG_RESOURCE_AUTHORIZATION: "tagResourceAuthorization",
+  TASK_LONG_ARN_FORMAT: "taskLongArnFormat"
+};
+var SettingType = {
+  AWS_MANAGED: "aws_managed",
+  USER: "user"
+};
+var TargetType = {
+  CONTAINER_INSTANCE: "container-instance"
+};
+var _TargetNotFoundException = class _TargetNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "TargetNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "TargetNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _TargetNotFoundException.prototype);
+  }
+};
+__name(_TargetNotFoundException, "TargetNotFoundException");
+var TargetNotFoundException = _TargetNotFoundException;
+var _ClusterContainsContainerInstancesException = class _ClusterContainsContainerInstancesException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ClusterContainsContainerInstancesException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ClusterContainsContainerInstancesException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ClusterContainsContainerInstancesException.prototype);
+  }
+};
+__name(_ClusterContainsContainerInstancesException, "ClusterContainsContainerInstancesException");
+var ClusterContainsContainerInstancesException = _ClusterContainsContainerInstancesException;
+var _ClusterContainsServicesException = class _ClusterContainsServicesException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ClusterContainsServicesException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ClusterContainsServicesException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ClusterContainsServicesException.prototype);
+  }
+};
+__name(_ClusterContainsServicesException, "ClusterContainsServicesException");
+var ClusterContainsServicesException = _ClusterContainsServicesException;
+var _ClusterContainsTasksException = class _ClusterContainsTasksException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ClusterContainsTasksException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ClusterContainsTasksException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ClusterContainsTasksException.prototype);
+  }
+};
+__name(_ClusterContainsTasksException, "ClusterContainsTasksException");
+var ClusterContainsTasksException = _ClusterContainsTasksException;
+var Compatibility = {
+  EC2: "EC2",
+  EXTERNAL: "EXTERNAL",
+  FARGATE: "FARGATE"
+};
+var ContainerCondition = {
+  COMPLETE: "COMPLETE",
+  HEALTHY: "HEALTHY",
+  START: "START",
+  SUCCESS: "SUCCESS"
+};
+var EnvironmentFileType = {
+  S3: "s3"
+};
+var FirelensConfigurationType = {
+  FLUENTBIT: "fluentbit",
+  FLUENTD: "fluentd"
+};
+var DeviceCgroupPermission = {
+  MKNOD: "mknod",
+  READ: "read",
+  WRITE: "write"
+};
+var ApplicationProtocol = {
+  GRPC: "grpc",
+  HTTP: "http",
+  HTTP2: "http2"
+};
+var TransportProtocol = {
+  TCP: "tcp",
+  UDP: "udp"
+};
+var ResourceType = {
+  GPU: "GPU",
+  INFERENCE_ACCELERATOR: "InferenceAccelerator"
+};
+var UlimitName = {
+  CORE: "core",
+  CPU: "cpu",
+  DATA: "data",
+  FSIZE: "fsize",
+  LOCKS: "locks",
+  MEMLOCK: "memlock",
+  MSGQUEUE: "msgqueue",
+  NICE: "nice",
+  NOFILE: "nofile",
+  NPROC: "nproc",
+  RSS: "rss",
+  RTPRIO: "rtprio",
+  RTTIME: "rttime",
+  SIGPENDING: "sigpending",
+  STACK: "stack"
+};
+var IpcMode = {
+  HOST: "host",
+  NONE: "none",
+  TASK: "task"
+};
+var NetworkMode = {
+  AWSVPC: "awsvpc",
+  BRIDGE: "bridge",
+  HOST: "host",
+  NONE: "none"
+};
+var PidMode = {
+  HOST: "host",
+  TASK: "task"
+};
+var TaskDefinitionPlacementConstraintType = {
+  MEMBER_OF: "memberOf"
+};
+var ProxyConfigurationType = {
+  APPMESH: "APPMESH"
+};
+var CPUArchitecture = {
+  ARM64: "ARM64",
+  X86_64: "X86_64"
+};
+var OSFamily = {
+  LINUX: "LINUX",
+  WINDOWS_SERVER_2004_CORE: "WINDOWS_SERVER_2004_CORE",
+  WINDOWS_SERVER_2016_FULL: "WINDOWS_SERVER_2016_FULL",
+  WINDOWS_SERVER_2019_CORE: "WINDOWS_SERVER_2019_CORE",
+  WINDOWS_SERVER_2019_FULL: "WINDOWS_SERVER_2019_FULL",
+  WINDOWS_SERVER_2022_CORE: "WINDOWS_SERVER_2022_CORE",
+  WINDOWS_SERVER_2022_FULL: "WINDOWS_SERVER_2022_FULL",
+  WINDOWS_SERVER_20H2_CORE: "WINDOWS_SERVER_20H2_CORE"
+};
+var TaskDefinitionStatus = {
+  ACTIVE: "ACTIVE",
+  DELETE_IN_PROGRESS: "DELETE_IN_PROGRESS",
+  INACTIVE: "INACTIVE"
+};
+var Scope = {
+  SHARED: "shared",
+  TASK: "task"
+};
+var EFSAuthorizationConfigIAM = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var EFSTransitEncryption = {
+  DISABLED: "DISABLED",
+  ENABLED: "ENABLED"
+};
+var _TaskSetNotFoundException = class _TaskSetNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "TaskSetNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "TaskSetNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _TaskSetNotFoundException.prototype);
+  }
+};
+__name(_TaskSetNotFoundException, "TaskSetNotFoundException");
+var TaskSetNotFoundException = _TaskSetNotFoundException;
+var InstanceHealthCheckState = {
+  IMPAIRED: "IMPAIRED",
+  INITIALIZING: "INITIALIZING",
+  INSUFFICIENT_DATA: "INSUFFICIENT_DATA",
+  OK: "OK"
+};
+var InstanceHealthCheckType = {
+  CONTAINER_RUNTIME: "CONTAINER_RUNTIME"
+};
+var CapacityProviderField = {
+  TAGS: "TAGS"
+};
+var ClusterField = {
+  ATTACHMENTS: "ATTACHMENTS",
+  CONFIGURATIONS: "CONFIGURATIONS",
+  SETTINGS: "SETTINGS",
+  STATISTICS: "STATISTICS",
+  TAGS: "TAGS"
+};
+var ContainerInstanceField = {
+  CONTAINER_INSTANCE_HEALTH: "CONTAINER_INSTANCE_HEALTH",
+  TAGS: "TAGS"
+};
+var ServiceDeploymentRollbackMonitorsStatus = {
+  DISABLED: "DISABLED",
+  MONITORING: "MONITORING",
+  MONITORING_COMPLETE: "MONITORING_COMPLETE",
+  TRIGGERED: "TRIGGERED"
+};
+var ServiceDeploymentStatus = {
+  IN_PROGRESS: "IN_PROGRESS",
+  PENDING: "PENDING",
+  ROLLBACK_FAILED: "ROLLBACK_FAILED",
+  ROLLBACK_IN_PROGRESS: "ROLLBACK_IN_PROGRESS",
+  ROLLBACK_SUCCESSFUL: "ROLLBACK_SUCCESSFUL",
+  STOPPED: "STOPPED",
+  STOP_REQUESTED: "STOP_REQUESTED",
+  SUCCESSFUL: "SUCCESSFUL"
+};
+var ServiceField = {
+  TAGS: "TAGS"
+};
+var TaskDefinitionField = {
+  TAGS: "TAGS"
+};
+var TaskField = {
+  TAGS: "TAGS"
+};
+var Connectivity = {
+  CONNECTED: "CONNECTED",
+  DISCONNECTED: "DISCONNECTED"
+};
+var HealthStatus = {
+  HEALTHY: "HEALTHY",
+  UNHEALTHY: "UNHEALTHY",
+  UNKNOWN: "UNKNOWN"
+};
+var ManagedAgentName = {
+  ExecuteCommandAgent: "ExecuteCommandAgent"
+};
+var TaskStopCode = {
+  ESSENTIAL_CONTAINER_EXITED: "EssentialContainerExited",
+  SERVICE_SCHEDULER_INITIATED: "ServiceSchedulerInitiated",
+  SPOT_INTERRUPTION: "SpotInterruption",
+  TASK_FAILED_TO_START: "TaskFailedToStart",
+  TERMINATION_NOTICE: "TerminationNotice",
+  USER_INITIATED: "UserInitiated"
+};
+var TaskSetField = {
+  TAGS: "TAGS"
+};
+var _TargetNotConnectedException = class _TargetNotConnectedException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "TargetNotConnectedException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "TargetNotConnectedException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _TargetNotConnectedException.prototype);
+  }
+};
+__name(_TargetNotConnectedException, "TargetNotConnectedException");
+var TargetNotConnectedException = _TargetNotConnectedException;
+var _ResourceNotFoundException = class _ResourceNotFoundException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ResourceNotFoundException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ResourceNotFoundException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ResourceNotFoundException.prototype);
+  }
+};
+__name(_ResourceNotFoundException, "ResourceNotFoundException");
+var ResourceNotFoundException = _ResourceNotFoundException;
+var ContainerInstanceStatus = {
+  ACTIVE: "ACTIVE",
+  DEREGISTERING: "DEREGISTERING",
+  DRAINING: "DRAINING",
+  REGISTERING: "REGISTERING",
+  REGISTRATION_FAILED: "REGISTRATION_FAILED"
+};
+var TaskDefinitionFamilyStatus = {
+  ACTIVE: "ACTIVE",
+  ALL: "ALL",
+  INACTIVE: "INACTIVE"
+};
+var SortOrder = {
+  ASC: "ASC",
+  DESC: "DESC"
+};
+var DesiredStatus = {
+  PENDING: "PENDING",
+  RUNNING: "RUNNING",
+  STOPPED: "STOPPED"
+};
+var _AttributeLimitExceededException = class _AttributeLimitExceededException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "AttributeLimitExceededException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "AttributeLimitExceededException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _AttributeLimitExceededException.prototype);
+  }
+};
+__name(_AttributeLimitExceededException, "AttributeLimitExceededException");
+var AttributeLimitExceededException = _AttributeLimitExceededException;
+var _ResourceInUseException = class _ResourceInUseException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ResourceInUseException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ResourceInUseException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ResourceInUseException.prototype);
+  }
+};
+__name(_ResourceInUseException, "ResourceInUseException");
+var ResourceInUseException = _ResourceInUseException;
+var PlatformDeviceType = {
+  GPU: "GPU"
+};
+var _BlockedException = class _BlockedException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "BlockedException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "BlockedException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _BlockedException.prototype);
+  }
+};
+__name(_BlockedException, "BlockedException");
+var BlockedException = _BlockedException;
+var _ConflictException = class _ConflictException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "ConflictException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "ConflictException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _ConflictException.prototype);
+    this.resourceIds = opts.resourceIds;
+  }
+};
+__name(_ConflictException, "ConflictException");
+var ConflictException = _ConflictException;
+var SessionFilterSensitiveLog = /* @__PURE__ */ __name((obj) => ({
+  ...obj,
+  ...obj.tokenValue && { tokenValue: import_smithy_client.SENSITIVE_STRING }
+}), "SessionFilterSensitiveLog");
+var ExecuteCommandResponseFilterSensitiveLog = /* @__PURE__ */ __name((obj) => ({
+  ...obj,
+  ...obj.session && { session: SessionFilterSensitiveLog(obj.session) }
+}), "ExecuteCommandResponseFilterSensitiveLog");
+
+// src/models/models_1.ts
+var _MissingVersionException = class _MissingVersionException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "MissingVersionException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "MissingVersionException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _MissingVersionException.prototype);
+  }
+};
+__name(_MissingVersionException, "MissingVersionException");
+var MissingVersionException = _MissingVersionException;
+var _NoUpdateAvailableException = class _NoUpdateAvailableException extends ECSServiceException {
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    super({
+      name: "NoUpdateAvailableException",
+      $fault: "client",
+      ...opts
+    });
+    this.name = "NoUpdateAvailableException";
+    this.$fault = "client";
+    Object.setPrototypeOf(this, _NoUpdateAvailableException.prototype);
+  }
+};
+__name(_NoUpdateAvailableException, "NoUpdateAvailableException");
+var NoUpdateAvailableException = _NoUpdateAvailableException;
+
+// src/protocols/Aws_json1_1.ts
+var se_CreateCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("CreateCapacityProvider");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_CreateCapacityProviderCommand");
+var se_CreateClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("CreateCluster");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_CreateClusterCommand");
+var se_CreateServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("CreateService");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_CreateServiceCommand");
+var se_CreateTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("CreateTaskSet");
+  let body;
+  body = JSON.stringify(se_CreateTaskSetRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_CreateTaskSetCommand");
+var se_DeleteAccountSettingCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteAccountSetting");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteAccountSettingCommand");
+var se_DeleteAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteAttributes");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteAttributesCommand");
+var se_DeleteCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteCapacityProvider");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteCapacityProviderCommand");
+var se_DeleteClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteCluster");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteClusterCommand");
+var se_DeleteServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteService");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteServiceCommand");
+var se_DeleteTaskDefinitionsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteTaskDefinitions");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteTaskDefinitionsCommand");
+var se_DeleteTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeleteTaskSet");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeleteTaskSetCommand");
+var se_DeregisterContainerInstanceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeregisterContainerInstance");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeregisterContainerInstanceCommand");
+var se_DeregisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DeregisterTaskDefinition");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DeregisterTaskDefinitionCommand");
+var se_DescribeCapacityProvidersCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeCapacityProviders");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeCapacityProvidersCommand");
+var se_DescribeClustersCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeClusters");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeClustersCommand");
+var se_DescribeContainerInstancesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeContainerInstances");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeContainerInstancesCommand");
+var se_DescribeServiceDeploymentsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeServiceDeployments");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeServiceDeploymentsCommand");
+var se_DescribeServiceRevisionsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeServiceRevisions");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeServiceRevisionsCommand");
+var se_DescribeServicesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeServices");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeServicesCommand");
+var se_DescribeTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeTaskDefinition");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeTaskDefinitionCommand");
+var se_DescribeTasksCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeTasks");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeTasksCommand");
+var se_DescribeTaskSetsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DescribeTaskSets");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DescribeTaskSetsCommand");
+var se_DiscoverPollEndpointCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("DiscoverPollEndpoint");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_DiscoverPollEndpointCommand");
+var se_ExecuteCommandCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ExecuteCommand");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ExecuteCommandCommand");
+var se_GetTaskProtectionCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("GetTaskProtection");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_GetTaskProtectionCommand");
+var se_ListAccountSettingsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListAccountSettings");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListAccountSettingsCommand");
+var se_ListAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListAttributes");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListAttributesCommand");
+var se_ListClustersCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListClusters");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListClustersCommand");
+var se_ListContainerInstancesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListContainerInstances");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListContainerInstancesCommand");
+var se_ListServiceDeploymentsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListServiceDeployments");
+  let body;
+  body = JSON.stringify(se_ListServiceDeploymentsRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListServiceDeploymentsCommand");
+var se_ListServicesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListServices");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListServicesCommand");
+var se_ListServicesByNamespaceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListServicesByNamespace");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListServicesByNamespaceCommand");
+var se_ListTagsForResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListTagsForResource");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListTagsForResourceCommand");
+var se_ListTaskDefinitionFamiliesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListTaskDefinitionFamilies");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListTaskDefinitionFamiliesCommand");
+var se_ListTaskDefinitionsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListTaskDefinitions");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListTaskDefinitionsCommand");
+var se_ListTasksCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("ListTasks");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_ListTasksCommand");
+var se_PutAccountSettingCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("PutAccountSetting");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_PutAccountSettingCommand");
+var se_PutAccountSettingDefaultCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("PutAccountSettingDefault");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_PutAccountSettingDefaultCommand");
+var se_PutAttributesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("PutAttributes");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_PutAttributesCommand");
+var se_PutClusterCapacityProvidersCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("PutClusterCapacityProviders");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_PutClusterCapacityProvidersCommand");
+var se_RegisterContainerInstanceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("RegisterContainerInstance");
+  let body;
+  body = JSON.stringify(se_RegisterContainerInstanceRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_RegisterContainerInstanceCommand");
+var se_RegisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("RegisterTaskDefinition");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_RegisterTaskDefinitionCommand");
+var se_RunTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("RunTask");
+  let body;
+  body = JSON.stringify(se_RunTaskRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_RunTaskCommand");
+var se_StartTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("StartTask");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_StartTaskCommand");
+var se_StopTaskCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("StopTask");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_StopTaskCommand");
+var se_SubmitAttachmentStateChangesCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("SubmitAttachmentStateChanges");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_SubmitAttachmentStateChangesCommand");
+var se_SubmitContainerStateChangeCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("SubmitContainerStateChange");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_SubmitContainerStateChangeCommand");
+var se_SubmitTaskStateChangeCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("SubmitTaskStateChange");
+  let body;
+  body = JSON.stringify(se_SubmitTaskStateChangeRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_SubmitTaskStateChangeCommand");
+var se_TagResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("TagResource");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_TagResourceCommand");
+var se_UntagResourceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UntagResource");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UntagResourceCommand");
+var se_UpdateCapacityProviderCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateCapacityProvider");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateCapacityProviderCommand");
+var se_UpdateClusterCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateCluster");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateClusterCommand");
+var se_UpdateClusterSettingsCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateClusterSettings");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateClusterSettingsCommand");
+var se_UpdateContainerAgentCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateContainerAgent");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateContainerAgentCommand");
+var se_UpdateContainerInstancesStateCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateContainerInstancesState");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateContainerInstancesStateCommand");
+var se_UpdateServiceCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateService");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateServiceCommand");
+var se_UpdateServicePrimaryTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateServicePrimaryTaskSet");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateServicePrimaryTaskSetCommand");
+var se_UpdateTaskProtectionCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateTaskProtection");
+  let body;
+  body = JSON.stringify((0, import_smithy_client._json)(input));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateTaskProtectionCommand");
+var se_UpdateTaskSetCommand = /* @__PURE__ */ __name(async (input, context) => {
+  const headers = sharedHeaders("UpdateTaskSet");
+  let body;
+  body = JSON.stringify(se_UpdateTaskSetRequest(input, context));
+  return buildHttpRpcRequest(context, headers, "/", void 0, body);
+}, "se_UpdateTaskSetCommand");
+var de_CreateCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_CreateCapacityProviderCommand");
+var de_CreateClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_CreateClusterCommand");
+var de_CreateServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_CreateServiceResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_CreateServiceCommand");
+var de_CreateTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_CreateTaskSetResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_CreateTaskSetCommand");
+var de_DeleteAccountSettingCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteAccountSettingCommand");
+var de_DeleteAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteAttributesCommand");
+var de_DeleteCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteCapacityProviderCommand");
+var de_DeleteClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteClusterCommand");
+var de_DeleteServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DeleteServiceResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteServiceCommand");
+var de_DeleteTaskDefinitionsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DeleteTaskDefinitionsResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteTaskDefinitionsCommand");
+var de_DeleteTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DeleteTaskSetResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeleteTaskSetCommand");
+var de_DeregisterContainerInstanceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DeregisterContainerInstanceResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeregisterContainerInstanceCommand");
+var de_DeregisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DeregisterTaskDefinitionResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DeregisterTaskDefinitionCommand");
+var de_DescribeCapacityProvidersCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeCapacityProvidersCommand");
+var de_DescribeClustersCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeClustersCommand");
+var de_DescribeContainerInstancesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeContainerInstancesResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeContainerInstancesCommand");
+var de_DescribeServiceDeploymentsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeServiceDeploymentsResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeServiceDeploymentsCommand");
+var de_DescribeServiceRevisionsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeServiceRevisionsResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeServiceRevisionsCommand");
+var de_DescribeServicesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeServicesResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeServicesCommand");
+var de_DescribeTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeTaskDefinitionResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeTaskDefinitionCommand");
+var de_DescribeTasksCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeTasksResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeTasksCommand");
+var de_DescribeTaskSetsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_DescribeTaskSetsResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DescribeTaskSetsCommand");
+var de_DiscoverPollEndpointCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_DiscoverPollEndpointCommand");
+var de_ExecuteCommandCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ExecuteCommandCommand");
+var de_GetTaskProtectionCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_GetTaskProtectionResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_GetTaskProtectionCommand");
+var de_ListAccountSettingsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListAccountSettingsCommand");
+var de_ListAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListAttributesCommand");
+var de_ListClustersCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListClustersCommand");
+var de_ListContainerInstancesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListContainerInstancesCommand");
+var de_ListServiceDeploymentsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_ListServiceDeploymentsResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListServiceDeploymentsCommand");
+var de_ListServicesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListServicesCommand");
+var de_ListServicesByNamespaceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListServicesByNamespaceCommand");
+var de_ListTagsForResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListTagsForResourceCommand");
+var de_ListTaskDefinitionFamiliesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListTaskDefinitionFamiliesCommand");
+var de_ListTaskDefinitionsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListTaskDefinitionsCommand");
+var de_ListTasksCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_ListTasksCommand");
+var de_PutAccountSettingCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_PutAccountSettingCommand");
+var de_PutAccountSettingDefaultCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_PutAccountSettingDefaultCommand");
+var de_PutAttributesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_PutAttributesCommand");
+var de_PutClusterCapacityProvidersCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_PutClusterCapacityProvidersCommand");
+var de_RegisterContainerInstanceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_RegisterContainerInstanceResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_RegisterContainerInstanceCommand");
+var de_RegisterTaskDefinitionCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_RegisterTaskDefinitionResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_RegisterTaskDefinitionCommand");
+var de_RunTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_RunTaskResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_RunTaskCommand");
+var de_StartTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_StartTaskResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_StartTaskCommand");
+var de_StopTaskCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_StopTaskResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_StopTaskCommand");
+var de_SubmitAttachmentStateChangesCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_SubmitAttachmentStateChangesCommand");
+var de_SubmitContainerStateChangeCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_SubmitContainerStateChangeCommand");
+var de_SubmitTaskStateChangeCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_SubmitTaskStateChangeCommand");
+var de_TagResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_TagResourceCommand");
+var de_UntagResourceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UntagResourceCommand");
+var de_UpdateCapacityProviderCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateCapacityProviderCommand");
+var de_UpdateClusterCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateClusterCommand");
+var de_UpdateClusterSettingsCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = (0, import_smithy_client._json)(data);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateClusterSettingsCommand");
+var de_UpdateContainerAgentCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateContainerAgentResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateContainerAgentCommand");
+var de_UpdateContainerInstancesStateCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateContainerInstancesStateResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateContainerInstancesStateCommand");
+var de_UpdateServiceCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateServiceResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateServiceCommand");
+var de_UpdateServicePrimaryTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateServicePrimaryTaskSetResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateServicePrimaryTaskSetCommand");
+var de_UpdateTaskProtectionCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateTaskProtectionResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateTaskProtectionCommand");
+var de_UpdateTaskSetCommand = /* @__PURE__ */ __name(async (output, context) => {
+  if (output.statusCode >= 300) {
+    return de_CommandError(output, context);
+  }
+  const data = await (0, import_core2.parseJsonBody)(output.body, context);
+  let contents = {};
+  contents = de_UpdateTaskSetResponse(data, context);
+  const response = {
+    $metadata: deserializeMetadata(output),
+    ...contents
+  };
+  return response;
+}, "de_UpdateTaskSetCommand");
+var de_CommandError = /* @__PURE__ */ __name(async (output, context) => {
+  const parsedOutput = {
+    ...output,
+    body: await (0, import_core2.parseJsonErrorBody)(output.body, context)
+  };
+  const errorCode = (0, import_core2.loadRestJsonErrorCode)(output, parsedOutput.body);
+  switch (errorCode) {
+    case "ClientException":
+    case "com.amazonaws.ecs#ClientException":
+      throw await de_ClientExceptionRes(parsedOutput, context);
+    case "InvalidParameterException":
+    case "com.amazonaws.ecs#InvalidParameterException":
+      throw await de_InvalidParameterExceptionRes(parsedOutput, context);
+    case "LimitExceededException":
+    case "com.amazonaws.ecs#LimitExceededException":
+      throw await de_LimitExceededExceptionRes(parsedOutput, context);
+    case "ServerException":
+    case "com.amazonaws.ecs#ServerException":
+      throw await de_ServerExceptionRes(parsedOutput, context);
+    case "UpdateInProgressException":
+    case "com.amazonaws.ecs#UpdateInProgressException":
+      throw await de_UpdateInProgressExceptionRes(parsedOutput, context);
+    case "NamespaceNotFoundException":
+    case "com.amazonaws.ecs#NamespaceNotFoundException":
+      throw await de_NamespaceNotFoundExceptionRes(parsedOutput, context);
+    case "AccessDeniedException":
+    case "com.amazonaws.ecs#AccessDeniedException":
+      throw await de_AccessDeniedExceptionRes(parsedOutput, context);
+    case "ClusterNotFoundException":
+    case "com.amazonaws.ecs#ClusterNotFoundException":
+      throw await de_ClusterNotFoundExceptionRes(parsedOutput, context);
+    case "PlatformTaskDefinitionIncompatibilityException":
+    case "com.amazonaws.ecs#PlatformTaskDefinitionIncompatibilityException":
+      throw await de_PlatformTaskDefinitionIncompatibilityExceptionRes(parsedOutput, context);
+    case "PlatformUnknownException":
+    case "com.amazonaws.ecs#PlatformUnknownException":
+      throw await de_PlatformUnknownExceptionRes(parsedOutput, context);
+    case "UnsupportedFeatureException":
+    case "com.amazonaws.ecs#UnsupportedFeatureException":
+      throw await de_UnsupportedFeatureExceptionRes(parsedOutput, context);
+    case "ServiceNotActiveException":
+    case "com.amazonaws.ecs#ServiceNotActiveException":
+      throw await de_ServiceNotActiveExceptionRes(parsedOutput, context);
+    case "ServiceNotFoundException":
+    case "com.amazonaws.ecs#ServiceNotFoundException":
+      throw await de_ServiceNotFoundExceptionRes(parsedOutput, context);
+    case "TargetNotFoundException":
+    case "com.amazonaws.ecs#TargetNotFoundException":
+      throw await de_TargetNotFoundExceptionRes(parsedOutput, context);
+    case "ClusterContainsContainerInstancesException":
+    case "com.amazonaws.ecs#ClusterContainsContainerInstancesException":
+      throw await de_ClusterContainsContainerInstancesExceptionRes(parsedOutput, context);
+    case "ClusterContainsServicesException":
+    case "com.amazonaws.ecs#ClusterContainsServicesException":
+      throw await de_ClusterContainsServicesExceptionRes(parsedOutput, context);
+    case "ClusterContainsTasksException":
+    case "com.amazonaws.ecs#ClusterContainsTasksException":
+      throw await de_ClusterContainsTasksExceptionRes(parsedOutput, context);
+    case "TaskSetNotFoundException":
+    case "com.amazonaws.ecs#TaskSetNotFoundException":
+      throw await de_TaskSetNotFoundExceptionRes(parsedOutput, context);
+    case "TargetNotConnectedException":
+    case "com.amazonaws.ecs#TargetNotConnectedException":
+      throw await de_TargetNotConnectedExceptionRes(parsedOutput, context);
+    case "ResourceNotFoundException":
+    case "com.amazonaws.ecs#ResourceNotFoundException":
+      throw await de_ResourceNotFoundExceptionRes(parsedOutput, context);
+    case "AttributeLimitExceededException":
+    case "com.amazonaws.ecs#AttributeLimitExceededException":
+      throw await de_AttributeLimitExceededExceptionRes(parsedOutput, context);
+    case "ResourceInUseException":
+    case "com.amazonaws.ecs#ResourceInUseException":
+      throw await de_ResourceInUseExceptionRes(parsedOutput, context);
+    case "BlockedException":
+    case "com.amazonaws.ecs#BlockedException":
+      throw await de_BlockedExceptionRes(parsedOutput, context);
+    case "ConflictException":
+    case "com.amazonaws.ecs#ConflictException":
+      throw await de_ConflictExceptionRes(parsedOutput, context);
+    case "MissingVersionException":
+    case "com.amazonaws.ecs#MissingVersionException":
+      throw await de_MissingVersionExceptionRes(parsedOutput, context);
+    case "NoUpdateAvailableException":
+    case "com.amazonaws.ecs#NoUpdateAvailableException":
+      throw await de_NoUpdateAvailableExceptionRes(parsedOutput, context);
+    default:
+      const parsedBody = parsedOutput.body;
+      return throwDefaultError({
+        output,
+        parsedBody,
+        errorCode
+      });
+  }
+}, "de_CommandError");
+var de_AccessDeniedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new AccessDeniedException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_AccessDeniedExceptionRes");
+var de_AttributeLimitExceededExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new AttributeLimitExceededException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_AttributeLimitExceededExceptionRes");
+var de_BlockedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new BlockedException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_BlockedExceptionRes");
+var de_ClientExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ClientException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ClientExceptionRes");
+var de_ClusterContainsContainerInstancesExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ClusterContainsContainerInstancesException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ClusterContainsContainerInstancesExceptionRes");
+var de_ClusterContainsServicesExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ClusterContainsServicesException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ClusterContainsServicesExceptionRes");
+var de_ClusterContainsTasksExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ClusterContainsTasksException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ClusterContainsTasksExceptionRes");
+var de_ClusterNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ClusterNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ClusterNotFoundExceptionRes");
+var de_ConflictExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ConflictException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ConflictExceptionRes");
+var de_InvalidParameterExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new InvalidParameterException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_InvalidParameterExceptionRes");
+var de_LimitExceededExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new LimitExceededException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_LimitExceededExceptionRes");
+var de_MissingVersionExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new MissingVersionException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_MissingVersionExceptionRes");
+var de_NamespaceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new NamespaceNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_NamespaceNotFoundExceptionRes");
+var de_NoUpdateAvailableExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new NoUpdateAvailableException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_NoUpdateAvailableExceptionRes");
+var de_PlatformTaskDefinitionIncompatibilityExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new PlatformTaskDefinitionIncompatibilityException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_PlatformTaskDefinitionIncompatibilityExceptionRes");
+var de_PlatformUnknownExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new PlatformUnknownException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_PlatformUnknownExceptionRes");
+var de_ResourceInUseExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ResourceInUseException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ResourceInUseExceptionRes");
+var de_ResourceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ResourceNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ResourceNotFoundExceptionRes");
+var de_ServerExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ServerException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ServerExceptionRes");
+var de_ServiceNotActiveExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ServiceNotActiveException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ServiceNotActiveExceptionRes");
+var de_ServiceNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new ServiceNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_ServiceNotFoundExceptionRes");
+var de_TargetNotConnectedExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new TargetNotConnectedException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_TargetNotConnectedExceptionRes");
+var de_TargetNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new TargetNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_TargetNotFoundExceptionRes");
+var de_TaskSetNotFoundExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new TaskSetNotFoundException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_TaskSetNotFoundExceptionRes");
+var de_UnsupportedFeatureExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new UnsupportedFeatureException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_UnsupportedFeatureExceptionRes");
+var de_UpdateInProgressExceptionRes = /* @__PURE__ */ __name(async (parsedOutput, context) => {
+  const body = parsedOutput.body;
+  const deserialized = (0, import_smithy_client._json)(body);
+  const exception = new UpdateInProgressException({
+    $metadata: deserializeMetadata(parsedOutput),
+    ...deserialized
+  });
+  return (0, import_smithy_client.decorateServiceException)(exception, body);
+}, "de_UpdateInProgressExceptionRes");
+var se_CreatedAt = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    after: (_) => _.getTime() / 1e3,
+    before: (_) => _.getTime() / 1e3
+  });
+}, "se_CreatedAt");
+var se_CreateTaskSetRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    capacityProviderStrategy: import_smithy_client._json,
+    clientToken: [],
+    cluster: [],
+    externalId: [],
+    launchType: [],
+    loadBalancers: import_smithy_client._json,
+    networkConfiguration: import_smithy_client._json,
+    platformVersion: [],
+    scale: (_) => se_Scale(_, context),
+    service: [],
+    serviceRegistries: import_smithy_client._json,
+    tags: import_smithy_client._json,
+    taskDefinition: []
+  });
+}, "se_CreateTaskSetRequest");
+var se_ListServiceDeploymentsRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    cluster: [],
+    createdAt: (_) => se_CreatedAt(_, context),
+    maxResults: [],
+    nextToken: [],
+    service: [],
+    status: import_smithy_client._json
+  });
+}, "se_ListServiceDeploymentsRequest");
+var se_RegisterContainerInstanceRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    attributes: import_smithy_client._json,
+    cluster: [],
+    containerInstanceArn: [],
+    instanceIdentityDocument: [],
+    instanceIdentityDocumentSignature: [],
+    platformDevices: import_smithy_client._json,
+    tags: import_smithy_client._json,
+    totalResources: (_) => se_Resources(_, context),
+    versionInfo: import_smithy_client._json
+  });
+}, "se_RegisterContainerInstanceRequest");
+var se_Resource = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    doubleValue: import_smithy_client.serializeFloat,
+    integerValue: [],
+    longValue: [],
+    name: [],
+    stringSetValue: import_smithy_client._json,
+    type: []
+  });
+}, "se_Resource");
+var se_Resources = /* @__PURE__ */ __name((input, context) => {
+  return input.filter((e) => e != null).map((entry) => {
+    return se_Resource(entry, context);
+  });
+}, "se_Resources");
+var se_RunTaskRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    capacityProviderStrategy: import_smithy_client._json,
+    clientToken: [true, (_) => _ ?? (0, import_uuid.v4)()],
+    cluster: [],
+    count: [],
+    enableECSManagedTags: [],
+    enableExecuteCommand: [],
+    group: [],
+    launchType: [],
+    networkConfiguration: import_smithy_client._json,
+    overrides: import_smithy_client._json,
+    placementConstraints: import_smithy_client._json,
+    placementStrategy: import_smithy_client._json,
+    platformVersion: [],
+    propagateTags: [],
+    referenceId: [],
+    startedBy: [],
+    tags: import_smithy_client._json,
+    taskDefinition: [],
+    volumeConfigurations: import_smithy_client._json
+  });
+}, "se_RunTaskRequest");
+var se_Scale = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    unit: [],
+    value: import_smithy_client.serializeFloat
+  });
+}, "se_Scale");
+var se_SubmitTaskStateChangeRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    attachments: import_smithy_client._json,
+    cluster: [],
+    containers: import_smithy_client._json,
+    executionStoppedAt: (_) => _.getTime() / 1e3,
+    managedAgents: import_smithy_client._json,
+    pullStartedAt: (_) => _.getTime() / 1e3,
+    pullStoppedAt: (_) => _.getTime() / 1e3,
+    reason: [],
+    status: [],
+    task: []
+  });
+}, "se_SubmitTaskStateChangeRequest");
+var se_UpdateTaskSetRequest = /* @__PURE__ */ __name((input, context) => {
+  return (0, import_smithy_client.take)(input, {
+    cluster: [],
+    scale: (_) => se_Scale(_, context),
+    service: [],
+    taskSet: []
+  });
+}, "se_UpdateTaskSetRequest");
+var de_Container = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerArn: import_smithy_client.expectString,
+    cpu: import_smithy_client.expectString,
+    exitCode: import_smithy_client.expectInt32,
+    gpuIds: import_smithy_client._json,
+    healthStatus: import_smithy_client.expectString,
+    image: import_smithy_client.expectString,
+    imageDigest: import_smithy_client.expectString,
+    lastStatus: import_smithy_client.expectString,
+    managedAgents: (_) => de_ManagedAgents(_, context),
+    memory: import_smithy_client.expectString,
+    memoryReservation: import_smithy_client.expectString,
+    name: import_smithy_client.expectString,
+    networkBindings: import_smithy_client._json,
+    networkInterfaces: import_smithy_client._json,
+    reason: import_smithy_client.expectString,
+    runtimeId: import_smithy_client.expectString,
+    taskArn: import_smithy_client.expectString
+  });
+}, "de_Container");
+var de_ContainerInstance = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    agentConnected: import_smithy_client.expectBoolean,
+    agentUpdateStatus: import_smithy_client.expectString,
+    attachments: import_smithy_client._json,
+    attributes: import_smithy_client._json,
+    capacityProviderName: import_smithy_client.expectString,
+    containerInstanceArn: import_smithy_client.expectString,
+    ec2InstanceId: import_smithy_client.expectString,
+    healthStatus: (_) => de_ContainerInstanceHealthStatus(_, context),
+    pendingTasksCount: import_smithy_client.expectInt32,
+    registeredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    registeredResources: (_) => de_Resources(_, context),
+    remainingResources: (_) => de_Resources(_, context),
+    runningTasksCount: import_smithy_client.expectInt32,
+    status: import_smithy_client.expectString,
+    statusReason: import_smithy_client.expectString,
+    tags: import_smithy_client._json,
+    version: import_smithy_client.expectLong,
+    versionInfo: import_smithy_client._json
+  });
+}, "de_ContainerInstance");
+var de_ContainerInstanceHealthStatus = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    details: (_) => de_InstanceHealthCheckResultList(_, context),
+    overallStatus: import_smithy_client.expectString
+  });
+}, "de_ContainerInstanceHealthStatus");
+var de_ContainerInstances = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ContainerInstance(entry, context);
+  });
+  return retVal;
+}, "de_ContainerInstances");
+var de_Containers = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_Container(entry, context);
+  });
+  return retVal;
+}, "de_Containers");
+var de_CreateServiceResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    service: (_) => de_Service(_, context)
+  });
+}, "de_CreateServiceResponse");
+var de_CreateTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    taskSet: (_) => de_TaskSet(_, context)
+  });
+}, "de_CreateTaskSetResponse");
+var de_DeleteServiceResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    service: (_) => de_Service(_, context)
+  });
+}, "de_DeleteServiceResponse");
+var de_DeleteTaskDefinitionsResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    taskDefinitions: (_) => de_TaskDefinitionList(_, context)
+  });
+}, "de_DeleteTaskDefinitionsResponse");
+var de_DeleteTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    taskSet: (_) => de_TaskSet(_, context)
+  });
+}, "de_DeleteTaskSetResponse");
+var de_Deployment = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    capacityProviderStrategy: import_smithy_client._json,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    desiredCount: import_smithy_client.expectInt32,
+    failedTasks: import_smithy_client.expectInt32,
+    fargateEphemeralStorage: import_smithy_client._json,
+    id: import_smithy_client.expectString,
+    launchType: import_smithy_client.expectString,
+    networkConfiguration: import_smithy_client._json,
+    pendingCount: import_smithy_client.expectInt32,
+    platformFamily: import_smithy_client.expectString,
+    platformVersion: import_smithy_client.expectString,
+    rolloutState: import_smithy_client.expectString,
+    rolloutStateReason: import_smithy_client.expectString,
+    runningCount: import_smithy_client.expectInt32,
+    serviceConnectConfiguration: import_smithy_client._json,
+    serviceConnectResources: import_smithy_client._json,
+    status: import_smithy_client.expectString,
+    taskDefinition: import_smithy_client.expectString,
+    updatedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    volumeConfigurations: import_smithy_client._json
+  });
+}, "de_Deployment");
+var de_Deployments = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_Deployment(entry, context);
+  });
+  return retVal;
+}, "de_Deployments");
+var de_DeregisterContainerInstanceResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerInstance: (_) => de_ContainerInstance(_, context)
+  });
+}, "de_DeregisterContainerInstanceResponse");
+var de_DeregisterTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    taskDefinition: (_) => de_TaskDefinition(_, context)
+  });
+}, "de_DeregisterTaskDefinitionResponse");
+var de_DescribeContainerInstancesResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerInstances: (_) => de_ContainerInstances(_, context),
+    failures: import_smithy_client._json
+  });
+}, "de_DescribeContainerInstancesResponse");
+var de_DescribeServiceDeploymentsResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    serviceDeployments: (_) => de_ServiceDeployments(_, context)
+  });
+}, "de_DescribeServiceDeploymentsResponse");
+var de_DescribeServiceRevisionsResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    serviceRevisions: (_) => de_ServiceRevisions(_, context)
+  });
+}, "de_DescribeServiceRevisionsResponse");
+var de_DescribeServicesResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    services: (_) => de_Services(_, context)
+  });
+}, "de_DescribeServicesResponse");
+var de_DescribeTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    tags: import_smithy_client._json,
+    taskDefinition: (_) => de_TaskDefinition(_, context)
+  });
+}, "de_DescribeTaskDefinitionResponse");
+var de_DescribeTaskSetsResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    taskSets: (_) => de_TaskSets(_, context)
+  });
+}, "de_DescribeTaskSetsResponse");
+var de_DescribeTasksResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    tasks: (_) => de_Tasks(_, context)
+  });
+}, "de_DescribeTasksResponse");
+var de_GetTaskProtectionResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    protectedTasks: (_) => de_ProtectedTasks(_, context)
+  });
+}, "de_GetTaskProtectionResponse");
+var de_InstanceHealthCheckResult = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    lastStatusChange: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    lastUpdated: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    status: import_smithy_client.expectString,
+    type: import_smithy_client.expectString
+  });
+}, "de_InstanceHealthCheckResult");
+var de_InstanceHealthCheckResultList = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_InstanceHealthCheckResult(entry, context);
+  });
+  return retVal;
+}, "de_InstanceHealthCheckResultList");
+var de_ListServiceDeploymentsResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    nextToken: import_smithy_client.expectString,
+    serviceDeployments: (_) => de_ServiceDeploymentsBrief(_, context)
+  });
+}, "de_ListServiceDeploymentsResponse");
+var de_ManagedAgent = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    lastStartedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    lastStatus: import_smithy_client.expectString,
+    name: import_smithy_client.expectString,
+    reason: import_smithy_client.expectString
+  });
+}, "de_ManagedAgent");
+var de_ManagedAgents = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ManagedAgent(entry, context);
+  });
+  return retVal;
+}, "de_ManagedAgents");
+var de_ProtectedTask = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    expirationDate: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    protectionEnabled: import_smithy_client.expectBoolean,
+    taskArn: import_smithy_client.expectString
+  });
+}, "de_ProtectedTask");
+var de_ProtectedTasks = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ProtectedTask(entry, context);
+  });
+  return retVal;
+}, "de_ProtectedTasks");
+var de_RegisterContainerInstanceResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerInstance: (_) => de_ContainerInstance(_, context)
+  });
+}, "de_RegisterContainerInstanceResponse");
+var de_RegisterTaskDefinitionResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    tags: import_smithy_client._json,
+    taskDefinition: (_) => de_TaskDefinition(_, context)
+  });
+}, "de_RegisterTaskDefinitionResponse");
+var de_Resource = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    doubleValue: import_smithy_client.limitedParseDouble,
+    integerValue: import_smithy_client.expectInt32,
+    longValue: import_smithy_client.expectLong,
+    name: import_smithy_client.expectString,
+    stringSetValue: import_smithy_client._json,
+    type: import_smithy_client.expectString
+  });
+}, "de_Resource");
+var de_Resources = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_Resource(entry, context);
+  });
+  return retVal;
+}, "de_Resources");
+var de_Rollback = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    reason: import_smithy_client.expectString,
+    serviceRevisionArn: import_smithy_client.expectString,
+    startedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_)))
+  });
+}, "de_Rollback");
+var de_RunTaskResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    tasks: (_) => de_Tasks(_, context)
+  });
+}, "de_RunTaskResponse");
+var de_Scale = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    unit: import_smithy_client.expectString,
+    value: import_smithy_client.limitedParseDouble
+  });
+}, "de_Scale");
+var de_Service = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    capacityProviderStrategy: import_smithy_client._json,
+    clusterArn: import_smithy_client.expectString,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    createdBy: import_smithy_client.expectString,
+    deploymentConfiguration: import_smithy_client._json,
+    deploymentController: import_smithy_client._json,
+    deployments: (_) => de_Deployments(_, context),
+    desiredCount: import_smithy_client.expectInt32,
+    enableECSManagedTags: import_smithy_client.expectBoolean,
+    enableExecuteCommand: import_smithy_client.expectBoolean,
+    events: (_) => de_ServiceEvents(_, context),
+    healthCheckGracePeriodSeconds: import_smithy_client.expectInt32,
+    launchType: import_smithy_client.expectString,
+    loadBalancers: import_smithy_client._json,
+    networkConfiguration: import_smithy_client._json,
+    pendingCount: import_smithy_client.expectInt32,
+    placementConstraints: import_smithy_client._json,
+    placementStrategy: import_smithy_client._json,
+    platformFamily: import_smithy_client.expectString,
+    platformVersion: import_smithy_client.expectString,
+    propagateTags: import_smithy_client.expectString,
+    roleArn: import_smithy_client.expectString,
+    runningCount: import_smithy_client.expectInt32,
+    schedulingStrategy: import_smithy_client.expectString,
+    serviceArn: import_smithy_client.expectString,
+    serviceName: import_smithy_client.expectString,
+    serviceRegistries: import_smithy_client._json,
+    status: import_smithy_client.expectString,
+    tags: import_smithy_client._json,
+    taskDefinition: import_smithy_client.expectString,
+    taskSets: (_) => de_TaskSets(_, context)
+  });
+}, "de_Service");
+var de_ServiceDeployment = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    alarms: import_smithy_client._json,
+    clusterArn: import_smithy_client.expectString,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    deploymentCircuitBreaker: import_smithy_client._json,
+    deploymentConfiguration: import_smithy_client._json,
+    finishedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    rollback: (_) => de_Rollback(_, context),
+    serviceArn: import_smithy_client.expectString,
+    serviceDeploymentArn: import_smithy_client.expectString,
+    sourceServiceRevisions: import_smithy_client._json,
+    startedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    status: import_smithy_client.expectString,
+    statusReason: import_smithy_client.expectString,
+    stoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    targetServiceRevision: import_smithy_client._json,
+    updatedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_)))
+  });
+}, "de_ServiceDeployment");
+var de_ServiceDeploymentBrief = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    clusterArn: import_smithy_client.expectString,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    finishedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    serviceArn: import_smithy_client.expectString,
+    serviceDeploymentArn: import_smithy_client.expectString,
+    startedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    status: import_smithy_client.expectString,
+    statusReason: import_smithy_client.expectString,
+    targetServiceRevisionArn: import_smithy_client.expectString
+  });
+}, "de_ServiceDeploymentBrief");
+var de_ServiceDeployments = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ServiceDeployment(entry, context);
+  });
+  return retVal;
+}, "de_ServiceDeployments");
+var de_ServiceDeploymentsBrief = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ServiceDeploymentBrief(entry, context);
+  });
+  return retVal;
+}, "de_ServiceDeploymentsBrief");
+var de_ServiceEvent = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    id: import_smithy_client.expectString,
+    message: import_smithy_client.expectString
+  });
+}, "de_ServiceEvent");
+var de_ServiceEvents = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ServiceEvent(entry, context);
+  });
+  return retVal;
+}, "de_ServiceEvents");
+var de_ServiceRevision = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    capacityProviderStrategy: import_smithy_client._json,
+    clusterArn: import_smithy_client.expectString,
+    containerImages: import_smithy_client._json,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    fargateEphemeralStorage: import_smithy_client._json,
+    guardDutyEnabled: import_smithy_client.expectBoolean,
+    launchType: import_smithy_client.expectString,
+    loadBalancers: import_smithy_client._json,
+    networkConfiguration: import_smithy_client._json,
+    platformFamily: import_smithy_client.expectString,
+    platformVersion: import_smithy_client.expectString,
+    serviceArn: import_smithy_client.expectString,
+    serviceConnectConfiguration: import_smithy_client._json,
+    serviceRegistries: import_smithy_client._json,
+    serviceRevisionArn: import_smithy_client.expectString,
+    taskDefinition: import_smithy_client.expectString,
+    volumeConfigurations: import_smithy_client._json
+  });
+}, "de_ServiceRevision");
+var de_ServiceRevisions = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_ServiceRevision(entry, context);
+  });
+  return retVal;
+}, "de_ServiceRevisions");
+var de_Services = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_Service(entry, context);
+  });
+  return retVal;
+}, "de_Services");
+var de_StartTaskResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    tasks: (_) => de_Tasks(_, context)
+  });
+}, "de_StartTaskResponse");
+var de_StopTaskResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    task: (_) => de_Task(_, context)
+  });
+}, "de_StopTaskResponse");
+var de_Task = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    attachments: import_smithy_client._json,
+    attributes: import_smithy_client._json,
+    availabilityZone: import_smithy_client.expectString,
+    capacityProviderName: import_smithy_client.expectString,
+    clusterArn: import_smithy_client.expectString,
+    connectivity: import_smithy_client.expectString,
+    connectivityAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    containerInstanceArn: import_smithy_client.expectString,
+    containers: (_) => de_Containers(_, context),
+    cpu: import_smithy_client.expectString,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    desiredStatus: import_smithy_client.expectString,
+    enableExecuteCommand: import_smithy_client.expectBoolean,
+    ephemeralStorage: import_smithy_client._json,
+    executionStoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    fargateEphemeralStorage: import_smithy_client._json,
+    group: import_smithy_client.expectString,
+    healthStatus: import_smithy_client.expectString,
+    inferenceAccelerators: import_smithy_client._json,
+    lastStatus: import_smithy_client.expectString,
+    launchType: import_smithy_client.expectString,
+    memory: import_smithy_client.expectString,
+    overrides: import_smithy_client._json,
+    platformFamily: import_smithy_client.expectString,
+    platformVersion: import_smithy_client.expectString,
+    pullStartedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    pullStoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    startedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    startedBy: import_smithy_client.expectString,
+    stopCode: import_smithy_client.expectString,
+    stoppedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    stoppedReason: import_smithy_client.expectString,
+    stoppingAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    tags: import_smithy_client._json,
+    taskArn: import_smithy_client.expectString,
+    taskDefinitionArn: import_smithy_client.expectString,
+    version: import_smithy_client.expectLong
+  });
+}, "de_Task");
+var de_TaskDefinition = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    compatibilities: import_smithy_client._json,
+    containerDefinitions: import_smithy_client._json,
+    cpu: import_smithy_client.expectString,
+    deregisteredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    ephemeralStorage: import_smithy_client._json,
+    executionRoleArn: import_smithy_client.expectString,
+    family: import_smithy_client.expectString,
+    inferenceAccelerators: import_smithy_client._json,
+    ipcMode: import_smithy_client.expectString,
+    memory: import_smithy_client.expectString,
+    networkMode: import_smithy_client.expectString,
+    pidMode: import_smithy_client.expectString,
+    placementConstraints: import_smithy_client._json,
+    proxyConfiguration: import_smithy_client._json,
+    registeredAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    registeredBy: import_smithy_client.expectString,
+    requiresAttributes: import_smithy_client._json,
+    requiresCompatibilities: import_smithy_client._json,
+    revision: import_smithy_client.expectInt32,
+    runtimePlatform: import_smithy_client._json,
+    status: import_smithy_client.expectString,
+    taskDefinitionArn: import_smithy_client.expectString,
+    taskRoleArn: import_smithy_client.expectString,
+    volumes: import_smithy_client._json
+  });
+}, "de_TaskDefinition");
+var de_TaskDefinitionList = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_TaskDefinition(entry, context);
+  });
+  return retVal;
+}, "de_TaskDefinitionList");
+var de_Tasks = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_Task(entry, context);
+  });
+  return retVal;
+}, "de_Tasks");
+var de_TaskSet = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    capacityProviderStrategy: import_smithy_client._json,
+    clusterArn: import_smithy_client.expectString,
+    computedDesiredCount: import_smithy_client.expectInt32,
+    createdAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    externalId: import_smithy_client.expectString,
+    fargateEphemeralStorage: import_smithy_client._json,
+    id: import_smithy_client.expectString,
+    launchType: import_smithy_client.expectString,
+    loadBalancers: import_smithy_client._json,
+    networkConfiguration: import_smithy_client._json,
+    pendingCount: import_smithy_client.expectInt32,
+    platformFamily: import_smithy_client.expectString,
+    platformVersion: import_smithy_client.expectString,
+    runningCount: import_smithy_client.expectInt32,
+    scale: (_) => de_Scale(_, context),
+    serviceArn: import_smithy_client.expectString,
+    serviceRegistries: import_smithy_client._json,
+    stabilityStatus: import_smithy_client.expectString,
+    stabilityStatusAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_))),
+    startedBy: import_smithy_client.expectString,
+    status: import_smithy_client.expectString,
+    tags: import_smithy_client._json,
+    taskDefinition: import_smithy_client.expectString,
+    taskSetArn: import_smithy_client.expectString,
+    updatedAt: (_) => (0, import_smithy_client.expectNonNull)((0, import_smithy_client.parseEpochTimestamp)((0, import_smithy_client.expectNumber)(_)))
+  });
+}, "de_TaskSet");
+var de_TaskSets = /* @__PURE__ */ __name((output, context) => {
+  const retVal = (output || []).filter((e) => e != null).map((entry) => {
+    return de_TaskSet(entry, context);
+  });
+  return retVal;
+}, "de_TaskSets");
+var de_UpdateContainerAgentResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerInstance: (_) => de_ContainerInstance(_, context)
+  });
+}, "de_UpdateContainerAgentResponse");
+var de_UpdateContainerInstancesStateResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    containerInstances: (_) => de_ContainerInstances(_, context),
+    failures: import_smithy_client._json
+  });
+}, "de_UpdateContainerInstancesStateResponse");
+var de_UpdateServicePrimaryTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    taskSet: (_) => de_TaskSet(_, context)
+  });
+}, "de_UpdateServicePrimaryTaskSetResponse");
+var de_UpdateServiceResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    service: (_) => de_Service(_, context)
+  });
+}, "de_UpdateServiceResponse");
+var de_UpdateTaskProtectionResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    failures: import_smithy_client._json,
+    protectedTasks: (_) => de_ProtectedTasks(_, context)
+  });
+}, "de_UpdateTaskProtectionResponse");
+var de_UpdateTaskSetResponse = /* @__PURE__ */ __name((output, context) => {
+  return (0, import_smithy_client.take)(output, {
+    taskSet: (_) => de_TaskSet(_, context)
+  });
+}, "de_UpdateTaskSetResponse");
+var deserializeMetadata = /* @__PURE__ */ __name((output) => ({
+  httpStatusCode: output.statusCode,
+  requestId: output.headers["x-amzn-requestid"] ?? output.headers["x-amzn-request-id"] ?? output.headers["x-amz-request-id"],
+  extendedRequestId: output.headers["x-amz-id-2"],
+  cfId: output.headers["x-amz-cf-id"]
+}), "deserializeMetadata");
+var throwDefaultError = (0, import_smithy_client.withBaseException)(ECSServiceException);
+var buildHttpRpcRequest = /* @__PURE__ */ __name(async (context, headers, path, resolvedHostname, body) => {
+  const { hostname, protocol = "https", port, path: basePath } = await context.endpoint();
+  const contents = {
+    protocol,
+    hostname,
+    port,
+    method: "POST",
+    path: basePath.endsWith("/") ? basePath.slice(0, -1) + path : basePath + path,
+    headers
+  };
+  if (resolvedHostname !== void 0) {
+    contents.hostname = resolvedHostname;
+  }
+  if (body !== void 0) {
+    contents.body = body;
+  }
+  return new import_protocol_http.HttpRequest(contents);
+}, "buildHttpRpcRequest");
+function sharedHeaders(operation) {
+  return {
+    "content-type": "application/x-amz-json-1.1",
+    "x-amz-target": `AmazonEC2ContainerServiceV20141113.${operation}`
+  };
+}
+__name(sharedHeaders, "sharedHeaders");
+
+// src/commands/CreateCapacityProviderCommand.ts
+var _CreateCapacityProviderCommand = class _CreateCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "CreateCapacityProvider", {}).n("ECSClient", "CreateCapacityProviderCommand").f(void 0, void 0).ser(se_CreateCapacityProviderCommand).de(de_CreateCapacityProviderCommand).build() {
+};
+__name(_CreateCapacityProviderCommand, "CreateCapacityProviderCommand");
+var CreateCapacityProviderCommand = _CreateCapacityProviderCommand;
+
+// src/commands/CreateClusterCommand.ts
+
+
+
+var _CreateClusterCommand = class _CreateClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "CreateCluster", {}).n("ECSClient", "CreateClusterCommand").f(void 0, void 0).ser(se_CreateClusterCommand).de(de_CreateClusterCommand).build() {
+};
+__name(_CreateClusterCommand, "CreateClusterCommand");
+var CreateClusterCommand = _CreateClusterCommand;
+
+// src/commands/CreateServiceCommand.ts
+
+
+
+var _CreateServiceCommand = class _CreateServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "CreateService", {}).n("ECSClient", "CreateServiceCommand").f(void 0, void 0).ser(se_CreateServiceCommand).de(de_CreateServiceCommand).build() {
+};
+__name(_CreateServiceCommand, "CreateServiceCommand");
+var CreateServiceCommand = _CreateServiceCommand;
+
+// src/commands/CreateTaskSetCommand.ts
+
+
+
+var _CreateTaskSetCommand = class _CreateTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "CreateTaskSet", {}).n("ECSClient", "CreateTaskSetCommand").f(void 0, void 0).ser(se_CreateTaskSetCommand).de(de_CreateTaskSetCommand).build() {
+};
+__name(_CreateTaskSetCommand, "CreateTaskSetCommand");
+var CreateTaskSetCommand = _CreateTaskSetCommand;
+
+// src/commands/DeleteAccountSettingCommand.ts
+
+
+
+var _DeleteAccountSettingCommand = class _DeleteAccountSettingCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteAccountSetting", {}).n("ECSClient", "DeleteAccountSettingCommand").f(void 0, void 0).ser(se_DeleteAccountSettingCommand).de(de_DeleteAccountSettingCommand).build() {
+};
+__name(_DeleteAccountSettingCommand, "DeleteAccountSettingCommand");
+var DeleteAccountSettingCommand = _DeleteAccountSettingCommand;
+
+// src/commands/DeleteAttributesCommand.ts
+
+
+
+var _DeleteAttributesCommand = class _DeleteAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteAttributes", {}).n("ECSClient", "DeleteAttributesCommand").f(void 0, void 0).ser(se_DeleteAttributesCommand).de(de_DeleteAttributesCommand).build() {
+};
+__name(_DeleteAttributesCommand, "DeleteAttributesCommand");
+var DeleteAttributesCommand = _DeleteAttributesCommand;
+
+// src/commands/DeleteCapacityProviderCommand.ts
+
+
+
+var _DeleteCapacityProviderCommand = class _DeleteCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteCapacityProvider", {}).n("ECSClient", "DeleteCapacityProviderCommand").f(void 0, void 0).ser(se_DeleteCapacityProviderCommand).de(de_DeleteCapacityProviderCommand).build() {
+};
+__name(_DeleteCapacityProviderCommand, "DeleteCapacityProviderCommand");
+var DeleteCapacityProviderCommand = _DeleteCapacityProviderCommand;
+
+// src/commands/DeleteClusterCommand.ts
+
+
+
+var _DeleteClusterCommand = class _DeleteClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteCluster", {}).n("ECSClient", "DeleteClusterCommand").f(void 0, void 0).ser(se_DeleteClusterCommand).de(de_DeleteClusterCommand).build() {
+};
+__name(_DeleteClusterCommand, "DeleteClusterCommand");
+var DeleteClusterCommand = _DeleteClusterCommand;
+
+// src/commands/DeleteServiceCommand.ts
+
+
+
+var _DeleteServiceCommand = class _DeleteServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteService", {}).n("ECSClient", "DeleteServiceCommand").f(void 0, void 0).ser(se_DeleteServiceCommand).de(de_DeleteServiceCommand).build() {
+};
+__name(_DeleteServiceCommand, "DeleteServiceCommand");
+var DeleteServiceCommand = _DeleteServiceCommand;
+
+// src/commands/DeleteTaskDefinitionsCommand.ts
+
+
+
+var _DeleteTaskDefinitionsCommand = class _DeleteTaskDefinitionsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteTaskDefinitions", {}).n("ECSClient", "DeleteTaskDefinitionsCommand").f(void 0, void 0).ser(se_DeleteTaskDefinitionsCommand).de(de_DeleteTaskDefinitionsCommand).build() {
+};
+__name(_DeleteTaskDefinitionsCommand, "DeleteTaskDefinitionsCommand");
+var DeleteTaskDefinitionsCommand = _DeleteTaskDefinitionsCommand;
+
+// src/commands/DeleteTaskSetCommand.ts
+
+
+
+var _DeleteTaskSetCommand = class _DeleteTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeleteTaskSet", {}).n("ECSClient", "DeleteTaskSetCommand").f(void 0, void 0).ser(se_DeleteTaskSetCommand).de(de_DeleteTaskSetCommand).build() {
+};
+__name(_DeleteTaskSetCommand, "DeleteTaskSetCommand");
+var DeleteTaskSetCommand = _DeleteTaskSetCommand;
+
+// src/commands/DeregisterContainerInstanceCommand.ts
+
+
+
+var _DeregisterContainerInstanceCommand = class _DeregisterContainerInstanceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeregisterContainerInstance", {}).n("ECSClient", "DeregisterContainerInstanceCommand").f(void 0, void 0).ser(se_DeregisterContainerInstanceCommand).de(de_DeregisterContainerInstanceCommand).build() {
+};
+__name(_DeregisterContainerInstanceCommand, "DeregisterContainerInstanceCommand");
+var DeregisterContainerInstanceCommand = _DeregisterContainerInstanceCommand;
+
+// src/commands/DeregisterTaskDefinitionCommand.ts
+
+
+
+var _DeregisterTaskDefinitionCommand = class _DeregisterTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DeregisterTaskDefinition", {}).n("ECSClient", "DeregisterTaskDefinitionCommand").f(void 0, void 0).ser(se_DeregisterTaskDefinitionCommand).de(de_DeregisterTaskDefinitionCommand).build() {
+};
+__name(_DeregisterTaskDefinitionCommand, "DeregisterTaskDefinitionCommand");
+var DeregisterTaskDefinitionCommand = _DeregisterTaskDefinitionCommand;
+
+// src/commands/DescribeCapacityProvidersCommand.ts
+
+
+
+var _DescribeCapacityProvidersCommand = class _DescribeCapacityProvidersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeCapacityProviders", {}).n("ECSClient", "DescribeCapacityProvidersCommand").f(void 0, void 0).ser(se_DescribeCapacityProvidersCommand).de(de_DescribeCapacityProvidersCommand).build() {
+};
+__name(_DescribeCapacityProvidersCommand, "DescribeCapacityProvidersCommand");
+var DescribeCapacityProvidersCommand = _DescribeCapacityProvidersCommand;
+
+// src/commands/DescribeClustersCommand.ts
+
+
+
+var _DescribeClustersCommand = class _DescribeClustersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeClusters", {}).n("ECSClient", "DescribeClustersCommand").f(void 0, void 0).ser(se_DescribeClustersCommand).de(de_DescribeClustersCommand).build() {
+};
+__name(_DescribeClustersCommand, "DescribeClustersCommand");
+var DescribeClustersCommand = _DescribeClustersCommand;
+
+// src/commands/DescribeContainerInstancesCommand.ts
+
+
+
+var _DescribeContainerInstancesCommand = class _DescribeContainerInstancesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeContainerInstances", {}).n("ECSClient", "DescribeContainerInstancesCommand").f(void 0, void 0).ser(se_DescribeContainerInstancesCommand).de(de_DescribeContainerInstancesCommand).build() {
+};
+__name(_DescribeContainerInstancesCommand, "DescribeContainerInstancesCommand");
+var DescribeContainerInstancesCommand = _DescribeContainerInstancesCommand;
+
+// src/commands/DescribeServiceDeploymentsCommand.ts
+
+
+
+var _DescribeServiceDeploymentsCommand = class _DescribeServiceDeploymentsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeServiceDeployments", {}).n("ECSClient", "DescribeServiceDeploymentsCommand").f(void 0, void 0).ser(se_DescribeServiceDeploymentsCommand).de(de_DescribeServiceDeploymentsCommand).build() {
+};
+__name(_DescribeServiceDeploymentsCommand, "DescribeServiceDeploymentsCommand");
+var DescribeServiceDeploymentsCommand = _DescribeServiceDeploymentsCommand;
+
+// src/commands/DescribeServiceRevisionsCommand.ts
+
+
+
+var _DescribeServiceRevisionsCommand = class _DescribeServiceRevisionsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeServiceRevisions", {}).n("ECSClient", "DescribeServiceRevisionsCommand").f(void 0, void 0).ser(se_DescribeServiceRevisionsCommand).de(de_DescribeServiceRevisionsCommand).build() {
+};
+__name(_DescribeServiceRevisionsCommand, "DescribeServiceRevisionsCommand");
+var DescribeServiceRevisionsCommand = _DescribeServiceRevisionsCommand;
+
+// src/commands/DescribeServicesCommand.ts
+
+
+
+var _DescribeServicesCommand = class _DescribeServicesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeServices", {}).n("ECSClient", "DescribeServicesCommand").f(void 0, void 0).ser(se_DescribeServicesCommand).de(de_DescribeServicesCommand).build() {
+};
+__name(_DescribeServicesCommand, "DescribeServicesCommand");
+var DescribeServicesCommand = _DescribeServicesCommand;
+
+// src/commands/DescribeTaskDefinitionCommand.ts
+
+
+
+var _DescribeTaskDefinitionCommand = class _DescribeTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeTaskDefinition", {}).n("ECSClient", "DescribeTaskDefinitionCommand").f(void 0, void 0).ser(se_DescribeTaskDefinitionCommand).de(de_DescribeTaskDefinitionCommand).build() {
+};
+__name(_DescribeTaskDefinitionCommand, "DescribeTaskDefinitionCommand");
+var DescribeTaskDefinitionCommand = _DescribeTaskDefinitionCommand;
+
+// src/commands/DescribeTasksCommand.ts
+
+
+
+var _DescribeTasksCommand = class _DescribeTasksCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeTasks", {}).n("ECSClient", "DescribeTasksCommand").f(void 0, void 0).ser(se_DescribeTasksCommand).de(de_DescribeTasksCommand).build() {
+};
+__name(_DescribeTasksCommand, "DescribeTasksCommand");
+var DescribeTasksCommand = _DescribeTasksCommand;
+
+// src/commands/DescribeTaskSetsCommand.ts
+
+
+
+var _DescribeTaskSetsCommand = class _DescribeTaskSetsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DescribeTaskSets", {}).n("ECSClient", "DescribeTaskSetsCommand").f(void 0, void 0).ser(se_DescribeTaskSetsCommand).de(de_DescribeTaskSetsCommand).build() {
+};
+__name(_DescribeTaskSetsCommand, "DescribeTaskSetsCommand");
+var DescribeTaskSetsCommand = _DescribeTaskSetsCommand;
+
+// src/commands/DiscoverPollEndpointCommand.ts
+
+
+
+var _DiscoverPollEndpointCommand = class _DiscoverPollEndpointCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "DiscoverPollEndpoint", {}).n("ECSClient", "DiscoverPollEndpointCommand").f(void 0, void 0).ser(se_DiscoverPollEndpointCommand).de(de_DiscoverPollEndpointCommand).build() {
+};
+__name(_DiscoverPollEndpointCommand, "DiscoverPollEndpointCommand");
+var DiscoverPollEndpointCommand = _DiscoverPollEndpointCommand;
+
+// src/commands/ExecuteCommandCommand.ts
+
+
+
+var _ExecuteCommandCommand = class _ExecuteCommandCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ExecuteCommand", {}).n("ECSClient", "ExecuteCommandCommand").f(void 0, ExecuteCommandResponseFilterSensitiveLog).ser(se_ExecuteCommandCommand).de(de_ExecuteCommandCommand).build() {
+};
+__name(_ExecuteCommandCommand, "ExecuteCommandCommand");
+var ExecuteCommandCommand = _ExecuteCommandCommand;
+
+// src/commands/GetTaskProtectionCommand.ts
+
+
+
+var _GetTaskProtectionCommand = class _GetTaskProtectionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "GetTaskProtection", {}).n("ECSClient", "GetTaskProtectionCommand").f(void 0, void 0).ser(se_GetTaskProtectionCommand).de(de_GetTaskProtectionCommand).build() {
+};
+__name(_GetTaskProtectionCommand, "GetTaskProtectionCommand");
+var GetTaskProtectionCommand = _GetTaskProtectionCommand;
+
+// src/commands/ListAccountSettingsCommand.ts
+
+
+
+var _ListAccountSettingsCommand = class _ListAccountSettingsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListAccountSettings", {}).n("ECSClient", "ListAccountSettingsCommand").f(void 0, void 0).ser(se_ListAccountSettingsCommand).de(de_ListAccountSettingsCommand).build() {
+};
+__name(_ListAccountSettingsCommand, "ListAccountSettingsCommand");
+var ListAccountSettingsCommand = _ListAccountSettingsCommand;
+
+// src/commands/ListAttributesCommand.ts
+
+
+
+var _ListAttributesCommand = class _ListAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListAttributes", {}).n("ECSClient", "ListAttributesCommand").f(void 0, void 0).ser(se_ListAttributesCommand).de(de_ListAttributesCommand).build() {
+};
+__name(_ListAttributesCommand, "ListAttributesCommand");
+var ListAttributesCommand = _ListAttributesCommand;
+
+// src/commands/ListClustersCommand.ts
+
+
+
+var _ListClustersCommand = class _ListClustersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListClusters", {}).n("ECSClient", "ListClustersCommand").f(void 0, void 0).ser(se_ListClustersCommand).de(de_ListClustersCommand).build() {
+};
+__name(_ListClustersCommand, "ListClustersCommand");
+var ListClustersCommand = _ListClustersCommand;
+
+// src/commands/ListContainerInstancesCommand.ts
+
+
+
+var _ListContainerInstancesCommand = class _ListContainerInstancesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListContainerInstances", {}).n("ECSClient", "ListContainerInstancesCommand").f(void 0, void 0).ser(se_ListContainerInstancesCommand).de(de_ListContainerInstancesCommand).build() {
+};
+__name(_ListContainerInstancesCommand, "ListContainerInstancesCommand");
+var ListContainerInstancesCommand = _ListContainerInstancesCommand;
+
+// src/commands/ListServiceDeploymentsCommand.ts
+
+
+
+var _ListServiceDeploymentsCommand = class _ListServiceDeploymentsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListServiceDeployments", {}).n("ECSClient", "ListServiceDeploymentsCommand").f(void 0, void 0).ser(se_ListServiceDeploymentsCommand).de(de_ListServiceDeploymentsCommand).build() {
+};
+__name(_ListServiceDeploymentsCommand, "ListServiceDeploymentsCommand");
+var ListServiceDeploymentsCommand = _ListServiceDeploymentsCommand;
+
+// src/commands/ListServicesByNamespaceCommand.ts
+
+
+
+var _ListServicesByNamespaceCommand = class _ListServicesByNamespaceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListServicesByNamespace", {}).n("ECSClient", "ListServicesByNamespaceCommand").f(void 0, void 0).ser(se_ListServicesByNamespaceCommand).de(de_ListServicesByNamespaceCommand).build() {
+};
+__name(_ListServicesByNamespaceCommand, "ListServicesByNamespaceCommand");
+var ListServicesByNamespaceCommand = _ListServicesByNamespaceCommand;
+
+// src/commands/ListServicesCommand.ts
+
+
+
+var _ListServicesCommand = class _ListServicesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListServices", {}).n("ECSClient", "ListServicesCommand").f(void 0, void 0).ser(se_ListServicesCommand).de(de_ListServicesCommand).build() {
+};
+__name(_ListServicesCommand, "ListServicesCommand");
+var ListServicesCommand = _ListServicesCommand;
+
+// src/commands/ListTagsForResourceCommand.ts
+
+
+
+var _ListTagsForResourceCommand = class _ListTagsForResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListTagsForResource", {}).n("ECSClient", "ListTagsForResourceCommand").f(void 0, void 0).ser(se_ListTagsForResourceCommand).de(de_ListTagsForResourceCommand).build() {
+};
+__name(_ListTagsForResourceCommand, "ListTagsForResourceCommand");
+var ListTagsForResourceCommand = _ListTagsForResourceCommand;
+
+// src/commands/ListTaskDefinitionFamiliesCommand.ts
+
+
+
+var _ListTaskDefinitionFamiliesCommand = class _ListTaskDefinitionFamiliesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListTaskDefinitionFamilies", {}).n("ECSClient", "ListTaskDefinitionFamiliesCommand").f(void 0, void 0).ser(se_ListTaskDefinitionFamiliesCommand).de(de_ListTaskDefinitionFamiliesCommand).build() {
+};
+__name(_ListTaskDefinitionFamiliesCommand, "ListTaskDefinitionFamiliesCommand");
+var ListTaskDefinitionFamiliesCommand = _ListTaskDefinitionFamiliesCommand;
+
+// src/commands/ListTaskDefinitionsCommand.ts
+
+
+
+var _ListTaskDefinitionsCommand = class _ListTaskDefinitionsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListTaskDefinitions", {}).n("ECSClient", "ListTaskDefinitionsCommand").f(void 0, void 0).ser(se_ListTaskDefinitionsCommand).de(de_ListTaskDefinitionsCommand).build() {
+};
+__name(_ListTaskDefinitionsCommand, "ListTaskDefinitionsCommand");
+var ListTaskDefinitionsCommand = _ListTaskDefinitionsCommand;
+
+// src/commands/ListTasksCommand.ts
+
+
+
+var _ListTasksCommand = class _ListTasksCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "ListTasks", {}).n("ECSClient", "ListTasksCommand").f(void 0, void 0).ser(se_ListTasksCommand).de(de_ListTasksCommand).build() {
+};
+__name(_ListTasksCommand, "ListTasksCommand");
+var ListTasksCommand = _ListTasksCommand;
+
+// src/commands/PutAccountSettingCommand.ts
+
+
+
+var _PutAccountSettingCommand = class _PutAccountSettingCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "PutAccountSetting", {}).n("ECSClient", "PutAccountSettingCommand").f(void 0, void 0).ser(se_PutAccountSettingCommand).de(de_PutAccountSettingCommand).build() {
+};
+__name(_PutAccountSettingCommand, "PutAccountSettingCommand");
+var PutAccountSettingCommand = _PutAccountSettingCommand;
+
+// src/commands/PutAccountSettingDefaultCommand.ts
+
+
+
+var _PutAccountSettingDefaultCommand = class _PutAccountSettingDefaultCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "PutAccountSettingDefault", {}).n("ECSClient", "PutAccountSettingDefaultCommand").f(void 0, void 0).ser(se_PutAccountSettingDefaultCommand).de(de_PutAccountSettingDefaultCommand).build() {
+};
+__name(_PutAccountSettingDefaultCommand, "PutAccountSettingDefaultCommand");
+var PutAccountSettingDefaultCommand = _PutAccountSettingDefaultCommand;
+
+// src/commands/PutAttributesCommand.ts
+
+
+
+var _PutAttributesCommand = class _PutAttributesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "PutAttributes", {}).n("ECSClient", "PutAttributesCommand").f(void 0, void 0).ser(se_PutAttributesCommand).de(de_PutAttributesCommand).build() {
+};
+__name(_PutAttributesCommand, "PutAttributesCommand");
+var PutAttributesCommand = _PutAttributesCommand;
+
+// src/commands/PutClusterCapacityProvidersCommand.ts
+
+
+
+var _PutClusterCapacityProvidersCommand = class _PutClusterCapacityProvidersCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "PutClusterCapacityProviders", {}).n("ECSClient", "PutClusterCapacityProvidersCommand").f(void 0, void 0).ser(se_PutClusterCapacityProvidersCommand).de(de_PutClusterCapacityProvidersCommand).build() {
+};
+__name(_PutClusterCapacityProvidersCommand, "PutClusterCapacityProvidersCommand");
+var PutClusterCapacityProvidersCommand = _PutClusterCapacityProvidersCommand;
+
+// src/commands/RegisterContainerInstanceCommand.ts
+
+
+
+var _RegisterContainerInstanceCommand = class _RegisterContainerInstanceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "RegisterContainerInstance", {}).n("ECSClient", "RegisterContainerInstanceCommand").f(void 0, void 0).ser(se_RegisterContainerInstanceCommand).de(de_RegisterContainerInstanceCommand).build() {
+};
+__name(_RegisterContainerInstanceCommand, "RegisterContainerInstanceCommand");
+var RegisterContainerInstanceCommand = _RegisterContainerInstanceCommand;
+
+// src/commands/RegisterTaskDefinitionCommand.ts
+
+
+
+var _RegisterTaskDefinitionCommand = class _RegisterTaskDefinitionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "RegisterTaskDefinition", {}).n("ECSClient", "RegisterTaskDefinitionCommand").f(void 0, void 0).ser(se_RegisterTaskDefinitionCommand).de(de_RegisterTaskDefinitionCommand).build() {
+};
+__name(_RegisterTaskDefinitionCommand, "RegisterTaskDefinitionCommand");
+var RegisterTaskDefinitionCommand = _RegisterTaskDefinitionCommand;
+
+// src/commands/RunTaskCommand.ts
+
+
+
+var _RunTaskCommand = class _RunTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "RunTask", {}).n("ECSClient", "RunTaskCommand").f(void 0, void 0).ser(se_RunTaskCommand).de(de_RunTaskCommand).build() {
+};
+__name(_RunTaskCommand, "RunTaskCommand");
+var RunTaskCommand = _RunTaskCommand;
+
+// src/commands/StartTaskCommand.ts
+
+
+
+var _StartTaskCommand = class _StartTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "StartTask", {}).n("ECSClient", "StartTaskCommand").f(void 0, void 0).ser(se_StartTaskCommand).de(de_StartTaskCommand).build() {
+};
+__name(_StartTaskCommand, "StartTaskCommand");
+var StartTaskCommand = _StartTaskCommand;
+
+// src/commands/StopTaskCommand.ts
+
+
+
+var _StopTaskCommand = class _StopTaskCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "StopTask", {}).n("ECSClient", "StopTaskCommand").f(void 0, void 0).ser(se_StopTaskCommand).de(de_StopTaskCommand).build() {
+};
+__name(_StopTaskCommand, "StopTaskCommand");
+var StopTaskCommand = _StopTaskCommand;
+
+// src/commands/SubmitAttachmentStateChangesCommand.ts
+
+
+
+var _SubmitAttachmentStateChangesCommand = class _SubmitAttachmentStateChangesCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "SubmitAttachmentStateChanges", {}).n("ECSClient", "SubmitAttachmentStateChangesCommand").f(void 0, void 0).ser(se_SubmitAttachmentStateChangesCommand).de(de_SubmitAttachmentStateChangesCommand).build() {
+};
+__name(_SubmitAttachmentStateChangesCommand, "SubmitAttachmentStateChangesCommand");
+var SubmitAttachmentStateChangesCommand = _SubmitAttachmentStateChangesCommand;
+
+// src/commands/SubmitContainerStateChangeCommand.ts
+
+
+
+var _SubmitContainerStateChangeCommand = class _SubmitContainerStateChangeCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "SubmitContainerStateChange", {}).n("ECSClient", "SubmitContainerStateChangeCommand").f(void 0, void 0).ser(se_SubmitContainerStateChangeCommand).de(de_SubmitContainerStateChangeCommand).build() {
+};
+__name(_SubmitContainerStateChangeCommand, "SubmitContainerStateChangeCommand");
+var SubmitContainerStateChangeCommand = _SubmitContainerStateChangeCommand;
+
+// src/commands/SubmitTaskStateChangeCommand.ts
+
+
+
+var _SubmitTaskStateChangeCommand = class _SubmitTaskStateChangeCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "SubmitTaskStateChange", {}).n("ECSClient", "SubmitTaskStateChangeCommand").f(void 0, void 0).ser(se_SubmitTaskStateChangeCommand).de(de_SubmitTaskStateChangeCommand).build() {
+};
+__name(_SubmitTaskStateChangeCommand, "SubmitTaskStateChangeCommand");
+var SubmitTaskStateChangeCommand = _SubmitTaskStateChangeCommand;
+
+// src/commands/TagResourceCommand.ts
+
+
+
+var _TagResourceCommand = class _TagResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "TagResource", {}).n("ECSClient", "TagResourceCommand").f(void 0, void 0).ser(se_TagResourceCommand).de(de_TagResourceCommand).build() {
+};
+__name(_TagResourceCommand, "TagResourceCommand");
+var TagResourceCommand = _TagResourceCommand;
+
+// src/commands/UntagResourceCommand.ts
+
+
+
+var _UntagResourceCommand = class _UntagResourceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UntagResource", {}).n("ECSClient", "UntagResourceCommand").f(void 0, void 0).ser(se_UntagResourceCommand).de(de_UntagResourceCommand).build() {
+};
+__name(_UntagResourceCommand, "UntagResourceCommand");
+var UntagResourceCommand = _UntagResourceCommand;
+
+// src/commands/UpdateCapacityProviderCommand.ts
+
+
+
+var _UpdateCapacityProviderCommand = class _UpdateCapacityProviderCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateCapacityProvider", {}).n("ECSClient", "UpdateCapacityProviderCommand").f(void 0, void 0).ser(se_UpdateCapacityProviderCommand).de(de_UpdateCapacityProviderCommand).build() {
+};
+__name(_UpdateCapacityProviderCommand, "UpdateCapacityProviderCommand");
+var UpdateCapacityProviderCommand = _UpdateCapacityProviderCommand;
+
+// src/commands/UpdateClusterCommand.ts
+
+
+
+var _UpdateClusterCommand = class _UpdateClusterCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateCluster", {}).n("ECSClient", "UpdateClusterCommand").f(void 0, void 0).ser(se_UpdateClusterCommand).de(de_UpdateClusterCommand).build() {
+};
+__name(_UpdateClusterCommand, "UpdateClusterCommand");
+var UpdateClusterCommand = _UpdateClusterCommand;
+
+// src/commands/UpdateClusterSettingsCommand.ts
+
+
+
+var _UpdateClusterSettingsCommand = class _UpdateClusterSettingsCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateClusterSettings", {}).n("ECSClient", "UpdateClusterSettingsCommand").f(void 0, void 0).ser(se_UpdateClusterSettingsCommand).de(de_UpdateClusterSettingsCommand).build() {
+};
+__name(_UpdateClusterSettingsCommand, "UpdateClusterSettingsCommand");
+var UpdateClusterSettingsCommand = _UpdateClusterSettingsCommand;
+
+// src/commands/UpdateContainerAgentCommand.ts
+
+
+
+var _UpdateContainerAgentCommand = class _UpdateContainerAgentCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateContainerAgent", {}).n("ECSClient", "UpdateContainerAgentCommand").f(void 0, void 0).ser(se_UpdateContainerAgentCommand).de(de_UpdateContainerAgentCommand).build() {
+};
+__name(_UpdateContainerAgentCommand, "UpdateContainerAgentCommand");
+var UpdateContainerAgentCommand = _UpdateContainerAgentCommand;
+
+// src/commands/UpdateContainerInstancesStateCommand.ts
+
+
+
+var _UpdateContainerInstancesStateCommand = class _UpdateContainerInstancesStateCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateContainerInstancesState", {}).n("ECSClient", "UpdateContainerInstancesStateCommand").f(void 0, void 0).ser(se_UpdateContainerInstancesStateCommand).de(de_UpdateContainerInstancesStateCommand).build() {
+};
+__name(_UpdateContainerInstancesStateCommand, "UpdateContainerInstancesStateCommand");
+var UpdateContainerInstancesStateCommand = _UpdateContainerInstancesStateCommand;
+
+// src/commands/UpdateServiceCommand.ts
+
+
+
+var _UpdateServiceCommand = class _UpdateServiceCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateService", {}).n("ECSClient", "UpdateServiceCommand").f(void 0, void 0).ser(se_UpdateServiceCommand).de(de_UpdateServiceCommand).build() {
+};
+__name(_UpdateServiceCommand, "UpdateServiceCommand");
+var UpdateServiceCommand = _UpdateServiceCommand;
+
+// src/commands/UpdateServicePrimaryTaskSetCommand.ts
+
+
+
+var _UpdateServicePrimaryTaskSetCommand = class _UpdateServicePrimaryTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateServicePrimaryTaskSet", {}).n("ECSClient", "UpdateServicePrimaryTaskSetCommand").f(void 0, void 0).ser(se_UpdateServicePrimaryTaskSetCommand).de(de_UpdateServicePrimaryTaskSetCommand).build() {
+};
+__name(_UpdateServicePrimaryTaskSetCommand, "UpdateServicePrimaryTaskSetCommand");
+var UpdateServicePrimaryTaskSetCommand = _UpdateServicePrimaryTaskSetCommand;
+
+// src/commands/UpdateTaskProtectionCommand.ts
+
+
+
+var _UpdateTaskProtectionCommand = class _UpdateTaskProtectionCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateTaskProtection", {}).n("ECSClient", "UpdateTaskProtectionCommand").f(void 0, void 0).ser(se_UpdateTaskProtectionCommand).de(de_UpdateTaskProtectionCommand).build() {
+};
+__name(_UpdateTaskProtectionCommand, "UpdateTaskProtectionCommand");
+var UpdateTaskProtectionCommand = _UpdateTaskProtectionCommand;
+
+// src/commands/UpdateTaskSetCommand.ts
+
+
+
+var _UpdateTaskSetCommand = class _UpdateTaskSetCommand extends import_smithy_client.Command.classBuilder().ep(commonParams).m(function(Command, cs, config, o) {
+  return [
+    (0, import_middleware_serde.getSerdePlugin)(config, this.serialize, this.deserialize),
+    (0, import_middleware_endpoint.getEndpointPlugin)(config, Command.getEndpointParameterInstructions())
+  ];
+}).s("AmazonEC2ContainerServiceV20141113", "UpdateTaskSet", {}).n("ECSClient", "UpdateTaskSetCommand").f(void 0, void 0).ser(se_UpdateTaskSetCommand).de(de_UpdateTaskSetCommand).build() {
+};
+__name(_UpdateTaskSetCommand, "UpdateTaskSetCommand");
+var UpdateTaskSetCommand = _UpdateTaskSetCommand;
+
+// src/ECS.ts
+var commands = {
+  CreateCapacityProviderCommand,
+  CreateClusterCommand,
+  CreateServiceCommand,
+  CreateTaskSetCommand,
+  DeleteAccountSettingCommand,
+  DeleteAttributesCommand,
+  DeleteCapacityProviderCommand,
+  DeleteClusterCommand,
+  DeleteServiceCommand,
+  DeleteTaskDefinitionsCommand,
+  DeleteTaskSetCommand,
+  DeregisterContainerInstanceCommand,
+  DeregisterTaskDefinitionCommand,
+  DescribeCapacityProvidersCommand,
+  DescribeClustersCommand,
+  DescribeContainerInstancesCommand,
+  DescribeServiceDeploymentsCommand,
+  DescribeServiceRevisionsCommand,
+  DescribeServicesCommand,
+  DescribeTaskDefinitionCommand,
+  DescribeTasksCommand,
+  DescribeTaskSetsCommand,
+  DiscoverPollEndpointCommand,
+  ExecuteCommandCommand,
+  GetTaskProtectionCommand,
+  ListAccountSettingsCommand,
+  ListAttributesCommand,
+  ListClustersCommand,
+  ListContainerInstancesCommand,
+  ListServiceDeploymentsCommand,
+  ListServicesCommand,
+  ListServicesByNamespaceCommand,
+  ListTagsForResourceCommand,
+  ListTaskDefinitionFamiliesCommand,
+  ListTaskDefinitionsCommand,
+  ListTasksCommand,
+  PutAccountSettingCommand,
+  PutAccountSettingDefaultCommand,
+  PutAttributesCommand,
+  PutClusterCapacityProvidersCommand,
+  RegisterContainerInstanceCommand,
+  RegisterTaskDefinitionCommand,
+  RunTaskCommand,
+  StartTaskCommand,
+  StopTaskCommand,
+  SubmitAttachmentStateChangesCommand,
+  SubmitContainerStateChangeCommand,
+  SubmitTaskStateChangeCommand,
+  TagResourceCommand,
+  UntagResourceCommand,
+  UpdateCapacityProviderCommand,
+  UpdateClusterCommand,
+  UpdateClusterSettingsCommand,
+  UpdateContainerAgentCommand,
+  UpdateContainerInstancesStateCommand,
+  UpdateServiceCommand,
+  UpdateServicePrimaryTaskSetCommand,
+  UpdateTaskProtectionCommand,
+  UpdateTaskSetCommand
+};
+var _ECS = class _ECS extends ECSClient {
+};
+__name(_ECS, "ECS");
+var ECS = _ECS;
+(0, import_smithy_client.createAggregatedClient)(commands, ECS);
+
+// src/pagination/ListAccountSettingsPaginator.ts
+
+var paginateListAccountSettings = (0, import_core.createPaginator)(ECSClient, ListAccountSettingsCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListAttributesPaginator.ts
+
+var paginateListAttributes = (0, import_core.createPaginator)(ECSClient, ListAttributesCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListClustersPaginator.ts
+
+var paginateListClusters = (0, import_core.createPaginator)(ECSClient, ListClustersCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListContainerInstancesPaginator.ts
+
+var paginateListContainerInstances = (0, import_core.createPaginator)(ECSClient, ListContainerInstancesCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListServicesByNamespacePaginator.ts
+
+var paginateListServicesByNamespace = (0, import_core.createPaginator)(ECSClient, ListServicesByNamespaceCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListServicesPaginator.ts
+
+var paginateListServices = (0, import_core.createPaginator)(ECSClient, ListServicesCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListTaskDefinitionFamiliesPaginator.ts
+
+var paginateListTaskDefinitionFamilies = (0, import_core.createPaginator)(ECSClient, ListTaskDefinitionFamiliesCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListTaskDefinitionsPaginator.ts
+
+var paginateListTaskDefinitions = (0, import_core.createPaginator)(ECSClient, ListTaskDefinitionsCommand, "nextToken", "nextToken", "maxResults");
+
+// src/pagination/ListTasksPaginator.ts
+
+var paginateListTasks = (0, import_core.createPaginator)(ECSClient, ListTasksCommand, "nextToken", "nextToken", "maxResults");
+
+// src/waiters/waitForServicesInactive.ts
+var import_util_waiter = __nccwpck_require__(5290);
+var checkState = /* @__PURE__ */ __name(async (client, input) => {
+  let reason;
+  try {
+    const result = await client.send(new DescribeServicesCommand(input));
+    reason = result;
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.failures);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.reason;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "MISSING") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.services);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.status;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "INACTIVE") {
+          return { state: import_util_waiter.WaiterState.SUCCESS, reason };
+        }
+      }
+    } catch (e) {
+    }
+  } catch (exception) {
+    reason = exception;
+  }
+  return { state: import_util_waiter.WaiterState.RETRY, reason };
+}, "checkState");
+var waitForServicesInactive = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
+  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState);
+}, "waitForServicesInactive");
+var waitUntilServicesInactive = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
+  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState);
+  return (0, import_util_waiter.checkExceptions)(result);
+}, "waitUntilServicesInactive");
+
+// src/waiters/waitForServicesStable.ts
+
+var checkState2 = /* @__PURE__ */ __name(async (client, input) => {
+  let reason;
+  try {
+    const result = await client.send(new DescribeServicesCommand(input));
+    reason = result;
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.failures);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.reason;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "MISSING") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.services);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.status;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "DRAINING") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.services);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.status;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "INACTIVE") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const filterRes_2 = result.services.filter((element_1) => {
+          return !(element_1.deployments.length == 1 && element_1.runningCount == element_1.desiredCount);
+        });
+        return filterRes_2.length == 0;
+      }, "returnComparator");
+      if (returnComparator() == true) {
+        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
+      }
+    } catch (e) {
+    }
+  } catch (exception) {
+    reason = exception;
+  }
+  return { state: import_util_waiter.WaiterState.RETRY, reason };
+}, "checkState");
+var waitForServicesStable = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
+  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState2);
+}, "waitForServicesStable");
+var waitUntilServicesStable = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 15, maxDelay: 120 };
+  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState2);
+  return (0, import_util_waiter.checkExceptions)(result);
+}, "waitUntilServicesStable");
+
+// src/waiters/waitForTasksRunning.ts
+
+var checkState3 = /* @__PURE__ */ __name(async (client, input) => {
+  let reason;
+  try {
+    const result = await client.send(new DescribeTasksCommand(input));
+    reason = result;
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.tasks);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.lastStatus;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "STOPPED") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.failures);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.reason;
+        });
+        return projection_3;
+      }, "returnComparator");
+      for (const anyStringEq_4 of returnComparator()) {
+        if (anyStringEq_4 == "MISSING") {
+          return { state: import_util_waiter.WaiterState.FAILURE, reason };
+        }
+      }
+    } catch (e) {
+    }
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.tasks);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.lastStatus;
+        });
+        return projection_3;
+      }, "returnComparator");
+      let allStringEq_5 = returnComparator().length > 0;
+      for (const element_4 of returnComparator()) {
+        allStringEq_5 = allStringEq_5 && element_4 == "RUNNING";
+      }
+      if (allStringEq_5) {
+        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
+      }
+    } catch (e) {
+    }
+  } catch (exception) {
+    reason = exception;
+  }
+  return { state: import_util_waiter.WaiterState.RETRY, reason };
+}, "checkState");
+var waitForTasksRunning = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
+  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState3);
+}, "waitForTasksRunning");
+var waitUntilTasksRunning = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
+  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState3);
+  return (0, import_util_waiter.checkExceptions)(result);
+}, "waitUntilTasksRunning");
+
+// src/waiters/waitForTasksStopped.ts
+
+var checkState4 = /* @__PURE__ */ __name(async (client, input) => {
+  let reason;
+  try {
+    const result = await client.send(new DescribeTasksCommand(input));
+    reason = result;
+    try {
+      const returnComparator = /* @__PURE__ */ __name(() => {
+        const flat_1 = [].concat(...result.tasks);
+        const projection_3 = flat_1.map((element_2) => {
+          return element_2.lastStatus;
+        });
+        return projection_3;
+      }, "returnComparator");
+      let allStringEq_5 = returnComparator().length > 0;
+      for (const element_4 of returnComparator()) {
+        allStringEq_5 = allStringEq_5 && element_4 == "STOPPED";
+      }
+      if (allStringEq_5) {
+        return { state: import_util_waiter.WaiterState.SUCCESS, reason };
+      }
+    } catch (e) {
+    }
+  } catch (exception) {
+    reason = exception;
+  }
+  return { state: import_util_waiter.WaiterState.RETRY, reason };
+}, "checkState");
+var waitForTasksStopped = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
+  return (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState4);
+}, "waitForTasksStopped");
+var waitUntilTasksStopped = /* @__PURE__ */ __name(async (params, input) => {
+  const serviceDefaults = { minDelay: 6, maxDelay: 120 };
+  const result = await (0, import_util_waiter.createWaiter)({ ...serviceDefaults, ...params }, input, checkState4);
+  return (0, import_util_waiter.checkExceptions)(result);
+}, "waitUntilTasksStopped");
+// Annotate the CommonJS export names for ESM import in node:
+
+0 && (0);
+
+
+
+/***/ }),
+
+/***/ 1142:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getRuntimeConfig = void 0;
+const tslib_1 = __nccwpck_require__(1860);
+const package_json_1 = tslib_1.__importDefault(__nccwpck_require__(1194));
+const core_1 = __nccwpck_require__(8704);
+const credential_provider_node_1 = __nccwpck_require__(5861);
+const util_user_agent_node_1 = __nccwpck_require__(1656);
+const config_resolver_1 = __nccwpck_require__(9316);
+const hash_node_1 = __nccwpck_require__(5092);
+const middleware_retry_1 = __nccwpck_require__(9618);
+const node_config_provider_1 = __nccwpck_require__(5704);
+const node_http_handler_1 = __nccwpck_require__(1279);
+const util_body_length_node_1 = __nccwpck_require__(3638);
+const util_retry_1 = __nccwpck_require__(5518);
+const runtimeConfig_shared_1 = __nccwpck_require__(1519);
+const smithy_client_1 = __nccwpck_require__(1411);
+const util_defaults_mode_node_1 = __nccwpck_require__(5435);
+const smithy_client_2 = __nccwpck_require__(1411);
+const getRuntimeConfig = (config) => {
+    (0, smithy_client_2.emitWarningIfUnsupportedVersion)(process.version);
+    const defaultsMode = (0, util_defaults_mode_node_1.resolveDefaultsModeConfig)(config);
+    const defaultConfigProvider = () => defaultsMode().then(smithy_client_1.loadConfigsForDefaultMode);
+    const clientSharedValues = (0, runtimeConfig_shared_1.getRuntimeConfig)(config);
+    (0, core_1.emitWarningIfUnsupportedVersion)(process.version);
+    return {
+        ...clientSharedValues,
+        ...config,
+        runtime: "node",
+        defaultsMode,
+        bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
+        credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
+        defaultUserAgentProvider: config?.defaultUserAgentProvider ??
+            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+        maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
+        region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
+        requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
+        retryMode: config?.retryMode ??
+            (0, node_config_provider_1.loadConfig)({
+                ...middleware_retry_1.NODE_RETRY_MODE_CONFIG_OPTIONS,
+                default: async () => (await defaultConfigProvider()).retryMode || util_retry_1.DEFAULT_RETRY_MODE,
+            }),
+        sha256: config?.sha256 ?? hash_node_1.Hash.bind(null, "sha256"),
+        streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
+        useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
+        useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
+        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
+    };
+};
+exports.getRuntimeConfig = getRuntimeConfig;
+
+
+/***/ }),
+
+/***/ 1519:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getRuntimeConfig = void 0;
+const core_1 = __nccwpck_require__(8704);
+const smithy_client_1 = __nccwpck_require__(1411);
+const url_parser_1 = __nccwpck_require__(4494);
+const util_base64_1 = __nccwpck_require__(8385);
+const util_utf8_1 = __nccwpck_require__(1577);
+const httpAuthSchemeProvider_1 = __nccwpck_require__(1367);
+const endpointResolver_1 = __nccwpck_require__(6161);
+const getRuntimeConfig = (config) => {
+    return {
+        apiVersion: "2014-11-13",
+        base64Decoder: config?.base64Decoder ?? util_base64_1.fromBase64,
+        base64Encoder: config?.base64Encoder ?? util_base64_1.toBase64,
+        disableHostPrefix: config?.disableHostPrefix ?? false,
+        endpointProvider: config?.endpointProvider ?? endpointResolver_1.defaultEndpointResolver,
+        extensions: config?.extensions ?? [],
+        httpAuthSchemeProvider: config?.httpAuthSchemeProvider ?? httpAuthSchemeProvider_1.defaultECSHttpAuthSchemeProvider,
+        httpAuthSchemes: config?.httpAuthSchemes ?? [
+            {
+                schemeId: "aws.auth#sigv4",
+                identityProvider: (ipc) => ipc.getIdentityProvider("aws.auth#sigv4"),
+                signer: new core_1.AwsSdkSigV4Signer(),
+            },
+        ],
+        logger: config?.logger ?? new smithy_client_1.NoOpLogger(),
+        serviceId: config?.serviceId ?? "ECS",
+        urlParser: config?.urlParser ?? url_parser_1.parseUrl,
+        utf8Decoder: config?.utf8Decoder ?? util_utf8_1.fromUtf8,
+        utf8Encoder: config?.utf8Encoder ?? util_utf8_1.toUtf8,
+    };
+};
+exports.getRuntimeConfig = getRuntimeConfig;
 
 
 /***/ }),
@@ -22308,7 +22456,7 @@ const getRuntimeConfig = (config) => {
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
         region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
         requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
@@ -22321,6 +22469,7 @@ const getRuntimeConfig = (config) => {
         streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
         useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
         useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
+        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
     };
 };
 exports.getRuntimeConfig = getRuntimeConfig;
@@ -23125,7 +23274,7 @@ const getRuntimeConfig = (config) => {
         defaultsMode,
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         maxAttempts: config?.maxAttempts ?? (0, node_config_provider_1.loadConfig)(middleware_retry_1.NODE_MAX_ATTEMPT_CONFIG_OPTIONS),
         region: config?.region ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_REGION_CONFIG_OPTIONS, config_resolver_1.NODE_REGION_CONFIG_FILE_OPTIONS),
         requestHandler: node_http_handler_1.NodeHttpHandler.create(config?.requestHandler ?? defaultConfigProvider),
@@ -23138,6 +23287,7 @@ const getRuntimeConfig = (config) => {
         streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
         useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
         useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
+        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
     };
 };
 exports.getRuntimeConfig = getRuntimeConfig;
@@ -24729,6 +24879,7 @@ var STS = _STS;
 var import_EndpointParameters9 = __nccwpck_require__(2912);
 
 // src/defaultStsRoleAssumers.ts
+var import_client = __nccwpck_require__(5152);
 var ASSUME_ROLE_DEFAULT_REGION = "us-east-1";
 var getAccountIdFromAssumedRoleUser = /* @__PURE__ */ __name((assumedRoleUser) => {
   if (typeof (assumedRoleUser == null ? void 0 : assumedRoleUser.Arn) === "string") {
@@ -24785,7 +24936,7 @@ var getDefaultRoleAssumer = /* @__PURE__ */ __name((stsOptions, stsClientCtor) =
       throw new Error(`Invalid response from STS.assumeRole call with role ${params.RoleArn}`);
     }
     const accountId = getAccountIdFromAssumedRoleUser(AssumedRoleUser2);
-    return {
+    const credentials = {
       accessKeyId: Credentials2.AccessKeyId,
       secretAccessKey: Credentials2.SecretAccessKey,
       sessionToken: Credentials2.SessionToken,
@@ -24794,6 +24945,8 @@ var getDefaultRoleAssumer = /* @__PURE__ */ __name((stsOptions, stsClientCtor) =
       ...Credentials2.CredentialScope && { credentialScope: Credentials2.CredentialScope },
       ...accountId && { accountId }
     };
+    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_STS_ASSUME_ROLE", "i");
+    return credentials;
   };
 }, "getDefaultRoleAssumer");
 var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, stsClientCtor) => {
@@ -24824,7 +24977,7 @@ var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, s
       throw new Error(`Invalid response from STS.assumeRoleWithWebIdentity call with role ${params.RoleArn}`);
     }
     const accountId = getAccountIdFromAssumedRoleUser(AssumedRoleUser2);
-    return {
+    const credentials = {
       accessKeyId: Credentials2.AccessKeyId,
       secretAccessKey: Credentials2.SecretAccessKey,
       sessionToken: Credentials2.SessionToken,
@@ -24833,6 +24986,11 @@ var getDefaultRoleAssumerWithWebIdentity = /* @__PURE__ */ __name((stsOptions, s
       ...Credentials2.CredentialScope && { credentialScope: Credentials2.CredentialScope },
       ...accountId && { accountId }
     };
+    if (accountId) {
+      (0, import_client.setCredentialFeature)(credentials, "RESOLVED_ACCOUNT_ID", "T");
+    }
+    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_STS_ASSUME_ROLE_WEB_ID", "k");
+    return credentials;
   };
 }, "getDefaultRoleAssumerWithWebIdentity");
 var isH2 = /* @__PURE__ */ __name((requestHandler) => {
@@ -24909,7 +25067,7 @@ const getRuntimeConfig = (config) => {
         bodyLengthChecker: config?.bodyLengthChecker ?? util_body_length_node_1.calculateBodyLength,
         credentialDefaultProvider: config?.credentialDefaultProvider ?? credential_provider_node_1.defaultProvider,
         defaultUserAgentProvider: config?.defaultUserAgentProvider ??
-            (0, util_user_agent_node_1.defaultUserAgent)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
+            (0, util_user_agent_node_1.createDefaultUserAgentProvider)({ serviceId: clientSharedValues.serviceId, clientVersion: package_json_1.default.version }),
         httpAuthSchemes: config?.httpAuthSchemes ?? [
             {
                 schemeId: "aws.auth#sigv4",
@@ -24935,6 +25093,7 @@ const getRuntimeConfig = (config) => {
         streamCollector: config?.streamCollector ?? node_http_handler_1.streamCollector,
         useDualstackEndpoint: config?.useDualstackEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS),
         useFipsEndpoint: config?.useFipsEndpoint ?? (0, node_config_provider_1.loadConfig)(config_resolver_1.NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS),
+        userAgentAppId: config?.userAgentAppId ?? (0, node_config_provider_1.loadConfig)(util_user_agent_node_1.NODE_APP_ID_CONFIG_OPTIONS),
     };
 };
 exports.getRuntimeConfig = getRuntimeConfig;
@@ -25064,15 +25223,20 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/submodules/client/index.ts
 var client_exports = {};
 __export(client_exports, {
-  emitWarningIfUnsupportedVersion: () => emitWarningIfUnsupportedVersion
+  emitWarningIfUnsupportedVersion: () => emitWarningIfUnsupportedVersion,
+  setCredentialFeature: () => setCredentialFeature,
+  setFeature: () => setFeature,
+  state: () => state
 });
 module.exports = __toCommonJS(client_exports);
 
 // src/submodules/client/emitWarningIfUnsupportedVersion.ts
-var warningEmitted = false;
+var state = {
+  warningEmitted: false
+};
 var emitWarningIfUnsupportedVersion = /* @__PURE__ */ __name((version) => {
-  if (version && !warningEmitted && parseInt(version.substring(1, version.indexOf("."))) < 18) {
-    warningEmitted = true;
+  if (version && !state.warningEmitted && parseInt(version.substring(1, version.indexOf("."))) < 18) {
+    state.warningEmitted = true;
     process.emitWarning(
       `NodeDeprecationWarning: The AWS SDK for JavaScript (v3) will
 no longer support Node.js 16.x on January 6, 2025.
@@ -25084,6 +25248,29 @@ More information can be found at: https://a.co/74kJMmI`
     );
   }
 }, "emitWarningIfUnsupportedVersion");
+
+// src/submodules/client/setCredentialFeature.ts
+function setCredentialFeature(credentials, feature, value) {
+  if (!credentials.$source) {
+    credentials.$source = {};
+  }
+  credentials.$source[feature] = value;
+  return credentials;
+}
+__name(setCredentialFeature, "setCredentialFeature");
+
+// src/submodules/client/setFeature.ts
+function setFeature(context, feature, value) {
+  if (!context.__aws_sdk_context) {
+    context.__aws_sdk_context = {
+      features: {}
+    };
+  } else if (!context.__aws_sdk_context.features) {
+    context.__aws_sdk_context.features = {};
+  }
+  context.__aws_sdk_context.features[feature] = value;
+}
+__name(setFeature, "setFeature");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (0);
 
@@ -25287,11 +25474,14 @@ var NODE_SIGV4A_CONFIG_OPTIONS = {
 };
 
 // src/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4Config.ts
+var import_client = __nccwpck_require__(5152);
 var import_core2 = __nccwpck_require__(402);
 var import_signature_v4 = __nccwpck_require__(5118);
 var resolveAwsSdkSigV4Config = /* @__PURE__ */ __name((config) => {
+  let isUserSupplied = false;
   let normalizedCreds;
   if (config.credentials) {
+    isUserSupplied = true;
     normalizedCreds = (0, import_core2.memoizeIdentityProvider)(config.credentials, import_core2.isIdentityExpired, import_core2.doesIdentityRequireRefresh);
   }
   if (!normalizedCreds) {
@@ -25376,7 +25566,9 @@ var resolveAwsSdkSigV4Config = /* @__PURE__ */ __name((config) => {
     ...config,
     systemClockOffset,
     signingEscapePath,
-    credentials: normalizedCreds,
+    credentials: isUserSupplied ? async () => normalizedCreds().then(
+      (creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_CODE", "e")
+    ) : normalizedCreds,
     signer
   };
 }, "resolveAwsSdkSigV4Config");
@@ -25650,6 +25842,7 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/fromEnv.ts
+var import_client = __nccwpck_require__(5152);
 var import_property_provider = __nccwpck_require__(1238);
 var ENV_KEY = "AWS_ACCESS_KEY_ID";
 var ENV_SECRET = "AWS_SECRET_ACCESS_KEY";
@@ -25667,7 +25860,7 @@ var fromEnv = /* @__PURE__ */ __name((init) => async () => {
   const credentialScope = process.env[ENV_CREDENTIAL_SCOPE];
   const accountId = process.env[ENV_ACCOUNT_ID];
   if (accessKeyId && secretAccessKey) {
-    return {
+    const credentials = {
       accessKeyId,
       secretAccessKey,
       ...sessionToken && { sessionToken },
@@ -25675,6 +25868,8 @@ var fromEnv = /* @__PURE__ */ __name((init) => async () => {
       ...credentialScope && { credentialScope },
       ...accountId && { accountId }
     };
+    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_ENV_VARS", "g");
+    return credentials;
   }
   throw new import_property_provider.CredentialsProviderError("Unable to find environment variable credentials.", { logger: init == null ? void 0 : init.logger });
 }, "fromEnv");
@@ -25748,6 +25943,7 @@ exports.checkUrl = checkUrl;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromHttp = void 0;
 const tslib_1 = __nccwpck_require__(1860);
+const client_1 = __nccwpck_require__(5152);
 const node_http_handler_1 = __nccwpck_require__(1279);
 const property_provider_1 = __nccwpck_require__(1238);
 const promises_1 = tslib_1.__importDefault(__nccwpck_require__(1943));
@@ -25803,7 +25999,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
         }
         try {
             const result = await requestHandler.handle(request);
-            return (0, requestHelpers_1.getCredentials)(result.response);
+            return (0, requestHelpers_1.getCredentials)(result.response).then((creds) => (0, client_1.setCredentialFeature)(creds, "CREDENTIALS_HTTP", "z"));
         }
         catch (e) {
             throw new property_provider_1.CredentialsProviderError(String(e), { logger: options.logger });
@@ -25964,9 +26160,11 @@ module.exports = __toCommonJS(src_exports);
 
 // src/resolveAssumeRoleCredentials.ts
 
+
 var import_shared_ini_file_loader = __nccwpck_require__(4964);
 
 // src/resolveCredentialSource.ts
+var import_client = __nccwpck_require__(5152);
 var import_property_provider = __nccwpck_require__(1238);
 var resolveCredentialSource = /* @__PURE__ */ __name((credentialSource, profileName, logger) => {
   const sourceProvidersMap = {
@@ -25974,17 +26172,17 @@ var resolveCredentialSource = /* @__PURE__ */ __name((credentialSource, profileN
       const { fromHttp } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(8605)));
       const { fromContainerMetadata } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(566)));
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is EcsContainer");
-      return (0, import_property_provider.chain)(fromHttp(options ?? {}), fromContainerMetadata(options));
+      return async () => (0, import_property_provider.chain)(fromHttp(options ?? {}), fromContainerMetadata(options))().then(setNamedProvider);
     },
     Ec2InstanceMetadata: async (options) => {
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is Ec2InstanceMetadata");
       const { fromInstanceMetadata } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(566)));
-      return fromInstanceMetadata(options);
+      return async () => fromInstanceMetadata(options)().then(setNamedProvider);
     },
     Environment: async (options) => {
       logger == null ? void 0 : logger.debug("@aws-sdk/credential-provider-ini - credential_source is Environment");
       const { fromEnv } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(5606)));
-      return fromEnv(options);
+      return async () => fromEnv(options)().then(setNamedProvider);
     }
   };
   if (credentialSource in sourceProvidersMap) {
@@ -25996,6 +26194,7 @@ var resolveCredentialSource = /* @__PURE__ */ __name((credentialSource, profileN
     );
   }
 }, "resolveCredentialSource");
+var setNamedProvider = /* @__PURE__ */ __name((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_NAMED_PROVIDER", "p"), "setNamedProvider");
 
 // src/resolveAssumeRoleCredentials.ts
 var isAssumeRoleProfile = /* @__PURE__ */ __name((arg, { profile = "default", logger } = {}) => {
@@ -26053,7 +26252,7 @@ var resolveAssumeRoleCredentials = /* @__PURE__ */ __name(async (profileName, pr
     isCredentialSourceWithoutRoleArn(profiles[source_profile] ?? {})
   ) : (await resolveCredentialSource(data.credential_source, profileName, options.logger)(options))();
   if (isCredentialSourceWithoutRoleArn(data)) {
-    return sourceCredsProvider;
+    return sourceCredsProvider.then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SOURCE_PROFILE", "o"));
   } else {
     const params = {
       RoleArn: data.role_arn,
@@ -26073,7 +26272,9 @@ var resolveAssumeRoleCredentials = /* @__PURE__ */ __name(async (profileName, pr
       params.TokenCode = await options.mfaCodeProvider(mfa_serial);
     }
     const sourceCreds = await sourceCredsProvider;
-    return options.roleAssumer(sourceCreds, params);
+    return options.roleAssumer(sourceCreds, params).then(
+      (creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SOURCE_PROFILE", "o")
+    );
   }
 }, "resolveAssumeRoleCredentials");
 var isCredentialSourceWithoutRoleArn = /* @__PURE__ */ __name((section) => {
@@ -26081,39 +26282,50 @@ var isCredentialSourceWithoutRoleArn = /* @__PURE__ */ __name((section) => {
 }, "isCredentialSourceWithoutRoleArn");
 
 // src/resolveProcessCredentials.ts
+
 var isProcessProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.credential_process === "string", "isProcessProfile");
 var resolveProcessCredentials = /* @__PURE__ */ __name(async (options, profile) => Promise.resolve().then(() => __toESM(__nccwpck_require__(5360))).then(
   ({ fromProcess }) => fromProcess({
     ...options,
     profile
-  })()
+  })().then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_PROCESS", "v"))
 ), "resolveProcessCredentials");
 
 // src/resolveSsoCredentials.ts
-var resolveSsoCredentials = /* @__PURE__ */ __name(async (profile, options = {}) => {
+
+var resolveSsoCredentials = /* @__PURE__ */ __name(async (profile, profileData, options = {}) => {
   const { fromSSO } = await Promise.resolve().then(() => __toESM(__nccwpck_require__(998)));
   return fromSSO({
     profile,
     logger: options.logger
-  })();
+  })().then((creds) => {
+    if (profileData.sso_session) {
+      return (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SSO", "r");
+    } else {
+      return (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_SSO_LEGACY", "t");
+    }
+  });
 }, "resolveSsoCredentials");
 var isSsoProfile = /* @__PURE__ */ __name((arg) => arg && (typeof arg.sso_start_url === "string" || typeof arg.sso_account_id === "string" || typeof arg.sso_session === "string" || typeof arg.sso_region === "string" || typeof arg.sso_role_name === "string"), "isSsoProfile");
 
 // src/resolveStaticCredentials.ts
+
 var isStaticCredsProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.aws_access_key_id === "string" && typeof arg.aws_secret_access_key === "string" && ["undefined", "string"].indexOf(typeof arg.aws_session_token) > -1 && ["undefined", "string"].indexOf(typeof arg.aws_account_id) > -1, "isStaticCredsProfile");
-var resolveStaticCredentials = /* @__PURE__ */ __name((profile, options) => {
+var resolveStaticCredentials = /* @__PURE__ */ __name(async (profile, options) => {
   var _a;
   (_a = options == null ? void 0 : options.logger) == null ? void 0 : _a.debug("@aws-sdk/credential-provider-ini - resolveStaticCredentials");
-  return Promise.resolve({
+  const credentials = {
     accessKeyId: profile.aws_access_key_id,
     secretAccessKey: profile.aws_secret_access_key,
     sessionToken: profile.aws_session_token,
     ...profile.aws_credential_scope && { credentialScope: profile.aws_credential_scope },
     ...profile.aws_account_id && { accountId: profile.aws_account_id }
-  });
+  };
+  return (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_PROFILE", "n");
 }, "resolveStaticCredentials");
 
 // src/resolveWebIdentityCredentials.ts
+
 var isWebIdentityProfile = /* @__PURE__ */ __name((arg) => Boolean(arg) && typeof arg === "object" && typeof arg.web_identity_token_file === "string" && typeof arg.role_arn === "string" && ["undefined", "string"].indexOf(typeof arg.role_session_name) > -1, "isWebIdentityProfile");
 var resolveWebIdentityCredentials = /* @__PURE__ */ __name(async (profile, options) => Promise.resolve().then(() => __toESM(__nccwpck_require__(9956))).then(
   ({ fromTokenFile }) => fromTokenFile({
@@ -26123,7 +26335,7 @@ var resolveWebIdentityCredentials = /* @__PURE__ */ __name(async (profile, optio
     roleAssumerWithWebIdentity: options.roleAssumerWithWebIdentity,
     logger: options.logger,
     parentClientConfig: options.parentClientConfig
-  })()
+  })().then((creds) => (0, import_client.setCredentialFeature)(creds, "CREDENTIALS_PROFILE_STS_WEB_ID_TOKEN", "q"))
 ), "resolveWebIdentityCredentials");
 
 // src/resolveProfileData.ts
@@ -26145,7 +26357,7 @@ var resolveProfileData = /* @__PURE__ */ __name(async (profileName, profiles, op
     return resolveProcessCredentials(options, profileName);
   }
   if (isSsoProfile(data)) {
-    return await resolveSsoCredentials(profileName, options);
+    return await resolveSsoCredentials(profileName, data, options);
   }
   throw new import_property_provider.CredentialsProviderError(
     `Could not resolve credentials using profile: [${profileName}] in configuration/credentials file(s).`,
@@ -26366,6 +26578,7 @@ var import_child_process = __nccwpck_require__(5317);
 var import_util = __nccwpck_require__(9023);
 
 // src/getValidatedProcessCredentials.ts
+var import_client = __nccwpck_require__(5152);
 var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, profiles) => {
   var _a;
   if (data.Version !== 1) {
@@ -26385,7 +26598,7 @@ var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, 
   if (!accountId && ((_a = profiles == null ? void 0 : profiles[profileName]) == null ? void 0 : _a.aws_account_id)) {
     accountId = profiles[profileName].aws_account_id;
   }
-  return {
+  const credentials = {
     accessKeyId: data.AccessKeyId,
     secretAccessKey: data.SecretAccessKey,
     ...data.SessionToken && { sessionToken: data.SessionToken },
@@ -26393,6 +26606,8 @@ var getValidatedProcessCredentials = /* @__PURE__ */ __name((profileName, data, 
     ...data.CredentialScope && { credentialScope: data.CredentialScope },
     ...accountId && { accountId }
   };
+  (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_PROCESS", "w");
+  return credentials;
 }, "getValidatedProcessCredentials");
 
 // src/resolveProcessCredentials.ts
@@ -26497,6 +26712,7 @@ module.exports = __toCommonJS(src_exports);
 var isSsoProfile = /* @__PURE__ */ __name((arg) => arg && (typeof arg.sso_start_url === "string" || typeof arg.sso_account_id === "string" || typeof arg.sso_session === "string" || typeof arg.sso_region === "string" || typeof arg.sso_role_name === "string"), "isSsoProfile");
 
 // src/resolveSSOCredentials.ts
+var import_client = __nccwpck_require__(5152);
 var import_token_providers = __nccwpck_require__(5433);
 var import_property_provider = __nccwpck_require__(1238);
 var import_shared_ini_file_loader = __nccwpck_require__(4964);
@@ -26574,7 +26790,7 @@ var resolveSSOCredentials = /* @__PURE__ */ __name(async ({
       logger
     });
   }
-  return {
+  const credentials = {
     accessKeyId,
     secretAccessKey,
     sessionToken,
@@ -26582,6 +26798,12 @@ var resolveSSOCredentials = /* @__PURE__ */ __name(async ({
     ...credentialScope && { credentialScope },
     ...accountId && { accountId }
   };
+  if (ssoSession) {
+    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_SSO", "s");
+  } else {
+    (0, import_client.setCredentialFeature)(credentials, "CREDENTIALS_SSO_LEGACY", "u");
+  }
+  return credentials;
 }, "resolveSSOCredentials");
 
 // src/validateSsoProfile.ts
@@ -26684,6 +26906,7 @@ var fromSSO = /* @__PURE__ */ __name((init = {}) => async () => {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromTokenFile = void 0;
+const client_1 = __nccwpck_require__(5152);
 const property_provider_1 = __nccwpck_require__(1238);
 const fs_1 = __nccwpck_require__(9896);
 const fromWebToken_1 = __nccwpck_require__(4453);
@@ -26700,12 +26923,16 @@ const fromTokenFile = (init = {}) => async () => {
             logger: init.logger,
         });
     }
-    return (0, fromWebToken_1.fromWebToken)({
+    const credentials = await (0, fromWebToken_1.fromWebToken)({
         ...init,
         webIdentityToken: (0, fs_1.readFileSync)(webIdentityTokenFile, { encoding: "ascii" }),
         roleArn,
         roleSessionName,
     })();
+    if (webIdentityTokenFile === process.env[ENV_TOKEN_FILE]) {
+        (0, client_1.setCredentialFeature)(credentials, "CREDENTIALS_ENV_VARS_STS_WEB_ID_TOKEN", "h");
+    }
+    return credentials;
 };
 exports.fromTokenFile = fromTokenFile;
 
@@ -27059,6 +27286,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  DEFAULT_UA_APP_ID: () => DEFAULT_UA_APP_ID,
   getUserAgentMiddlewareOptions: () => getUserAgentMiddlewareOptions,
   getUserAgentPlugin: () => getUserAgentPlugin,
   resolveUserAgentConfig: () => resolveUserAgentConfig,
@@ -27067,10 +27295,33 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/configurations.ts
+var import_core = __nccwpck_require__(402);
+var DEFAULT_UA_APP_ID = void 0;
+function isValidUserAgentAppId(appId) {
+  if (appId === void 0) {
+    return true;
+  }
+  return typeof appId === "string" && appId.length <= 50;
+}
+__name(isValidUserAgentAppId, "isValidUserAgentAppId");
 function resolveUserAgentConfig(input) {
+  const normalizedAppIdProvider = (0, import_core.normalizeProvider)(input.userAgentAppId ?? DEFAULT_UA_APP_ID);
   return {
     ...input,
-    customUserAgent: typeof input.customUserAgent === "string" ? [[input.customUserAgent]] : input.customUserAgent
+    customUserAgent: typeof input.customUserAgent === "string" ? [[input.customUserAgent]] : input.customUserAgent,
+    userAgentAppId: async () => {
+      var _a, _b;
+      const appId = await normalizedAppIdProvider();
+      if (!isValidUserAgentAppId(appId)) {
+        const logger = ((_b = (_a = input.logger) == null ? void 0 : _a.constructor) == null ? void 0 : _b.name) === "NoOpLogger" || !input.logger ? console : input.logger;
+        if (typeof appId !== "string") {
+          logger == null ? void 0 : logger.warn("userAgentAppId must be a string or undefined.");
+        } else if (appId.length > 50) {
+          logger == null ? void 0 : logger.warn("The provided userAgentAppId exceeds the maximum length of 50 characters.");
+        }
+      }
+      return appId;
+    }
   };
 }
 __name(resolveUserAgentConfig, "resolveUserAgentConfig");
@@ -27078,6 +27329,57 @@ __name(resolveUserAgentConfig, "resolveUserAgentConfig");
 // src/user-agent-middleware.ts
 var import_util_endpoints = __nccwpck_require__(3068);
 var import_protocol_http = __nccwpck_require__(2356);
+
+// src/check-features.ts
+var import_core2 = __nccwpck_require__(8704);
+var ACCOUNT_ID_ENDPOINT_REGEX = /\d{12}\.ddb/;
+async function checkFeatures(context, config, args) {
+  var _a, _b, _c, _d, _e, _f, _g;
+  const request = args.request;
+  if (((_a = request == null ? void 0 : request.headers) == null ? void 0 : _a["smithy-protocol"]) === "rpc-v2-cbor") {
+    (0, import_core2.setFeature)(context, "PROTOCOL_RPC_V2_CBOR", "M");
+  }
+  if (typeof config.retryStrategy === "function") {
+    const retryStrategy = await config.retryStrategy();
+    if (typeof retryStrategy.acquireInitialRetryToken === "function") {
+      if ((_c = (_b = retryStrategy.constructor) == null ? void 0 : _b.name) == null ? void 0 : _c.includes("Adaptive")) {
+        (0, import_core2.setFeature)(context, "RETRY_MODE_ADAPTIVE", "F");
+      } else {
+        (0, import_core2.setFeature)(context, "RETRY_MODE_STANDARD", "E");
+      }
+    } else {
+      (0, import_core2.setFeature)(context, "RETRY_MODE_LEGACY", "D");
+    }
+  }
+  if (typeof config.accountIdEndpointMode === "function") {
+    const endpointV2 = context.endpointV2;
+    if (String((_d = endpointV2 == null ? void 0 : endpointV2.url) == null ? void 0 : _d.hostname).match(ACCOUNT_ID_ENDPOINT_REGEX)) {
+      (0, import_core2.setFeature)(context, "ACCOUNT_ID_ENDPOINT", "O");
+    }
+    switch (await ((_e = config.accountIdEndpointMode) == null ? void 0 : _e.call(config))) {
+      case "disabled":
+        (0, import_core2.setFeature)(context, "ACCOUNT_ID_MODE_DISABLED", "Q");
+        break;
+      case "preferred":
+        (0, import_core2.setFeature)(context, "ACCOUNT_ID_MODE_PREFERRED", "P");
+        break;
+      case "required":
+        (0, import_core2.setFeature)(context, "ACCOUNT_ID_MODE_REQUIRED", "R");
+        break;
+    }
+  }
+  const identity = (_g = (_f = context.__smithy_context) == null ? void 0 : _f.selectedHttpAuthScheme) == null ? void 0 : _g.identity;
+  if (identity == null ? void 0 : identity.$source) {
+    const credentials = identity;
+    if (credentials.accountId) {
+      (0, import_core2.setFeature)(context, "RESOLVED_ACCOUNT_ID", "T");
+    }
+    for (const [key, value] of Object.entries(credentials.$source ?? {})) {
+      (0, import_core2.setFeature)(context, key, value);
+    }
+  }
+}
+__name(checkFeatures, "checkFeatures");
 
 // src/constants.ts
 var USER_AGENT = "user-agent";
@@ -27088,16 +27390,48 @@ var UA_NAME_ESCAPE_REGEX = /[^\!\$\%\&\'\*\+\-\.\^\_\`\|\~\d\w]/g;
 var UA_VALUE_ESCAPE_REGEX = /[^\!\$\%\&\'\*\+\-\.\^\_\`\|\~\d\w\#]/g;
 var UA_ESCAPE_CHAR = "-";
 
+// src/encode-features.ts
+var BYTE_LIMIT = 1024;
+function encodeFeatures(features) {
+  let buffer = "";
+  for (const key in features) {
+    const val = features[key];
+    if (buffer.length + val.length + 1 <= BYTE_LIMIT) {
+      if (buffer.length) {
+        buffer += "," + val;
+      } else {
+        buffer += val;
+      }
+      continue;
+    }
+    break;
+  }
+  return buffer;
+}
+__name(encodeFeatures, "encodeFeatures");
+
 // src/user-agent-middleware.ts
 var userAgentMiddleware = /* @__PURE__ */ __name((options) => (next, context) => async (args) => {
-  var _a, _b;
+  var _a, _b, _c, _d;
   const { request } = args;
-  if (!import_protocol_http.HttpRequest.isInstance(request))
+  if (!import_protocol_http.HttpRequest.isInstance(request)) {
     return next(args);
+  }
   const { headers } = request;
   const userAgent = ((_a = context == null ? void 0 : context.userAgent) == null ? void 0 : _a.map(escapeUserAgent)) || [];
   const defaultUserAgent = (await options.defaultUserAgentProvider()).map(escapeUserAgent);
-  const customUserAgent = ((_b = options == null ? void 0 : options.customUserAgent) == null ? void 0 : _b.map(escapeUserAgent)) || [];
+  await checkFeatures(context, options, args);
+  const awsContext = context;
+  defaultUserAgent.push(
+    `m/${encodeFeatures(
+      Object.assign({}, (_b = context.__smithy_context) == null ? void 0 : _b.features, (_c = awsContext.__aws_sdk_context) == null ? void 0 : _c.features)
+    )}`
+  );
+  const customUserAgent = ((_d = options == null ? void 0 : options.customUserAgent) == null ? void 0 : _d.map(escapeUserAgent)) || [];
+  const appId = await options.userAgentAppId();
+  if (appId) {
+    defaultUserAgent.push(escapeUserAgent([`app/${appId}`]));
+  }
   const prefix = (0, import_util_endpoints.getUserAgentPrefix)();
   const sdkUserAgentValue = (prefix ? [prefix] : []).concat([...defaultUserAgent, ...userAgent, ...customUserAgent]).join(SPACE);
   const normalUAValue = [
@@ -27930,13 +28264,16 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  NODE_APP_ID_CONFIG_OPTIONS: () => NODE_APP_ID_CONFIG_OPTIONS,
   UA_APP_ID_ENV_NAME: () => UA_APP_ID_ENV_NAME,
   UA_APP_ID_INI_NAME: () => UA_APP_ID_INI_NAME,
+  createDefaultUserAgentProvider: () => createDefaultUserAgentProvider,
   crtAvailability: () => crtAvailability,
   defaultUserAgent: () => defaultUserAgent
 });
 module.exports = __toCommonJS(src_exports);
-var import_node_config_provider = __nccwpck_require__(5704);
+
+// src/defaultUserAgent.ts
 var import_os = __nccwpck_require__(857);
 var import_process = __nccwpck_require__(932);
 
@@ -27953,46 +28290,48 @@ var isCrtAvailable = /* @__PURE__ */ __name(() => {
   return null;
 }, "isCrtAvailable");
 
-// src/index.ts
-var UA_APP_ID_ENV_NAME = "AWS_SDK_UA_APP_ID";
-var UA_APP_ID_INI_NAME = "sdk-ua-app-id";
-var defaultUserAgent = /* @__PURE__ */ __name(({ serviceId, clientVersion }) => {
-  const sections = [
-    // sdk-metadata
-    ["aws-sdk-js", clientVersion],
-    // ua-metadata
-    ["ua", "2.0"],
-    // os-metadata
-    [`os/${(0, import_os.platform)()}`, (0, import_os.release)()],
-    // language-metadata
-    // ECMAScript edition doesn't matter in JS, so no version needed.
-    ["lang/js"],
-    ["md/nodejs", `${import_process.versions.node}`]
-  ];
-  const crtAvailable = isCrtAvailable();
-  if (crtAvailable) {
-    sections.push(crtAvailable);
-  }
-  if (serviceId) {
-    sections.push([`api/${serviceId}`, clientVersion]);
-  }
-  if (import_process.env.AWS_EXECUTION_ENV) {
-    sections.push([`exec-env/${import_process.env.AWS_EXECUTION_ENV}`]);
-  }
-  const appIdPromise = (0, import_node_config_provider.loadConfig)({
-    environmentVariableSelector: (env2) => env2[UA_APP_ID_ENV_NAME],
-    configFileSelector: (profile) => profile[UA_APP_ID_INI_NAME],
-    default: void 0
-  })();
-  let resolvedUserAgent = void 0;
-  return async () => {
-    if (!resolvedUserAgent) {
-      const appId = await appIdPromise;
-      resolvedUserAgent = appId ? [...sections, [`app/${appId}`]] : [...sections];
+// src/defaultUserAgent.ts
+var createDefaultUserAgentProvider = /* @__PURE__ */ __name(({ serviceId, clientVersion }) => {
+  return async (config) => {
+    var _a;
+    const sections = [
+      // sdk-metadata
+      ["aws-sdk-js", clientVersion],
+      // ua-metadata
+      ["ua", "2.1"],
+      // os-metadata
+      [`os/${(0, import_os.platform)()}`, (0, import_os.release)()],
+      // language-metadata
+      // ECMAScript edition doesn't matter in JS, so no version needed.
+      ["lang/js"],
+      ["md/nodejs", `${import_process.versions.node}`]
+    ];
+    const crtAvailable = isCrtAvailable();
+    if (crtAvailable) {
+      sections.push(crtAvailable);
     }
+    if (serviceId) {
+      sections.push([`api/${serviceId}`, clientVersion]);
+    }
+    if (import_process.env.AWS_EXECUTION_ENV) {
+      sections.push([`exec-env/${import_process.env.AWS_EXECUTION_ENV}`]);
+    }
+    const appId = await ((_a = config == null ? void 0 : config.userAgentAppId) == null ? void 0 : _a.call(config));
+    const resolvedUserAgent = appId ? [...sections, [`app/${appId}`]] : [...sections];
     return resolvedUserAgent;
   };
-}, "defaultUserAgent");
+}, "createDefaultUserAgentProvider");
+var defaultUserAgent = createDefaultUserAgentProvider;
+
+// src/nodeAppIdConfigOptions.ts
+var import_middleware_user_agent = __nccwpck_require__(2959);
+var UA_APP_ID_ENV_NAME = "AWS_SDK_UA_APP_ID";
+var UA_APP_ID_INI_NAME = "sdk-ua-app-id";
+var NODE_APP_ID_CONFIG_OPTIONS = {
+  environmentVariableSelector: (env2) => env2[UA_APP_ID_ENV_NAME],
+  configFileSelector: (profile) => profile[UA_APP_ID_INI_NAME],
+  default: import_middleware_user_agent.DEFAULT_UA_APP_ID
+};
 // Annotate the CommonJS export names for ESM import in node:
 
 0 && (0);
@@ -49168,35 +49507,35 @@ exports.visitAsync = visitAsync;
 
 /***/ }),
 
+/***/ 23:
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso-oidc","description":"AWS SDK for JavaScript Sso Oidc Client for Node.js, Browser and React Native","version":"3.666.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso-oidc","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso-oidc"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.666.0","@aws-sdk/credential-provider-node":"3.666.0","@aws-sdk/middleware-host-header":"3.664.0","@aws-sdk/middleware-logger":"3.664.0","@aws-sdk/middleware-recursion-detection":"3.664.0","@aws-sdk/middleware-user-agent":"3.666.0","@aws-sdk/region-config-resolver":"3.664.0","@aws-sdk/types":"3.664.0","@aws-sdk/util-endpoints":"3.664.0","@aws-sdk/util-user-agent-browser":"3.664.0","@aws-sdk/util-user-agent-node":"3.666.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","peerDependencies":{"@aws-sdk/client-sts":"^3.666.0"},"browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso-oidc","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso-oidc"}}');
+
+/***/ }),
+
+/***/ 1973:
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","description":"AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native","version":"3.666.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.666.0","@aws-sdk/middleware-host-header":"3.664.0","@aws-sdk/middleware-logger":"3.664.0","@aws-sdk/middleware-recursion-detection":"3.664.0","@aws-sdk/middleware-user-agent":"3.666.0","@aws-sdk/region-config-resolver":"3.664.0","@aws-sdk/types":"3.664.0","@aws-sdk/util-endpoints":"3.664.0","@aws-sdk/util-user-agent-browser":"3.664.0","@aws-sdk/util-user-agent-node":"3.666.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso"}}');
+
+/***/ }),
+
+/***/ 3678:
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sts","description":"AWS SDK for JavaScript Sts Client for Node.js, Browser and React Native","version":"3.666.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sts","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"rimraf ./dist-types tsconfig.types.tsbuildinfo && tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sts","test":"yarn test:unit","test:unit":"jest"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.666.0","@aws-sdk/core":"3.666.0","@aws-sdk/credential-provider-node":"3.666.0","@aws-sdk/middleware-host-header":"3.664.0","@aws-sdk/middleware-logger":"3.664.0","@aws-sdk/middleware-recursion-detection":"3.664.0","@aws-sdk/middleware-user-agent":"3.666.0","@aws-sdk/region-config-resolver":"3.664.0","@aws-sdk/types":"3.664.0","@aws-sdk/util-endpoints":"3.664.0","@aws-sdk/util-user-agent-browser":"3.664.0","@aws-sdk/util-user-agent-node":"3.666.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sts","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sts"}}');
+
+/***/ }),
+
 /***/ 909:
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-codedeploy","description":"AWS SDK for JavaScript Codedeploy Client for Node.js, Browser and React Native","version":"3.662.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-codedeploy","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo codedeploy"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.662.0","@aws-sdk/client-sts":"3.662.0","@aws-sdk/core":"3.662.0","@aws-sdk/credential-provider-node":"3.662.0","@aws-sdk/middleware-host-header":"3.662.0","@aws-sdk/middleware-logger":"3.662.0","@aws-sdk/middleware-recursion-detection":"3.662.0","@aws-sdk/middleware-user-agent":"3.662.0","@aws-sdk/region-config-resolver":"3.662.0","@aws-sdk/types":"3.662.0","@aws-sdk/util-endpoints":"3.662.0","@aws-sdk/util-user-agent-browser":"3.662.0","@aws-sdk/util-user-agent-node":"3.662.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.7","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.22","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.3.6","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.22","@smithy/util-defaults-mode-node":"^3.0.22","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","@smithy/util-waiter":"^3.1.6","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-codedeploy","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-codedeploy"}}');
-
-/***/ }),
-
-/***/ 4404:
-/***/ ((module) => {
-
-"use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso-oidc","description":"AWS SDK for JavaScript Sso Oidc Client for Node.js, Browser and React Native","version":"3.678.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso-oidc","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso-oidc"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.678.0","@aws-sdk/credential-provider-node":"3.678.0","@aws-sdk/middleware-host-header":"3.667.0","@aws-sdk/middleware-logger":"3.667.0","@aws-sdk/middleware-recursion-detection":"3.667.0","@aws-sdk/middleware-user-agent":"3.678.0","@aws-sdk/region-config-resolver":"3.667.0","@aws-sdk/types":"3.667.0","@aws-sdk/util-endpoints":"3.667.0","@aws-sdk/util-user-agent-browser":"3.675.0","@aws-sdk/util-user-agent-node":"3.678.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","peerDependencies":{"@aws-sdk/client-sts":"^3.678.0"},"browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso-oidc","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso-oidc"}}');
-
-/***/ }),
-
-/***/ 6948:
-/***/ ((module) => {
-
-"use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","description":"AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native","version":"3.678.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.678.0","@aws-sdk/middleware-host-header":"3.667.0","@aws-sdk/middleware-logger":"3.667.0","@aws-sdk/middleware-recursion-detection":"3.667.0","@aws-sdk/middleware-user-agent":"3.678.0","@aws-sdk/region-config-resolver":"3.667.0","@aws-sdk/types":"3.667.0","@aws-sdk/util-endpoints":"3.667.0","@aws-sdk/util-user-agent-browser":"3.675.0","@aws-sdk/util-user-agent-node":"3.678.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso"}}');
-
-/***/ }),
-
-/***/ 6383:
-/***/ ((module) => {
-
-"use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sts","description":"AWS SDK for JavaScript Sts Client for Node.js, Browser and React Native","version":"3.678.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sts","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"rimraf ./dist-types tsconfig.types.tsbuildinfo && tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sts","test":"yarn test:unit","test:unit":"jest"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.678.0","@aws-sdk/core":"3.678.0","@aws-sdk/credential-provider-node":"3.678.0","@aws-sdk/middleware-host-header":"3.667.0","@aws-sdk/middleware-logger":"3.667.0","@aws-sdk/middleware-recursion-detection":"3.667.0","@aws-sdk/middleware-user-agent":"3.678.0","@aws-sdk/region-config-resolver":"3.667.0","@aws-sdk/types":"3.667.0","@aws-sdk/util-endpoints":"3.667.0","@aws-sdk/util-user-agent-browser":"3.675.0","@aws-sdk/util-user-agent-node":"3.678.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sts","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sts"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-codedeploy","description":"AWS SDK for JavaScript Codedeploy Client for Node.js, Browser and React Native","version":"3.666.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-codedeploy","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo codedeploy"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.666.0","@aws-sdk/client-sts":"3.666.0","@aws-sdk/core":"3.666.0","@aws-sdk/credential-provider-node":"3.666.0","@aws-sdk/middleware-host-header":"3.664.0","@aws-sdk/middleware-logger":"3.664.0","@aws-sdk/middleware-recursion-detection":"3.664.0","@aws-sdk/middleware-user-agent":"3.666.0","@aws-sdk/region-config-resolver":"3.664.0","@aws-sdk/types":"3.664.0","@aws-sdk/util-endpoints":"3.664.0","@aws-sdk/util-user-agent-browser":"3.664.0","@aws-sdk/util-user-agent-node":"3.666.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","@smithy/util-waiter":"^3.1.6","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-codedeploy","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-codedeploy"}}');
 
 /***/ }),
 
@@ -49204,7 +49543,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sts","descrip
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-ecs","description":"AWS SDK for JavaScript Ecs Client for Node.js, Browser and React Native","version":"3.678.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-ecs","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo ecs"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.678.0","@aws-sdk/client-sts":"3.678.0","@aws-sdk/core":"3.678.0","@aws-sdk/credential-provider-node":"3.678.0","@aws-sdk/middleware-host-header":"3.667.0","@aws-sdk/middleware-logger":"3.667.0","@aws-sdk/middleware-recursion-detection":"3.667.0","@aws-sdk/middleware-user-agent":"3.678.0","@aws-sdk/region-config-resolver":"3.667.0","@aws-sdk/types":"3.667.0","@aws-sdk/util-endpoints":"3.667.0","@aws-sdk/util-user-agent-browser":"3.675.0","@aws-sdk/util-user-agent-node":"3.678.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.8","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.23","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.4.0","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.23","@smithy/util-defaults-mode-node":"^3.0.23","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","@smithy/util-waiter":"^3.1.6","@types/uuid":"^9.0.1","tslib":"^2.6.2","uuid":"^9.0.1"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-ecs","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-ecs"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-ecs","description":"AWS SDK for JavaScript Ecs Client for Node.js, Browser and React Native","version":"3.687.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-ecs","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo ecs"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.687.0","@aws-sdk/client-sts":"3.687.0","@aws-sdk/core":"3.686.0","@aws-sdk/credential-provider-node":"3.687.0","@aws-sdk/middleware-host-header":"3.686.0","@aws-sdk/middleware-logger":"3.686.0","@aws-sdk/middleware-recursion-detection":"3.686.0","@aws-sdk/middleware-user-agent":"3.687.0","@aws-sdk/region-config-resolver":"3.686.0","@aws-sdk/types":"3.686.0","@aws-sdk/util-endpoints":"3.686.0","@aws-sdk/util-user-agent-browser":"3.686.0","@aws-sdk/util-user-agent-node":"3.687.0","@smithy/config-resolver":"^3.0.10","@smithy/core":"^2.5.1","@smithy/fetch-http-handler":"^4.0.0","@smithy/hash-node":"^3.0.8","@smithy/invalid-dependency":"^3.0.8","@smithy/middleware-content-length":"^3.0.10","@smithy/middleware-endpoint":"^3.2.1","@smithy/middleware-retry":"^3.0.25","@smithy/middleware-serde":"^3.0.8","@smithy/middleware-stack":"^3.0.8","@smithy/node-config-provider":"^3.1.9","@smithy/node-http-handler":"^3.2.5","@smithy/protocol-http":"^4.1.5","@smithy/smithy-client":"^3.4.2","@smithy/types":"^3.6.0","@smithy/url-parser":"^3.0.8","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.25","@smithy/util-defaults-mode-node":"^3.0.25","@smithy/util-endpoints":"^2.1.4","@smithy/util-middleware":"^3.0.8","@smithy/util-retry":"^3.0.8","@smithy/util-utf8":"^3.0.0","@smithy/util-waiter":"^3.1.7","@types/uuid":"^9.0.1","tslib":"^2.6.2","uuid":"^9.0.1"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-ecs","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-ecs"}}');
 
 /***/ }),
 
@@ -49212,7 +49551,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-ecs","descrip
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso-oidc","description":"AWS SDK for JavaScript Sso Oidc Client for Node.js, Browser and React Native","version":"3.662.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso-oidc","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso-oidc"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.662.0","@aws-sdk/credential-provider-node":"3.662.0","@aws-sdk/middleware-host-header":"3.662.0","@aws-sdk/middleware-logger":"3.662.0","@aws-sdk/middleware-recursion-detection":"3.662.0","@aws-sdk/middleware-user-agent":"3.662.0","@aws-sdk/region-config-resolver":"3.662.0","@aws-sdk/types":"3.662.0","@aws-sdk/util-endpoints":"3.662.0","@aws-sdk/util-user-agent-browser":"3.662.0","@aws-sdk/util-user-agent-node":"3.662.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.7","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.22","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.3.6","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.22","@smithy/util-defaults-mode-node":"^3.0.22","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","peerDependencies":{"@aws-sdk/client-sts":"^3.662.0"},"browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso-oidc","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso-oidc"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso-oidc","description":"AWS SDK for JavaScript Sso Oidc Client for Node.js, Browser and React Native","version":"3.687.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso-oidc","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso-oidc"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.686.0","@aws-sdk/credential-provider-node":"3.687.0","@aws-sdk/middleware-host-header":"3.686.0","@aws-sdk/middleware-logger":"3.686.0","@aws-sdk/middleware-recursion-detection":"3.686.0","@aws-sdk/middleware-user-agent":"3.687.0","@aws-sdk/region-config-resolver":"3.686.0","@aws-sdk/types":"3.686.0","@aws-sdk/util-endpoints":"3.686.0","@aws-sdk/util-user-agent-browser":"3.686.0","@aws-sdk/util-user-agent-node":"3.687.0","@smithy/config-resolver":"^3.0.10","@smithy/core":"^2.5.1","@smithy/fetch-http-handler":"^4.0.0","@smithy/hash-node":"^3.0.8","@smithy/invalid-dependency":"^3.0.8","@smithy/middleware-content-length":"^3.0.10","@smithy/middleware-endpoint":"^3.2.1","@smithy/middleware-retry":"^3.0.25","@smithy/middleware-serde":"^3.0.8","@smithy/middleware-stack":"^3.0.8","@smithy/node-config-provider":"^3.1.9","@smithy/node-http-handler":"^3.2.5","@smithy/protocol-http":"^4.1.5","@smithy/smithy-client":"^3.4.2","@smithy/types":"^3.6.0","@smithy/url-parser":"^3.0.8","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.25","@smithy/util-defaults-mode-node":"^3.0.25","@smithy/util-endpoints":"^2.1.4","@smithy/util-middleware":"^3.0.8","@smithy/util-retry":"^3.0.8","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","peerDependencies":{"@aws-sdk/client-sts":"^3.687.0"},"browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso-oidc","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso-oidc"}}');
 
 /***/ }),
 
@@ -49220,7 +49559,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso-oidc","de
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","description":"AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native","version":"3.662.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.662.0","@aws-sdk/middleware-host-header":"3.662.0","@aws-sdk/middleware-logger":"3.662.0","@aws-sdk/middleware-recursion-detection":"3.662.0","@aws-sdk/middleware-user-agent":"3.662.0","@aws-sdk/region-config-resolver":"3.662.0","@aws-sdk/types":"3.662.0","@aws-sdk/util-endpoints":"3.662.0","@aws-sdk/util-user-agent-browser":"3.662.0","@aws-sdk/util-user-agent-node":"3.662.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.7","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.22","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.3.6","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.22","@smithy/util-defaults-mode-node":"^3.0.22","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","description":"AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native","version":"3.687.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.686.0","@aws-sdk/middleware-host-header":"3.686.0","@aws-sdk/middleware-logger":"3.686.0","@aws-sdk/middleware-recursion-detection":"3.686.0","@aws-sdk/middleware-user-agent":"3.687.0","@aws-sdk/region-config-resolver":"3.686.0","@aws-sdk/types":"3.686.0","@aws-sdk/util-endpoints":"3.686.0","@aws-sdk/util-user-agent-browser":"3.686.0","@aws-sdk/util-user-agent-node":"3.687.0","@smithy/config-resolver":"^3.0.10","@smithy/core":"^2.5.1","@smithy/fetch-http-handler":"^4.0.0","@smithy/hash-node":"^3.0.8","@smithy/invalid-dependency":"^3.0.8","@smithy/middleware-content-length":"^3.0.10","@smithy/middleware-endpoint":"^3.2.1","@smithy/middleware-retry":"^3.0.25","@smithy/middleware-serde":"^3.0.8","@smithy/middleware-stack":"^3.0.8","@smithy/node-config-provider":"^3.1.9","@smithy/node-http-handler":"^3.2.5","@smithy/protocol-http":"^4.1.5","@smithy/smithy-client":"^3.4.2","@smithy/types":"^3.6.0","@smithy/url-parser":"^3.0.8","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.25","@smithy/util-defaults-mode-node":"^3.0.25","@smithy/util-endpoints":"^2.1.4","@smithy/util-middleware":"^3.0.8","@smithy/util-retry":"^3.0.8","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso"}}');
 
 /***/ }),
 
@@ -49228,7 +49567,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","descrip
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sts","description":"AWS SDK for JavaScript Sts Client for Node.js, Browser and React Native","version":"3.662.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sts","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"rimraf ./dist-types tsconfig.types.tsbuildinfo && tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sts","test":"yarn test:unit","test:unit":"jest"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.662.0","@aws-sdk/core":"3.662.0","@aws-sdk/credential-provider-node":"3.662.0","@aws-sdk/middleware-host-header":"3.662.0","@aws-sdk/middleware-logger":"3.662.0","@aws-sdk/middleware-recursion-detection":"3.662.0","@aws-sdk/middleware-user-agent":"3.662.0","@aws-sdk/region-config-resolver":"3.662.0","@aws-sdk/types":"3.662.0","@aws-sdk/util-endpoints":"3.662.0","@aws-sdk/util-user-agent-browser":"3.662.0","@aws-sdk/util-user-agent-node":"3.662.0","@smithy/config-resolver":"^3.0.9","@smithy/core":"^2.4.7","@smithy/fetch-http-handler":"^3.2.9","@smithy/hash-node":"^3.0.7","@smithy/invalid-dependency":"^3.0.7","@smithy/middleware-content-length":"^3.0.9","@smithy/middleware-endpoint":"^3.1.4","@smithy/middleware-retry":"^3.0.22","@smithy/middleware-serde":"^3.0.7","@smithy/middleware-stack":"^3.0.7","@smithy/node-config-provider":"^3.1.8","@smithy/node-http-handler":"^3.2.4","@smithy/protocol-http":"^4.1.4","@smithy/smithy-client":"^3.3.6","@smithy/types":"^3.5.0","@smithy/url-parser":"^3.0.7","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.22","@smithy/util-defaults-mode-node":"^3.0.22","@smithy/util-endpoints":"^2.1.3","@smithy/util-middleware":"^3.0.7","@smithy/util-retry":"^3.0.7","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sts","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sts"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sts","description":"AWS SDK for JavaScript Sts Client for Node.js, Browser and React Native","version":"3.687.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sts","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"rimraf ./dist-types tsconfig.types.tsbuildinfo && tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sts","test":"vitest run","test:watch":"vitest watch"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/client-sso-oidc":"3.687.0","@aws-sdk/core":"3.686.0","@aws-sdk/credential-provider-node":"3.687.0","@aws-sdk/middleware-host-header":"3.686.0","@aws-sdk/middleware-logger":"3.686.0","@aws-sdk/middleware-recursion-detection":"3.686.0","@aws-sdk/middleware-user-agent":"3.687.0","@aws-sdk/region-config-resolver":"3.686.0","@aws-sdk/types":"3.686.0","@aws-sdk/util-endpoints":"3.686.0","@aws-sdk/util-user-agent-browser":"3.686.0","@aws-sdk/util-user-agent-node":"3.687.0","@smithy/config-resolver":"^3.0.10","@smithy/core":"^2.5.1","@smithy/fetch-http-handler":"^4.0.0","@smithy/hash-node":"^3.0.8","@smithy/invalid-dependency":"^3.0.8","@smithy/middleware-content-length":"^3.0.10","@smithy/middleware-endpoint":"^3.2.1","@smithy/middleware-retry":"^3.0.25","@smithy/middleware-serde":"^3.0.8","@smithy/middleware-stack":"^3.0.8","@smithy/node-config-provider":"^3.1.9","@smithy/node-http-handler":"^3.2.5","@smithy/protocol-http":"^4.1.5","@smithy/smithy-client":"^3.4.2","@smithy/types":"^3.6.0","@smithy/url-parser":"^3.0.8","@smithy/util-base64":"^3.0.0","@smithy/util-body-length-browser":"^3.0.0","@smithy/util-body-length-node":"^3.0.0","@smithy/util-defaults-mode-browser":"^3.0.25","@smithy/util-defaults-mode-node":"^3.0.25","@smithy/util-endpoints":"^2.1.4","@smithy/util-middleware":"^3.0.8","@smithy/util-retry":"^3.0.8","@smithy/util-utf8":"^3.0.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node16":"16.1.3","@types/node":"^16.18.96","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~4.9.5"},"engines":{"node":">=16.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sts","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sts"}}');
 
 /***/ })
 
