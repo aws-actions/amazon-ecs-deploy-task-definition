@@ -1144,6 +1144,7 @@ describe('Deploy to ECS', () => {
         expect(mockRunTask).toHaveBeenNthCalledWith(1,{
             startedBy: 'GitHub-Actions',
             cluster: 'default',
+            capacityProviderStrategy: null,
             launchType: 'FARGATE',
             taskDefinition: 'task:def:arn',
             overrides: {"containerOverrides": []},
@@ -1185,12 +1186,55 @@ describe('Deploy to ECS', () => {
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
             cluster: 'somecluster',
+            capacityProviderStrategy: null,
             launchType: 'EC2',
             taskDefinition: 'task:def:arn',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
             enableECSManagedTags: false,
             tags: [{"key": "project", "value": "myproject"}]
+        });
+        expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
+    });
+
+    test('run task with capacity provider strategy', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('')                      // service
+            .mockReturnValueOnce('somecluster')           // cluster
+            .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // propagate-tags
+            .mockReturnValueOnce('true')                  // run-task
+            .mockReturnValueOnce('false')                 // wait-for-task-stopped
+            .mockReturnValueOnce('someJoe')               // run-task-started-by
+            .mockReturnValueOnce('')                      // run-task-launch-type
+            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
+            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
+            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
+            .mockReturnValueOnce('')                      // run-task-assign-public-IP
+            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]') // run-task-tags
+            .mockReturnValueOnce('[{"capacityProvider":"FARGATE_SPOT","weight":1}]'); // run-task-capacity-provider-strategy
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockRunTask).toHaveBeenCalledWith({
+            startedBy: 'someJoe',
+            cluster: 'somecluster',
+            capacityProviderStrategy: [{"capacityProvider":"FARGATE_SPOT","weight":1}],
+            launchType: null,
+            taskDefinition: 'task:def:arn',
+            overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
+            networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
+            enableECSManagedTags: false,
+            tags: [{"key": "project", "value": "myproject"}],
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1236,6 +1280,7 @@ describe('Deploy to ECS', () => {
             startedBy: 'someJoe',
             cluster: 'somecluster',
             taskDefinition: 'task:def:arn',
+            capacityProviderStrategy: null,
             launchType: 'EC2',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
@@ -1296,6 +1341,7 @@ describe('Deploy to ECS', () => {
             startedBy: 'someJoe',
             cluster: 'somecluster',
             taskDefinition: 'task:def:arn',
+            capacityProviderStrategy: null,
             launchType: 'EC2',
             overrides: { containerOverrides: [] },
             networkConfiguration: null,
