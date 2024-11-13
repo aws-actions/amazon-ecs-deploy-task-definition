@@ -38,6 +38,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
   const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
+  const capacityProviderStrategy = JSON.parse(core.getInput('run-task-capacity-provider-strategy', { required: false }) || '[]');
 
   let awsvpcConfiguration = {}
 
@@ -60,7 +61,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
     overrides: {
       containerOverrides: containerOverrides
     },
-    launchType: launchType,
+    capacityProviderStrategy: capacityProviderStrategy.length === 0 ? null : capacityProviderStrategy,
+    launchType: capacityProviderStrategy.length === 0 ? launchType : null,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
     enableECSManagedTags: enableECSManagedTags,
     tags: tags

@@ -55,8 +55,11 @@ inputs:
   run-task-assign-public-IP:
     description: "Whether the task's elastic network interface receives a public IP address. The default value is DISABLED but will only be applied if run-task-subnets or run-task-security-groups are also set."
     required: false
+  run-task-capacity-provider-strategy:
+    description: 'A JSON array of capacity provider strategy items which should applied when running a task outside of a service. Will default to none.'
+    required: false
   run-task-launch-type:
-    description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'."
+    description: "ECS launch type for tasks run outside of a service. Valid values are 'FARGATE' or 'EC2'. Will default to 'FARGATE'. Will only be applied if run-task-capacity-provider-strategy is not set."
     required: false
   run-task-started-by:
     description: "A name to use for the startedBy tag when running a task outside of a service. Will default to 'GitHub-Actions'."
