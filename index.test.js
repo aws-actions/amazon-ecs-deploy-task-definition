@@ -9,6 +9,9 @@ jest.mock('@actions/core');
 jest.mock('fs', () => ({
     promises: { access: jest.fn() },
     readFileSync: jest.fn(),
+    constants: {
+        O_CREATE: jest.fn()
+    }
 }));
 
 const mockEcsRegisterTaskDef = jest.fn();
