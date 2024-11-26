@@ -398,8 +398,11 @@ async function run() {
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
     const desiredCount = parseInt((core.getInput('desired-count', {required: false})));
-    const enableECSManagedTagsInput = core.getInput('enable-ecs-managed-tags', { required: false }) || 'false';
-    const enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
+    const enableECSManagedTagsInput = core.getInput('enable-ecs-managed-tags', { required: false }) || '';
+    let enableECSManagedTags = null;
+    if (enableECSManagedTagsInput !== '') {
+      enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
+    }
     const propagateTags = core.getInput('propagate-tags', { required: false }) || 'NONE';
 
     // Register the task definition
