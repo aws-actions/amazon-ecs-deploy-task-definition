@@ -186,6 +186,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -218,6 +219,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -952,6 +954,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -992,6 +995,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1032,6 +1036,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1074,6 +1079,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
     });
@@ -1099,6 +1105,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE'
         });
     });
@@ -1145,7 +1152,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             overrides: {"containerOverrides": []},
             networkConfiguration: null,
-            enableECSManagedTags: false,
+            enableECSManagedTags: null,
             tags: []
         });
 
@@ -1269,6 +1276,7 @@ describe('Deploy to ECS', () => {
             service: 'service-456',
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
+            enableECSManagedTags: null,
             propagateTags: 'NONE',
         });
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1279,7 +1287,7 @@ describe('Deploy to ECS', () => {
             launchType: 'EC2',
             overrides: { containerOverrides: [{ name: 'someapp', command: 'somecmd' }] },
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
-            enableECSManagedTags: false,
+            enableECSManagedTags: null,
             tags: []
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1338,6 +1346,62 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             capacityProviderStrategy: null,
             launchType: 'EC2',
+            overrides: { containerOverrides: [] },
+            networkConfiguration: null,
+            enableECSManagedTags: null,
+            tags: []
+        });
+    });
+    
+    test('run task with setting true to enableECSManagedTags', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('')                      // service
+            .mockReturnValueOnce('somecluster')           // cluster
+            .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('true')                  // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // propagate-tags
+            .mockReturnValueOnce('true');                 // run-task
+
+        await run();
+        expect(mockRunTask).toHaveBeenCalledWith({
+            startedBy: 'GitHub-Actions',
+            cluster: 'somecluster',
+            taskDefinition: 'task:def:arn',
+            capacityProviderStrategy: null,
+            launchType: 'FARGATE',
+            overrides: { containerOverrides: [] },
+            networkConfiguration: null,
+            enableECSManagedTags: true,
+            tags: []
+        });
+    });
+    
+    test('run task with setting false to enableECSManagedTags', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('')                      // service
+            .mockReturnValueOnce('somecluster')           // cluster
+            .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // propagate-tags
+            .mockReturnValueOnce('true');                 // run-task
+
+        await run();
+        expect(mockRunTask).toHaveBeenCalledWith({
+            startedBy: 'GitHub-Actions',
+            cluster: 'somecluster',
+            taskDefinition: 'task:def:arn',
+            capacityProviderStrategy: null,
+            launchType: 'FARGATE',
             overrides: { containerOverrides: [] },
             networkConfiguration: null,
             enableECSManagedTags: false,
@@ -1511,7 +1575,39 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toHaveBeenNthCalledWith(2, 'Could not parse');
     });
 
-    test('propagate service tags from service and enable ecs managed tags', async () => {
+    test('propagate service tags from service', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('')                     // desired-count
+            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
+            .mockReturnValueOnce('SERVICE');             // propagate-tags      
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false,
+            enableECSManagedTags: null,
+            propagateTags: 'SERVICE'
+        });
+    });
+    
+    test('update service with setting true to enableECSManagedTags', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
@@ -1539,6 +1635,38 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: true,
+            propagateTags: 'SERVICE'
+        });
+    });
+    
+    test('update service with setting false to enableECSManagedTags', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('')                     // desired-count
+            .mockReturnValueOnce('false')                // enable-ecs-managed-tags
+            .mockReturnValueOnce('SERVICE');             // propagate-tags      
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false,
+            enableECSManagedTags: false,
             propagateTags: 'SERVICE'
         });
     });
