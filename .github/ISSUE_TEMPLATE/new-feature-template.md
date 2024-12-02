@@ -20,4 +20,4 @@ Describe any alternative solutions or features you've considered.
 Add any other context, screenshots, or examples about the feature request here.
 
 ## Willingness to Contribute
-Are you willing to submit a PR for this feature? [Yes/No]
+Are you willing to submit a Pull Request for this feature? [Yes/No]
