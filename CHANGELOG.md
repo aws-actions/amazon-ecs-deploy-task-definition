@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.1.2...v2.2.0) (2024-12-06)
+
+
+### Features
+
+* add run-task-capacity-provider-strategy input ([#661](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/661)) ([6ebedf4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/6ebedf489a59397e203a34a9cb7f85c8e303142c))
+
+
+### Bug Fixes
+
+* when no input enableECSManagedTagsInput, not include it to request params ([#669](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/669)) ([e4558ed](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/e4558ed83a830c66b168104c883a31784769e99c)), closes [#682](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/682) [#683](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/683) [#681](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/681) [#679](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/679)
+
 ### [2.1.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.1.1...v2.1.2) (2024-10-24)
 
 ### [2.1.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.1.0...v2.1.1) (2024-10-03)
