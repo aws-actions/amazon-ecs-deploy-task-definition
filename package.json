@@ -31,7 +31,7 @@
     "yaml": "^2.6.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
+    "@eslint/js": "^9.17.0",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
