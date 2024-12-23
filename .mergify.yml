@@ -1,6 +1,15 @@
 queue_rules:
-  - name: duplicated default from Automatically merge on CI success and review approval
-    queue_conditions:
+  - name: default
+    merge_conditions:
+      # Conditions to get out of the queue (= merged)
+      - status-success=Run Unit Tests
+      - status-success=Semantic Pull Request
+      - status-success=Analyze (javascript)
+    merge_method: squash
+
+pull_request_rules:
+  - name: Automatically merge on CI success and review approval
+    conditions:
       - base~=master|integ-tests
       - "#approved-reviews-by>=1"
       - approved-reviews-by=@aws-actions/aws-ecs-devx
@@ -13,37 +22,10 @@ queue_rules:
       - -merged
       - -closed
       - author!=dependabot[bot]
-    merge_conditions:
-      # Conditions to get out of the queue (= merged)
-      - status-success=Run Unit Tests
-      - status-success=Semantic Pull Request
-      - status-success=Analyze (javascript)
-    merge_method: squash
-  - name: duplicated default from Automatically approve and merge Dependabot PRs
-    queue_conditions:
-      - base=master
-      - author=dependabot[bot]
-      - status-success=Run Unit Tests
-      - status-success=Semantic Pull Request
-      - status-success=Analyze (javascript)
-      - -title~=(WIP|wip)
-      - -label~=(blocked|do-not-merge)
-      - -merged
-      - -closed
-    merge_conditions:
-      # Conditions to get out of the queue (= merged)
-      - status-success=Run Unit Tests
-      - status-success=Semantic Pull Request
-      - status-success=Analyze (javascript)
-    merge_method: squash
-  - name: default
-    conditions:
-      # Conditions to get out of the queue (= merged)
-      - status-success=Run Unit Tests
-      - status-success=Semantic Pull Request
-      - status-success=Analyze (javascript)
+    actions:
+      queue:
+        name: default
 
-pull_request_rules:
   - name: Automatically approve and merge Dependabot PRs
     conditions:
       - base=master
@@ -58,8 +40,5 @@ pull_request_rules:
     actions:
       review:
         type: APPROVE
-  - name: Automatically approve and merge Dependabot PRs + Automatically merge on
-      CI success and review approval
-    conditions: []
-    actions:
       queue:
+        name: default
