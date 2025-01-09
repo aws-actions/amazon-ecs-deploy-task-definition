@@ -23,7 +23,8 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'status',
   'registeredAt',
   'deregisteredAt',
-  'registeredBy'
+  'registeredBy',
+  'enableFaultInjection'
 ];
 
 // Method to run a stand-alone task with desired inputs

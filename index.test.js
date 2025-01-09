@@ -304,6 +304,7 @@ describe('Deploy to ECS', () => {
                 } ],
                 "requiresCompatibilities": [ "EC2" ],
                 "registeredAt": 1611690781,
+                "enableFaultInjection": false,
                 "family": "task-def-family"
             }
             `;
