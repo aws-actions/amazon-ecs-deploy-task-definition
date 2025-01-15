@@ -34,7 +34,7 @@
     "@eslint/js": "^9.17.0",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.18.0",
-    "globals": "^15.13.0",
+    "globals": "^15.14.0",
     "jest": "^29.7.0"
   },
   "overrides": {
