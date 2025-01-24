@@ -39,6 +39,7 @@ jobs:
             // Escape special characters for Slack
             const escapeForSlack = (text) => {
               return text
+                .replace(/"/g, '&quot;')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/[@]/g, '\\@')
