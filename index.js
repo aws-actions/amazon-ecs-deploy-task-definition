@@ -211,7 +211,9 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     core.debug(`Assigning VolumeConfiguration Name: ${serviceManagedEbsVolumeName}`);
     core.debug('Assigning VolumeConfiguration.');
     if (serviceManagedEbsVolume != '{}') {
-      serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
+      serviceManagedEbsVolumeObject = await convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
+      core.debug(`EBS Volume Object after conversion: ${JSON.stringify(ebsVolumeObject)}`);
+
       volumeConfigurations = [{
         name: serviceManagedEbsVolumeName,
         managedEBSVolume: serviceManagedEbsVolumeObject  // Note the exact casing here
