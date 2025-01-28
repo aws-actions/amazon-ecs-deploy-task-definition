@@ -49,20 +49,19 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   if(assignPublicIP != "" && (subnetIds != "" || securityGroupIds != "")){
     awsvpcConfiguration["assignPublicIp"] = assignPublicIP
   }
-  let volumeConfigurations = []
-  let volumeConfigurationJSON = {}
+  let volumeConfigurations;
+  let taskManagedEBSVolumeObject;
 
   if (runTaskManagedEBSVolumeName != '') {
     if (runTaskManagedEBSVolume != '{}') {
       taskManagedEBSVolumeObject = convertToManagedEbsVolumeObject(runTaskManagedEbsVolume);
-      volumeConfigurationJSON["name"] = runTaskManagedEbsVolumeName;
-      volumeConfigurationJSON["managedEBSVolume"] = taskManagedEbsVolumeObject;
-      volumeConfigurations.push(volumeConfigurationJSON);
+      volumeConfigurations = [{
+            name: runTaskManagedEBSVolumeName,
+            managedEBSVolume: taskManagedEBSVolumeObject
+      }];
     } else {
       core.warning(`run-task-managed-ebs-volume-name provided without run-task-managed-ebs-volume value. Ignoring run-task-managed-ebs-volume property`);
     }
-  } else {
-    core.info(`No VolumeConfiguration Property provided for run-task-managed-ebs-volume`);
   }
 
   const runTaskResponse = await ecs.runTask({
@@ -193,40 +192,25 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
-  core.debug('Updating the provided ECS service');
+  core.debug('Updating the service');
 
   const serviceManagedEbsVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
-  core.debug(`serviceManagedEbsVolume Name: ${serviceManagedEbsVolumeName}`);
-  core.debug('serviceManagedEbsVolume Name.');
   const serviceManagedEbsVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
-  core.debug(`serviceManagedEbsVolume Value: ${serviceManagedEbsVolume}`);
-  core.debug('serviceManagedEbsVolume Value.');
-
-  core.debug('Updating the service contd..');
 
   let volumeConfigurations;
   let serviceManagedEbsVolumeObject;
 
   if (serviceManagedEbsVolumeName != '') {
-    core.debug(`Assigning VolumeConfiguration Name: ${serviceManagedEbsVolumeName}`);
-    core.debug('Assigning VolumeConfiguration.');
     if (serviceManagedEbsVolume != '{}') {
       serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
-      core.debug(`EBS Volume Object after conversion: ${JSON.stringify(serviceManagedEbsVolumeObject)}`);
-
       volumeConfigurations = [{
         name: serviceManagedEbsVolumeName,
         managedEBSVolume: serviceManagedEbsVolumeObject  // Note the exact casing here
       }];
-      core.debug('Assigning VolumeConfiguration Object');
     } else {
       core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
     }
-  }  else {
-    core.debug('No VolumeConfiguration Property provided for service-managed-ebs-volume');
   }
-  core.debug(`VolumeConfiguration Value: ${volumeConfigurations}`);
-  core.debug('VolumeConfiguration Value Set.');
 
   let params = {
     cluster: clusterName,
@@ -237,10 +221,6 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     propagateTags: propagateTags,
     volumeConfigurations: volumeConfigurations
   };
-
-  core.debug(`Volume Configurations: ${JSON.stringify(volumeConfigurations, null, 2)}`);
-  core.debug(`Managed EBS Volume Object: ${JSON.stringify(serviceManagedEbsVolumeObject, null, 2)}`);
-  core.debug(`Final params: ${JSON.stringify(params, null, 2)}`);
 
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
@@ -340,9 +320,9 @@ function removeIgnoredAttributes(taskDef) {
   for (var attribute of IGNORED_TASK_DEFINITION_ATTRIBUTES) {
     if (taskDef[attribute]) {
       core.warning(`Ignoring property '${attribute}' in the task definition file. ` +
-          'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
-          'but it is not a valid field when registering a new task definition. ' +
-          'This field can be safely removed from your task definition file.');
+         'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
+         'but it is not a valid field when registering a new task definition. ' +
+         'This field can be safely removed from your task definition file.');
       delete taskDef[attribute];
     }
   }
@@ -505,8 +485,8 @@ async function run() {
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
-        taskDefinitionFile :
-        path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
+      taskDefinitionFile :
+      path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
     const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
     let registerResponse;
@@ -575,5 +555,5 @@ module.exports = run;
 
 /* istanbul ignore next */
 if (require.main === module) {
-  run();
+    run();
 }
