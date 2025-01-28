@@ -108,39 +108,40 @@ async function convertToManagedEbsVolumeObject(managedEbsVolume) {
   managedEbsVolumeObject = {}
   const ebsVolumeObject = JSON.parse(managedEbsVolume);
   if ('roleArn' in ebsVolumeObject){ // required property
-    managedEbsVolumeObject['roleArn'] = ebsVolumeObject['roleArn'];
+    managedEbsVolumeObject.roleArn = ebsVolumeObject.roleArn;
     core.debug(`Found RoleArn ${ebsVolumeObject['roleArn']}`);
   } else {
     throw new Error('managed-ebs-volume must provide "role-arn" to associate with the EBS volume')
   }
 
   if ('encrypted' in ebsVolumeObject) {
-    managedEbsVolumeObject['encrypted'] = ebsVolumeObject.encrypted;
+    managedEbsVolumeObject.encrypted = ebsVolumeObject.encrypted;
   }
   if ('filesystemType' in ebsVolumeObject) {
-    managedEbsVolumeObject['filesystemType'] = ebsVolumeObject.filesystemType;
+    managedEbsVolumeObject.filesystemType = ebsVolumeObject.filesystemType;
   }
   if ('iops' in ebsVolumeObject) {
-    managedEbsVolumeObject['iops'] = ebsVolumeObject.iops;
+    managedEbsVolumeObject.iops = ebsVolumeObject.iops;
   }
   if ('kmsKeyId' in ebsVolumeObject) {
-    managedEbsVolumeObject['kmsKeyId'] = ebsVolumeObject.kmsKeyId;
+    managedEbsVolumeObject.kmsKeyId = ebsVolumeObject.kmsKeyId;
   }
   if ('sizeInGiB' in ebsVolumeObject) {
-    managedEbsVolumeObject['sizeInGiB'] = ebsVolumeObject.sizeInGiB;
+    managedEbsVolumeObject.sizeInGiB = ebsVolumeObject.sizeInGiB;
   }
   if ('snapshotId' in ebsVolumeObject) {
-    managedEbsVolumeObject['snapshotId'] = ebsVolumeObject.snapshotId;
+    managedEbsVolumeObject.snapshotId = ebsVolumeObject.snapshotId;
   }
   if ('tagSpecifications' in ebsVolumeObject) {
-    managedEbsVolumeObject['tagSpecifications'] = ebsVolumeObject.tagSpecifications;
+    managedEbsVolumeObject.tagSpecifications = ebsVolumeObject.tagSpecifications;
   }
   if (('throughput' in ebsVolumeObject) && (('volumeType' in ebsVolumeObject) && (ebsVolumeObject.volumeType == 'gp3'))){
-    managedEbsVolumeObject["throughput"] = ebsVolumeObject.throughput;
+    managedEbsVolumeObject.throughput = ebsVolumeObject.throughput;
   }
   if ('volumeType' in ebsVolumeObject) {
-    managedEbsVolumeObject['volumeType'] = ebsVolumeObject.volumeType;
+    managedEbsVolumeObject.volumeType = ebsVolumeObject.volumeType;
   }
+  core.debug(`Created managedEbsVolumeObject: ${JSON.stringify(managedEbsVolumeObject)}`);
   return managedEbsVolumeObject;
 }
 
@@ -195,16 +196,17 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   core.debug('Updating the provided ECS service');
 
   const serviceManagedEbsVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
-  core.debug('serviceManagedEbsVolume Name: ${serviceManagedEbsVolumeName}');
+  core.debug(`serviceManagedEbsVolume Name: ${serviceManagedEbsVolumeName}`);
   core.debug('serviceManagedEbsVolume Name.');
   const serviceManagedEbsVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
-  core.debug('serviceManagedEbsVolume Value: ${serviceManagedEbsVolume}');
+  core.debug(`serviceManagedEbsVolume Value: ${serviceManagedEbsVolume}`);
   core.debug('serviceManagedEbsVolume Value.');
 
   core.debug('Updating the service contd..');
 
   let volumeConfigurations = []
   let volumeConfigurationJSON = {}
+  let serviceManagedEbsVolumeObject;
 
   if (serviceManagedEbsVolumeName != '') {
     core.debug(`Assigning VolumeConfiguration Name: ${serviceManagedEbsVolumeName}`);
