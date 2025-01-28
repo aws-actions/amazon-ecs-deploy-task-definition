@@ -204,8 +204,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
 
   core.debug('Updating the service contd..');
 
-  let volumeConfigurations = []
-  let volumeConfigurationJSON = {}
+  let volumeConfigurations;
   let serviceManagedEbsVolumeObject;
 
   if (serviceManagedEbsVolumeName != '') {
@@ -213,9 +212,10 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     core.debug('Assigning VolumeConfiguration.');
     if (serviceManagedEbsVolume != '{}') {
       serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
-      volumeConfigurationJSON["name"] = serviceManagedEbsVolumeName;
-      volumeConfigurationJSON["managedEBSVolume"] = serviceManagedEbsVolumeObject;
-      volumeConfigurations.push(volumeConfigurationJSON);
+      volumeConfigurations = [{
+        name: serviceManagedEbsVolumeName,
+        managedEBSVolume: serviceManagedEbsVolumeObject  // Note the exact casing here
+      }];
       core.debug('Assigning VolumeConfiguration Object');
     } else {
       core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
@@ -223,9 +223,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   }  else {
     core.debug('No VolumeConfiguration Property provided for service-managed-ebs-volume');
   }
-  core.debug('VolumeConfiguration Value: ${volumeConfiguration}');
+  core.debug(`VolumeConfiguration Value: ${volumeConfigurations}`);
   core.debug('VolumeConfiguration Value Set.');
-
 
   let params = {
     cluster: clusterName,
@@ -236,6 +235,10 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     propagateTags: propagateTags,
     volumeConfigurations: volumeConfigurations
   };
+
+  core.debug(`Volume Configurations: ${JSON.stringify(volumeConfigurations, null, 2)}`);
+  core.debug(`Managed EBS Volume Object: ${JSON.stringify(serviceManagedEbsVolumeObject, null, 2)}`);
+  core.debug(`Final params: ${JSON.stringify(params, null, 2)}`);
 
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
