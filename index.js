@@ -33,6 +33,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
   const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
   const capacityProviderStrategy = JSON.parse(core.getInput('run-task-capacity-provider-strategy', { required: false }) || '[]');
+  const runTaskManagedEBSVolumeName = core.getInput('run-task-managed-ebs-volume', { required: false }) || '';
+  const runTaskManagedEBSVolume = core.getInput('run-task-managed-ebs-volume-name', { required: false }) || '{}';
 
   let awsvpcConfiguration = {}
 
@@ -47,6 +49,21 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   if(assignPublicIP != "" && (subnetIds != "" || securityGroupIds != "")){
     awsvpcConfiguration["assignPublicIp"] = assignPublicIP
   }
+  let volumeConfigurations = []
+  let volumeConfigurationJSON = {}
+
+  if (runTaskManagedEBSVolumeName != '') {
+    if (runTaskManagedEBSVolume != '{}') {
+      taskManagedEBSVolumeObject = convertToManagedEbsVolumeObject(runTaskManagedEbsVolume);
+      volumeConfigurationJSON["name"] = runTaskManagedEbsVolumeName;
+      volumeConfigurationJSON["managedEBSVolume"] = taskManagedEbsVolumeObject;
+      volumeConfigurations.push(volumeConfigurationJSON);
+    } else {
+      core.warning(`run-task-managed-ebs-volume-name provided without run-task-managed-ebs-volume value. Ignoring run-task-managed-ebs-volume property`);
+    }
+  } else {
+    core.info(`No VolumeConfiguration Property provided for run-task-managed-ebs-volume`);
+  }
 
   const runTaskResponse = await ecs.runTask({
     startedBy: startedBy,
@@ -59,7 +76,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
     launchType: capacityProviderStrategy.length === 0 ? launchType : null,
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
     enableECSManagedTags: enableECSManagedTags,
-    tags: tags
+    tags: tags,
+    volumeConfigurations: volumeConfigurations
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -84,6 +102,46 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   } else {
     core.debug('Not waiting for the task to stop');
   }
+}
+
+async function convertToManagedEbsVolumeObject(managedEbsVolume) {
+  managedEbsVolumeObject = {}
+  const ebsVolumeObject = JSON.parse(managedEbsVolume);
+  if ('roleArn' in ebsVolumeObject){ // required property
+    managedEbsVolumeObject['roleArn'] = ebsVolumeObject['roleArn'];
+    core.debug(`Found RoleArn ${ebsVolumeObject['roleArn']}`);
+  } else {
+    throw new Error('managed-ebs-volume must provide "role-arn" to associate with the EBS volume')
+  }
+
+  if ('encrypted' in ebsVolumeObject) {
+    managedEbsVolumeObject['encrypted'] = ebsVolumeObject.encrypted;
+  }
+  if ('filesystemType' in ebsVolumeObject) {
+    managedEbsVolumeObject['filesystemType'] = ebsVolumeObject.filesystemType;
+  }
+  if ('iops' in ebsVolumeObject) {
+    managedEbsVolumeObject['iops'] = ebsVolumeObject.iops;
+  }
+  if ('kmsKeyId' in ebsVolumeObject) {
+    managedEbsVolumeObject['kmsKeyId'] = ebsVolumeObject.kmsKeyId;
+  }
+  if ('sizeInGiB' in ebsVolumeObject) {
+    managedEbsVolumeObject['sizeInGiB'] = ebsVolumeObject.sizeInGiB;
+  }
+  if ('snapshotId' in ebsVolumeObject) {
+    managedEbsVolumeObject['snapshotId'] = ebsVolumeObject.snapshotId;
+  }
+  if ('tagSpecifications' in ebsVolumeObject) {
+    managedEbsVolumeObject['tagSpecifications'] = ebsVolumeObject.tagSpecifications;
+  }
+  if (('throughput' in ebsVolumeObject) && (('volumeType' in ebsVolumeObject) && (ebsVolumeObject.volumeType == 'gp3'))){
+    managedEbsVolumeObject["throughput"] = ebsVolumeObject.throughput;
+  }
+  if ('volumeType' in ebsVolumeObject) {
+    managedEbsVolumeObject['volumeType'] = ebsVolumeObject.volumeType;
+  }
+  return managedEbsVolumeObject;
 }
 
 // Poll tasks until they enter a stopped state
@@ -134,7 +192,38 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 
 // Deploy to a service that uses the 'ECS' deployment controller
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
-  core.debug('Updating the service');
+  core.debug('Updating the provided ECS service');
+
+  const serviceManagedEbsVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
+  core.debug('serviceManagedEbsVolume Name: ${serviceManagedEbsVolumeName}');
+  core.debug('serviceManagedEbsVolume Name.');
+  const serviceManagedEbsVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
+  core.debug('serviceManagedEbsVolume Value: ${serviceManagedEbsVolume}');
+  core.debug('serviceManagedEbsVolume Value.');
+
+  core.debug('Updating the service contd..');
+
+  let volumeConfigurations = []
+  let volumeConfigurationJSON = {}
+
+  if (serviceManagedEbsVolumeName != '') {
+    core.debug(`Assigning VolumeConfiguration Name: ${serviceManagedEbsVolumeName}`);
+    core.debug('Assigning VolumeConfiguration.');
+    if (serviceManagedEbsVolume != '{}') {
+      serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
+      volumeConfigurationJSON["name"] = serviceManagedEbsVolumeName;
+      volumeConfigurationJSON["managedEBSVolume"] = serviceManagedEbsVolumeObject;
+      volumeConfigurations.push(volumeConfigurationJSON);
+      core.debug('Assigning VolumeConfiguration Object');
+    } else {
+      core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
+    }
+  }  else {
+    core.debug('No VolumeConfiguration Property provided for service-managed-ebs-volume');
+  }
+  core.debug('VolumeConfiguration Value: ${volumeConfiguration}');
+  core.debug('VolumeConfiguration Value Set.');
+
 
   let params = {
     cluster: clusterName,
@@ -142,7 +231,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
     enableECSManagedTags: enableECSManagedTags,
-    propagateTags: propagateTags
+    propagateTags: propagateTags,
+    volumeConfigurations: volumeConfigurations
   };
 
   // Add the desiredCount property only if it is defined and a number.
@@ -243,9 +333,9 @@ function removeIgnoredAttributes(taskDef) {
   for (var attribute of IGNORED_TASK_DEFINITION_ATTRIBUTES) {
     if (taskDef[attribute]) {
       core.warning(`Ignoring property '${attribute}' in the task definition file. ` +
-        'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
-        'but it is not a valid field when registering a new task definition. ' +
-        'This field can be safely removed from your task definition file.');
+          'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
+          'but it is not a valid field when registering a new task definition. ' +
+          'This field can be safely removed from your task definition file.');
       delete taskDef[attribute];
     }
   }
@@ -254,29 +344,29 @@ function removeIgnoredAttributes(taskDef) {
 }
 
 function maintainValidObjects(taskDef) {
-    if (validateProxyConfigurations(taskDef)) {
-        taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
-            if (!('value' in property)) {
-                arr[index].value = '';
-            }
-            if (!('name' in property)) {
-                arr[index].name = '';
-            }
-        });
-    }
+  if (validateProxyConfigurations(taskDef)) {
+    taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
+      if (!('value' in property)) {
+        arr[index].value = '';
+      }
+      if (!('name' in property)) {
+        arr[index].name = '';
+      }
+    });
+  }
 
-    if(taskDef && taskDef.containerDefinitions){
-      taskDef.containerDefinitions.forEach((container) => {
-        if(container.environment){
-          container.environment.forEach((property, index, arr) => {
-            if (!('value' in property)) {
-              arr[index].value = '';
-            }
-          });
-        }
-      });
-    }
-    return taskDef;
+  if(taskDef && taskDef.containerDefinitions){
+    taskDef.containerDefinitions.forEach((container) => {
+      if(container.environment){
+        container.environment.forEach((property, index, arr) => {
+          if (!('value' in property)) {
+            arr[index].value = '';
+          }
+        });
+      }
+    });
+  }
+  return taskDef;
 }
 
 function validateProxyConfigurations(taskDef){
@@ -308,8 +398,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
   // Insert the task def ARN into the appspec file
   const appSpecPath = path.isAbsolute(codeDeployAppSpecFile) ?
-    codeDeployAppSpecFile :
-    path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
+      codeDeployAppSpecFile :
+      path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
   const fileContents = fs.readFileSync(appSpecPath, 'utf8');
   const appSpecContents = yaml.parse(fileContents);
 
@@ -408,8 +498,8 @@ async function run() {
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
-      taskDefinitionFile :
-      path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
+        taskDefinitionFile :
+        path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
     const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
     let registerResponse;
@@ -478,5 +568,5 @@ module.exports = run;
 
 /* istanbul ignore next */
 if (require.main === module) {
-    run();
+  run();
 }
