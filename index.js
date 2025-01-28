@@ -104,7 +104,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   }
 }
 
-async function convertToManagedEbsVolumeObject(managedEbsVolume) {
+function convertToManagedEbsVolumeObject(managedEbsVolume) {
   managedEbsVolumeObject = {}
   const ebsVolumeObject = JSON.parse(managedEbsVolume);
   if ('roleArn' in ebsVolumeObject){ // required property
@@ -211,8 +211,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     core.debug(`Assigning VolumeConfiguration Name: ${serviceManagedEbsVolumeName}`);
     core.debug('Assigning VolumeConfiguration.');
     if (serviceManagedEbsVolume != '{}') {
-      serviceManagedEbsVolumeObject = await convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
-      core.debug(`EBS Volume Object after conversion: ${JSON.stringify(ebsVolumeObject)}`);
+      serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
+      core.debug(`EBS Volume Object after conversion: ${JSON.stringify(serviceManagedEbsVolumeObject)}`);
 
       volumeConfigurations = [{
         name: serviceManagedEbsVolumeName,
