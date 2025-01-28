@@ -33,8 +33,8 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
   const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
   const capacityProviderStrategy = JSON.parse(core.getInput('run-task-capacity-provider-strategy', { required: false }) || '[]');
-  const runTaskManagedEBSVolumeName = core.getInput('run-task-managed-ebs-volume', { required: false }) || '';
-  const runTaskManagedEBSVolume = core.getInput('run-task-managed-ebs-volume-name', { required: false }) || '{}';
+  const runTaskManagedEBSVolumeName = core.getInput('run-task-managed-ebs-volume-name', { required: false }) || '';
+  const runTaskManagedEBSVolume = core.getInput('run-task-managed-ebs-volume', { required: false }) || '{}';
 
   let awsvpcConfiguration = {}
 
@@ -54,7 +54,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
 
   if (runTaskManagedEBSVolumeName != '') {
     if (runTaskManagedEBSVolume != '{}') {
-      taskManagedEBSVolumeObject = convertToManagedEbsVolumeObject(runTaskManagedEbsVolume);
+      taskManagedEBSVolumeObject = convertToManagedEbsVolumeObject(runTaskManagedEBSVolume);
       volumeConfigurations = [{
             name: runTaskManagedEBSVolumeName,
             managedEBSVolume: taskManagedEBSVolumeObject
@@ -194,18 +194,18 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
   core.debug('Updating the service');
 
-  const serviceManagedEbsVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
-  const serviceManagedEbsVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
+  const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
+  const serviceManagedEBSVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
 
   let volumeConfigurations;
   let serviceManagedEbsVolumeObject;
 
-  if (serviceManagedEbsVolumeName != '') {
-    if (serviceManagedEbsVolume != '{}') {
-      serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEbsVolume);
+  if (serviceManagedEBSVolumeName != '') {
+    if (serviceManagedEBSVolume != '{}') {
+      serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEBSVolume);
       volumeConfigurations = [{
-        name: serviceManagedEbsVolumeName,
-        managedEBSVolume: serviceManagedEbsVolumeObject  // Note the exact casing here
+        name: serviceManagedEBSVolumeName,
+        managedEBSVolume: serviceManagedEBSVolume
       }];
     } else {
       core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
