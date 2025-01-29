@@ -149,9 +149,18 @@ For Services (Update Service):
         service-managed-ebs-volume: '{"sizeInGiB": 30, "volumeType": "gp3", "encrypted": true, "roleArn":"arn:aws:iam::<account-id>:role/ebs-role"}'
 ```
 
-Note: Note: Your task definition must include a volume that is configuredAtLaunch:
+Note: Your task definition must include a volume that is configuredAtLaunch:
 
-
+```json
+    ...
+    "volumes": [
+        {
+            "name": "ebs1",
+            "configuredAtLaunch": true
+        }
+    ],
+    ...
+```
 
 For Standalone Tasks (RunTask):
 
