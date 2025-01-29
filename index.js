@@ -218,13 +218,16 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
     enableECSManagedTags: enableECSManagedTags,
-    propagateTags: propagateTags,
-    volumeConfigurations: volumeConfigurations
+    propagateTags: propagateTags
   };
 
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
+  }
+  // Add VolumeConfigurations property only it is not null
+  if(volumeConfigurations !== null){
+    params.volumeConfigurations = volumeConfigurations;
   }
   await ecs.updateService(params);
 
