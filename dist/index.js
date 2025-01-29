@@ -55,7 +55,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   if(assignPublicIP != "" && (subnetIds != "" || securityGroupIds != "")){
     awsvpcConfiguration["assignPublicIp"] = assignPublicIP
   }
-  let volumeConfigurations = null;
+  let volumeConfigurations = [];
   let taskManagedEBSVolumeObject;
 
   if (runTaskManagedEBSVolumeName != '') {
@@ -203,7 +203,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
   const serviceManagedEBSVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
 
-  let volumeConfigurations = null;
+  let volumeConfigurations = [];
   let serviceManagedEbsVolumeObject;
 
   if (serviceManagedEBSVolumeName != '') {
@@ -224,16 +224,13 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
     enableECSManagedTags: enableECSManagedTags,
-    propagateTags: propagateTags
+    propagateTags: propagateTags,
+    volumeConfigurations: volumeConfigurations
   };
 
   // Add the desiredCount property only if it is defined and a number.
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
-  }
-  // Add VolumeConfigurations property only it is not null
-  if(volumeConfigurations !== null){
-    params.volumeConfigurations = volumeConfigurations;
   }
   await ecs.updateService(params);
 
