@@ -60,7 +60,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
             managedEBSVolume: taskManagedEBSVolumeObject
       }];
     } else {
-      core.warning(`run-task-managed-ebs-volume-name provided without run-task-managed-ebs-volume value. Ignoring run-task-managed-ebs-volume property`);
+      core.warning(`run-task-managed-ebs-volume-name provided without run-task-managed-ebs-volume value. VolumeConfigurations property will not be included in the RunTask API call`);
     }
   }
 
@@ -208,7 +208,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
         managedEBSVolume: serviceManagedEbsVolumeObject
       }];
     } else {
-      core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
+      core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. VolumeConfigurations property will not be included in the UpdateService API call');
     }
   }
 
