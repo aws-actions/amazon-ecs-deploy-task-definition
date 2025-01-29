@@ -49,7 +49,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   if(assignPublicIP != "" && (subnetIds != "" || securityGroupIds != "")){
     awsvpcConfiguration["assignPublicIp"] = assignPublicIP
   }
-  let volumeConfigurations;
+  let volumeConfigurations = null;
   let taskManagedEBSVolumeObject;
 
   if (runTaskManagedEBSVolumeName != '') {
@@ -197,7 +197,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
   const serviceManagedEBSVolume = core.getInput('service-managed-ebs-volume', { required: false }) || '{}';
 
-  let volumeConfigurations;
+  let volumeConfigurations = null;
   let serviceManagedEbsVolumeObject;
 
   if (serviceManagedEBSVolumeName != '') {
@@ -320,9 +320,9 @@ function removeIgnoredAttributes(taskDef) {
   for (var attribute of IGNORED_TASK_DEFINITION_ATTRIBUTES) {
     if (taskDef[attribute]) {
       core.warning(`Ignoring property '${attribute}' in the task definition file. ` +
-         'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
-         'but it is not a valid field when registering a new task definition. ' +
-         'This field can be safely removed from your task definition file.');
+        'This property is returned by the Amazon ECS DescribeTaskDefinition API and may be shown in the ECS console, ' +
+        'but it is not a valid field when registering a new task definition. ' +
+        'This field can be safely removed from your task definition file.');
       delete taskDef[attribute];
     }
   }
@@ -331,29 +331,29 @@ function removeIgnoredAttributes(taskDef) {
 }
 
 function maintainValidObjects(taskDef) {
-  if (validateProxyConfigurations(taskDef)) {
-    taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
-      if (!('value' in property)) {
-        arr[index].value = '';
-      }
-      if (!('name' in property)) {
-        arr[index].name = '';
-      }
-    });
-  }
-
-  if(taskDef && taskDef.containerDefinitions){
-    taskDef.containerDefinitions.forEach((container) => {
-      if(container.environment){
-        container.environment.forEach((property, index, arr) => {
-          if (!('value' in property)) {
-            arr[index].value = '';
-          }
+    if (validateProxyConfigurations(taskDef)) {
+        taskDef.proxyConfiguration.properties.forEach((property, index, arr) => {
+            if (!('value' in property)) {
+                arr[index].value = '';
+            }
+            if (!('name' in property)) {
+                arr[index].name = '';
+            }
         });
-      }
-    });
-  }
-  return taskDef;
+    }
+
+    if(taskDef && taskDef.containerDefinitions){
+      taskDef.containerDefinitions.forEach((container) => {
+        if(container.environment){
+          container.environment.forEach((property, index, arr) => {
+            if (!('value' in property)) {
+              arr[index].value = '';
+            }
+          });
+        }
+      });
+    }
+    return taskDef;
 }
 
 function validateProxyConfigurations(taskDef){
@@ -385,8 +385,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
   // Insert the task def ARN into the appspec file
   const appSpecPath = path.isAbsolute(codeDeployAppSpecFile) ?
-      codeDeployAppSpecFile :
-      path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
+    codeDeployAppSpecFile :
+    path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
   const fileContents = fs.readFileSync(appSpecPath, 'utf8');
   const appSpecContents = yaml.parse(fileContents);
 
