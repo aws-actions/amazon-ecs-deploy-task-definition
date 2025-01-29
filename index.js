@@ -205,7 +205,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
       serviceManagedEbsVolumeObject = convertToManagedEbsVolumeObject(serviceManagedEBSVolume);
       volumeConfigurations = [{
         name: serviceManagedEBSVolumeName,
-        managedEBSVolume: serviceManagedEBSVolume
+        managedEBSVolume: serviceManagedEbsVolumeObject
       }];
     } else {
       core.warning('service-managed-ebs-volume-name provided without service-managed-ebs-volume value. Ignoring service-managed-ebs-volume property');
