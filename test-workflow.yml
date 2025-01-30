@@ -77,7 +77,7 @@ jobs:
     - name: Deploy Amazon ECS task definition with one-off task and VolumeConfiguration
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
-        task-definition: task-definition-volume-configuration.json
+        task-definition: task-definition-run-task-volume-configuration.json
         cluster: github-actions-deploy-task-def-integ-test
         run-task: true
         enable-ecs-managed-tags: true
