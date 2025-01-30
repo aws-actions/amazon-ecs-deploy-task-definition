@@ -83,6 +83,7 @@ jobs:
         enable-ecs-managed-tags: true
         run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
         run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-assign-public-IP: ENABLED
         run-task-managed-ebs-volume-name: "ebs1"
         run-task-managed-ebs-volume: '{"filesystemType":"xfs","roleArn":"arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GitHubActionsVolumeConfigurationsEBSRole","encrypted":false,"sizeInGiB":30}'
         run-task-started-by: "GitHub-Actions-EBS-Test"
