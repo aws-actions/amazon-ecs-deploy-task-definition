@@ -62,3 +62,29 @@ jobs:
         cluster: github-actions-deploy-task-def-integ-test
         wait-for-service-stability: true
         enable-ecs-managed-tags: true
+
+    - name: Deploy Amazon ECS task definition with ECS Service VolumeConfiguration
+      uses: aws-actions/amazon-ecs-deploy-task-definition@0bad458c6aa901707e510cd05b797b05da075633
+      with:
+        task-definition: task-definition-volume-configuration.json
+        service: github-actions-deploy-task-def-integ-test
+        cluster: github-actions-deploy-task-def-integ-test
+        wait-for-service-stability: true
+        enable-ecs-managed-tags: true
+        service-managed-ebs-volume-name: "ebs1"
+        service-managed-ebs-volume: '{"filesystemType":"xfs","roleArn":"arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GitHubActionsVolumeConfigurationsEBSRole","encrypted":false,"sizeInGiB":30}'
+
+    - name: Deploy Amazon ECS task definition with one-off task and VolumeConfiguration
+      uses: aws-actions/amazon-ecs-deploy-task-definition@0bad458c6aa901707e510cd05b797b05da075633
+      with:
+        task-definition: task-definition-volume-configuration.json
+        cluster: github-actions-deploy-task-def-integ-test
+        run-task: true
+        enable-ecs-managed-tags: true
+        run-task-subnets: subnet-e5604fce, subnet-fe9355b4, subnet-c49431bc, subnet-392f9b64
+        run-task-security-groups: sg-067ebcde49c0f3ad8
+        run-task-assign-public-IP: ENABLED
+        run-task-managed-ebs-volume-name: "ebs1"
+        run-task-managed-ebs-volume: '{"filesystemType":"xfs","roleArn":"arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GitHubActionsVolumeConfigurationsEBSRole","encrypted":false,"sizeInGiB":30}'
+        run-task-started-by: "GitHub-Actions-EBS-Test"
+        wait-for-task-stopped: true
