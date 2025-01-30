@@ -40,6 +40,12 @@ inputs:
   force-new-deployment:
     description: 'Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.'
     required: false
+  service-managed-ebs-volume-name:
+    description: "The name of the volume, to be manage in the ECS service. This value must match the volume name from the Volume object in the task definition, that was configuredAtLaunch."
+    required: false
+  service-managed-ebs-volume:
+    description: "A JSON object defining the configuration settings for the EBS Service volume that was ConfiguredAtLaunch. You can configure size, volumeType, IOPS, throughput, snapshot and encryption in ServiceManagedEBSVolumeConfiguration. Currently, the only supported volume type is an Amazon EBS volume."
+    required: false
   run-task:
     description: 'A boolean indicating whether to run a stand-alone task in a ECS cluster. Task will run before the service is updated if both are provided. Default value is false .'
     required: false
@@ -66,6 +72,12 @@ inputs:
     required: false
   run-task-tags:
     description: 'A JSON array of tags.'
+    required: false
+  run-task-managed-ebs-volume-name:
+    description: "The name of the volume. This value must match the volume name from the Volume object in the task definition, that was configuredAtLaunch."
+    required: false
+  run-task-managed-ebs-volume:
+    description: "A JSON object defining the configuration settings for the Amazon EBS task volume that was configuredAtLaunch. These settings are used to create each Amazon EBS volume, with one volume created for each task in the service. The Amazon EBS volumes are visible in your account in the Amazon EC2 console once they are created."
     required: false
   wait-for-task-stopped:
     description: 'Whether to wait for the task to stop when running it outside of a service. Will default to not wait.'
