@@ -132,6 +132,50 @@ You can propagate your custom tags from your existing service using `propagate-t
           propagate-tags: SERVICE
 ```
 
+### EBS Volume Configuration
+This action supports configuring Amazon EBS volumes for both services and standalone tasks.
+
+For Services (Update Service):
+
+```yaml
+    - name: Deploy to Amazon ECS with EBS Volume
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+        service-managed-ebs-volume-name: "ebs1"
+        service-managed-ebs-volume: '{"sizeInGiB": 30, "volumeType": "gp3", "encrypted": true, "roleArn":"arn:aws:iam::<account-id>:role/ebs-role"}'
+```
+
+Note: Your task definition must include a volume that is configuredAtLaunch:
+
+```json
+    ...
+    "volumes": [
+        {
+            "name": "ebs1",
+            "configuredAtLaunch": true
+        }
+    ],
+    ...
+```
+
+For Standalone Tasks (RunTask):
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        cluster: my-cluster
+        run-task: true
+        run-task-launch-type: EC2
+        run-task-managed-ebs-volume-name: "ebs1"
+        run-task-managed-ebs-volume: '{"filesystemType":"xfs", "roleArn":"arn:aws:iam::<account-id>:role/github-actions-setup-stack-EBSRole-YwVmgS4g7gQE", "encrypted":false, "sizeInGiB":30}'
+```
+
 ## Credentials and Region
 
 This action relies on the [default behavior of the AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html) to determine AWS credentials and region.

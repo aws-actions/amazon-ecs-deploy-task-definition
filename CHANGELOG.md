@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.2.0...v2.3.0) (2025-01-30)
+
+
+### Features
+
+* Add support for 'VolumeConfigurations' property on both UpdateService and RunTask API call ([#721](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/721)) ([0bad458](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/0bad458c6aa901707e510cd05b797b05da075633))
+
 ## [2.2.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.1.2...v2.2.0) (2024-12-06)
 
 
