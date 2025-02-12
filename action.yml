@@ -86,7 +86,7 @@ inputs:
     description: "Determines whether to turn on Amazon ECS managed tags 'aws:ecs:serviceName' and 'aws:ecs:clusterName' for the tasks in the service."
     required: false
   propagate-tags:
-    description: "Determines to propagate the tags from the 'SERVICE' to the task. Will default to 'NONE'."
+    description: "Determines to propagate the tags from the 'SERVICE' to the task."
     required: false
 outputs:
   task-definition-arn:
