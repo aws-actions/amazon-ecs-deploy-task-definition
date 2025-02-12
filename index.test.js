@@ -96,7 +96,7 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({
                 failures: [],
                 services: [{ 
-                    status: 'ACTIVE' 
+                    status: 'ACTIVE'
                 }]
             })
         );
@@ -187,7 +187,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -221,7 +221,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
@@ -957,7 +957,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -999,7 +999,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1041,7 +1041,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
@@ -1085,7 +1085,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
     });
@@ -1112,7 +1112,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
     });
@@ -1287,7 +1287,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1634,7 +1634,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('true')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags      
+            .mockReturnValueOnce('SERVICE');             // propagate-tags
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1667,7 +1667,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('false')                // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags      
+            .mockReturnValueOnce('SERVICE');             // propagate-tags
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1718,7 +1718,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
                 managedEBSVolume: {
@@ -1783,7 +1783,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
                 managedEBSVolume: {
@@ -1845,7 +1845,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
                 managedEBSVolume: {
@@ -1864,7 +1864,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
-            propagateTags: 'NONE',
+            propagateTags: null,
             volumeConfigurations: []
         });
     });

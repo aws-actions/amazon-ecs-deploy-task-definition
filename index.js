@@ -480,7 +480,11 @@ async function run() {
     if (enableECSManagedTagsInput !== '') {
       enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
     }
-    const propagateTags = core.getInput('propagate-tags', { required: false }) || 'NONE';
+    const propagateTagsInput = core.getInput('propagate-tags', { required: false }) || '';
+    let propagateTags = null;
+    if (propagateTagsInput !== '') {
+      propagateTags = propagateTagsInput;
+    }
 
     // Register the task definition
     core.debug('Registering the task definition');
