@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.0...v2.3.1) (2025-03-17)
+
+
+### Bug Fixes
+
+* propagate run-task-arn to outputs ([#740](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/740)) ([ba4c50f](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/ba4c50ff72022c29eca99b2b348bca524e6c1b0f))
+* set propagateTags to null if unset ([6d07985](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/6d079859a0107705ccbf1ede83cc3516807b1ecb))
+
 ## [2.3.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.2.0...v2.3.0) (2025-01-30)
 
 

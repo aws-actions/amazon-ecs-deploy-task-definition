@@ -1,6 +1,6 @@
 {
   "name": "aws-actions-amazon-ecs-deploy-task-definition",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Registers an Amazon ECS task definition and deploys it to an ECS service.",
   "main": "index.js",
   "scripts": {
