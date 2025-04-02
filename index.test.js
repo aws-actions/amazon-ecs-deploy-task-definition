@@ -187,6 +187,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -221,6 +222,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -718,6 +720,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // run-task
             .mockReturnValueOnce('')                     // desired count
             .mockReturnValueOnce('')                     // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                     // enable-execute-command
             .mockReturnValueOnce('')                     // propagate-task
             .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
             .mockReturnValueOnce('MyApplication')        // codedeploy-application
@@ -957,6 +960,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -999,6 +1003,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -1041,6 +1046,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -1085,6 +1091,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: true,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -1112,6 +1119,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -1140,6 +1148,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1178,6 +1187,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
@@ -1220,6 +1230,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
@@ -1252,7 +1263,7 @@ describe('Deploy to ECS', () => {
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
 
-    test('run task and service ', async () => {
+    test('run task and service', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json')  // task-definition
@@ -1263,6 +1274,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('false')                 // wait-for-task-stopped
@@ -1287,6 +1299,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
@@ -1316,6 +1329,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true')                  // run-task
             .mockReturnValueOnce('true');                 // wait-for-task-stopped
@@ -1339,6 +1353,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('true')                  // wait-for-service-stability
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('')                      // propagate-tags
@@ -1377,6 +1392,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('true')                  // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true');                 // run-task
 
@@ -1406,6 +1422,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
             .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
             .mockReturnValueOnce('')                      // propagate-tags
             .mockReturnValueOnce('true');                 // run-task
 
@@ -1435,6 +1452,7 @@ describe('Deploy to ECS', () => {
         .mockReturnValueOnce('')                      // force-new-deployment
         .mockReturnValueOnce('')                      // desired-count
         .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+        .mockReturnValueOnce('')                      // enable-execute-command
         .mockReturnValueOnce('')                      // propagate-tags
         .mockReturnValueOnce('true')                  // run-task
         .mockReturnValueOnce('true');                 // wait-for-task-stopped
@@ -1469,19 +1487,20 @@ describe('Deploy to ECS', () => {
 
     test('error is caught if run task fails with (wait-for-task-stopped: false) and with service', async () => {
         core.getInput = jest
-        .fn()
-        .mockReturnValueOnce('task-definition.json')  // task-definition
-        .mockReturnValueOnce('')                      // service
-        .mockReturnValueOnce('somecluster')           // cluster
-        .mockReturnValueOnce('')                      // wait-for-service-stability
-        .mockReturnValueOnce('')                      // wait-for-minutes
-        .mockReturnValueOnce('')                      // force-new-deployment
-        .mockReturnValueOnce('')                      // desired-count
-        .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-        .mockReturnValueOnce('')                      // propagate-tags
-        .mockReturnValueOnce('true')                  // run-task
-        .mockReturnValueOnce('false');                // wait-for-task-stopped
-        
+            .fn()
+            .mockReturnValueOnce('task-definition.json')  // task-definition
+            .mockReturnValueOnce('')                      // service
+            .mockReturnValueOnce('somecluster')           // cluster
+            .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-minutes
+            .mockReturnValueOnce('')                      // force-new-deployment
+            .mockReturnValueOnce('')                      // desired-count
+            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                      // enable-execute-command
+            .mockReturnValueOnce('')                      // propagate-tags
+            .mockReturnValueOnce('true')                  // run-task
+            .mockReturnValueOnce('false');                // wait-for-task-stopped
+
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [{
@@ -1601,6 +1620,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('')                     // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                     // enable-execute-command
             .mockReturnValueOnce('SERVICE');             // propagate-tags      
 
         await run();
@@ -1618,6 +1638,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: 'SERVICE',
             volumeConfigurations: []
         });
@@ -1634,6 +1655,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('true')                 // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                     // enable-execute-command
             .mockReturnValueOnce('SERVICE');             // propagate-tags
 
         await run();
@@ -1651,6 +1673,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: true,
+            enableExecuteCommand: null,
             propagateTags: 'SERVICE',
             volumeConfigurations: []
         });
@@ -1667,6 +1690,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('false')                // enable-ecs-managed-tags
+            .mockReturnValueOnce('')                     // enable-execute-command
             .mockReturnValueOnce('SERVICE');             // propagate-tags
 
         await run();
@@ -1684,6 +1708,77 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: false,
+            enableExecuteCommand: null,
+            propagateTags: 'SERVICE',
+            volumeConfigurations: []
+        });
+    });
+
+    test('update service with setting true to enableExecuteCommand', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('')                     // desired-count
+            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
+            .mockReturnValueOnce('true')                 // enable-execute-command
+            .mockReturnValueOnce('SERVICE');             // propagate-tags
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false,
+            enableECSManagedTags: null,
+            enableExecuteCommand: true,
+            propagateTags: 'SERVICE',
+            volumeConfigurations: []
+        });
+    });
+    
+    test('update service with setting false to enableExecuteCommand', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-minutes
+            .mockReturnValueOnce('')                     // force-new-deployment
+            .mockReturnValueOnce('')                     // desired-count
+            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
+            .mockReturnValueOnce('false')                // enable-execute-command
+            .mockReturnValueOnce('SERVICE');             // propagate-tags
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            services: ['service-456']
+        });
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'task:def:arn',
+            forceNewDeployment: false,
+            enableECSManagedTags: null,
+            enableExecuteCommand: false,
             propagateTags: 'SERVICE',
             volumeConfigurations: []
         });
@@ -1718,6 +1813,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
@@ -1783,6 +1879,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
@@ -1845,6 +1942,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: [{
                 name: 'ebs1',
@@ -1864,6 +1962,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             forceNewDeployment: false,
             enableECSManagedTags: null,
+            enableExecuteCommand: null,
             propagateTags: null,
             volumeConfigurations: []
         });
