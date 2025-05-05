@@ -20,12 +20,6 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ## Usage
 
-The action supports the following inputs:
-
-* `task-definition` (required) - The path to the ECS task definition file (JSON format) to register.
-* `max-retries` (optional) - The maximum number of retry attempts for AWS API calls. The action uses exponential backoff with jitter for retries. Defaults to 3.
-* `service` (optional) - The name of the ECS service to update with the new task definition. If empty, the action will not attempt to update a service.
-
 ```yaml
     - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -234,7 +228,7 @@ Running a service requires the following minimum set of permissions:
    ]
 }
 ```
- 
+
 Running a one-off/stand-alone task requires the following minimum set of permissions:
 ```json
 {
@@ -348,7 +342,7 @@ In the following example, the service would not be updated until the ad-hoc task
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE` 
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE`
 launch type requires `awsvpc` network mode in your task definition and you must specify a network configuration.
 
 ### Tags
@@ -370,6 +364,21 @@ To tag your tasks:
         enable-ecs-managed-tags: true
         run-task-tags: '[{"key": "project", "value": "myproject"}]'
         wait-for-task-stopped: true
+```
+
+### Retries
+
+To retry a deployment of a task definition use `max-retries`. The default value is `3`.
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        max-retries: 5
+        wait-for-service-stability: true
 ```
 
 ## Troubleshooting
