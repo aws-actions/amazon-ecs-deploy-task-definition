@@ -20,6 +20,12 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 ## Usage
 
+The action supports the following inputs:
+
+* `task-definition` (required) - The path to the ECS task definition file (JSON format) to register.
+* `max-retries` (optional) - The maximum number of retry attempts for AWS API calls. The action uses exponential backoff with jitter for retries. Defaults to 3.
+* `service` (optional) - The name of the ECS service to update with the new task definition. If empty, the action will not attempt to update a service.
+
 ```yaml
     - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2

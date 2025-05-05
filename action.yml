@@ -88,6 +88,9 @@ inputs:
   propagate-tags:
     description: "Determines to propagate the tags from the 'SERVICE' to the task."
     required: false
+  max-retries:
+    description: 'The maximum number of retry attempts for AWS API calls. Defaults to 3.'
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition.'
