@@ -468,11 +468,18 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
 async function run() {
   try {
+    const maxRetries = parseInt(core.getInput('max-retries', { required: false })) || 3;
+
     const ecs = new ECS({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxAttempts: maxRetries,
+      retryMode: 'standard'
     });
+
     const codedeploy = new CodeDeploy({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxAttempts: maxRetries,
+      retryMode: 'standard'
     });
 
     // Get inputs
