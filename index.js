@@ -191,7 +191,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 }
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, enableExecuteCommand, propagateTags) {
   core.debug('Updating the service');
 
   const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
@@ -218,6 +218,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     taskDefinition: taskDefArn,
     forceNewDeployment: forceNewDeployment,
     enableECSManagedTags: enableECSManagedTags,
+    enableExecuteCommand: enableExecuteCommand,
     propagateTags: propagateTags,
     volumeConfigurations: volumeConfigurations
   };
@@ -480,6 +481,11 @@ async function run() {
     if (enableECSManagedTagsInput !== '') {
       enableECSManagedTags = enableECSManagedTagsInput.toLowerCase() === 'true';
     }
+    const enableExecuteCommandInput = core.getInput('enable-execute-command', { required: false }) || '';
+    let enableExecuteCommand = null;
+    if (enableExecuteCommandInput !== '') {
+      enableExecuteCommand = enableExecuteCommandInput.toLowerCase() === 'true';
+    }
     const propagateTagsInput = core.getInput('propagate-tags', { required: false }) || '';
     let propagateTags = null;
     if (propagateTagsInput !== '') {
@@ -536,7 +542,7 @@ async function run() {
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         core.debug('Updating service...');
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, enableExecuteCommand, propagateTags);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
