@@ -562,10 +562,11 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('cluster-789')         // cluster
-            .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValueOnce('60');                 // wait-for-minutes
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('60')                   // wait-for-service-stability-max-delay-seconds
+            .mockReturnValueOnce('60');                  // wait-for-minutes
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -619,6 +620,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 60,
                 maxWaitTime: (
                     60 +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
@@ -638,10 +640,11 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('cluster-789')         // cluster
-            .mockReturnValueOnce('TRUE')                // wait-for-service-stability
-            .mockReturnValueOnce('1000');               // wait-for-minutes
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('60')                   // wait-for-service-stability-max-delay-seconds
+            .mockReturnValueOnce('1000');                // wait-for-minutes
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
@@ -695,6 +698,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 60,
                 maxWaitTime: 6 * 60 * 60,
             },
             {
@@ -713,6 +717,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // run-task
@@ -834,6 +839,7 @@ describe('Deploy to ECS', () => {
                     'service': 'service-456',
                     'cluster': 'cluster-789',
                     'wait-for-service-stability': 'TRUE',
+                    'wait-for-service-stability-max-delay-seconds': '60',
                     'codedeploy-application': 'Custom-Application',
                     'codedeploy-deployment-group': 'Custom-Deployment-Group',
                     'codedeploy-deployment-description': 'Custom-Deployment',
@@ -940,6 +946,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('60')                   // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('');                    // desired count
 
         await run();
@@ -965,6 +972,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 60,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
             },
             {
@@ -981,6 +989,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('60')                   // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('60')                   // wait-for-minutes
             .mockReturnValueOnce('');                    // desired count
 
@@ -1007,6 +1016,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 60,
                 maxWaitTime: 60 * 60,
             },
             {
@@ -1023,6 +1033,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
+            .mockReturnValueOnce('60')                   // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('1000')                 // wait-for-minutes
             .mockReturnValueOnce('abc');                 // desired count is NaN
 
@@ -1049,6 +1060,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 60,
                 maxWaitTime: 6 * 60 * 60,
             },
             {
@@ -1065,6 +1077,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('true')                 // force-new-deployment
             .mockReturnValueOnce('4');                   // desired count is number
@@ -1138,6 +1151,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('')                      // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // propagate-tags
@@ -1174,6 +1188,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1216,6 +1231,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1259,6 +1275,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')           // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('true')                  // wait-for-service-stability
+            .mockReturnValueOnce('60')                    // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1312,6 +1329,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1337,6 +1355,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')           // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('true')                  // wait-for-service-stability
+            .mockReturnValueOnce('60')                    // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // enable-ecs-managed-tags
             .mockReturnValueOnce('')                      // force-new-deployment
@@ -1373,6 +1392,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1402,6 +1422,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                      // service
             .mockReturnValueOnce('somecluster')           // cluster
             .mockReturnValueOnce('')                      // wait-for-service-stability
+            .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                      // wait-for-minutes
             .mockReturnValueOnce('')                      // force-new-deployment
             .mockReturnValueOnce('')                      // desired-count
@@ -1431,6 +1452,7 @@ describe('Deploy to ECS', () => {
         .mockReturnValueOnce('')                      // service
         .mockReturnValueOnce('somecluster')           // cluster
         .mockReturnValueOnce('')                      // wait-for-service-stability
+        .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
         .mockReturnValueOnce('')                      // wait-for-minutes
         .mockReturnValueOnce('')                      // force-new-deployment
         .mockReturnValueOnce('')                      // desired-count
@@ -1474,6 +1496,7 @@ describe('Deploy to ECS', () => {
         .mockReturnValueOnce('')                      // service
         .mockReturnValueOnce('somecluster')           // cluster
         .mockReturnValueOnce('')                      // wait-for-service-stability
+        .mockReturnValueOnce('')                      // wait-for-service-stability-max-delay-seconds
         .mockReturnValueOnce('')                      // wait-for-minutes
         .mockReturnValueOnce('')                      // force-new-deployment
         .mockReturnValueOnce('')                      // desired-count
@@ -1597,6 +1620,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
@@ -1630,6 +1654,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
@@ -1663,6 +1688,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('false')                // wait-for-service-stability
+            .mockReturnValueOnce('')                     // wait-for-service-stability-max-delay-seconds
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
