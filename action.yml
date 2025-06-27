@@ -19,6 +19,9 @@ inputs:
   wait-for-service-stability:
     description: 'Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.'
     required: false
+  wait-for-service-stability-max-delay-seconds:
+    description: 'The maximum amount of time to wait between checs for service stability (default: 120 seconds, min: 15 seconds).'
+    required: false
   wait-for-minutes:
     description: 'How long to wait for the ECS service to reach stable state, in minutes (default: 30 minutes, max: 6 hours). For CodeDeploy deployments, any wait time configured in the CodeDeploy deployment group will be added to this value.'
     required: false
