@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.3...v2.3.4) (2025-07-24)
+
+
+### Bug Fixes
+
+* dist/index.js ([#773](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/773)) ([2aac05b](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/2aac05b258ce34c77d565926a64fcd3b9604b9a0))
+
 ### [2.3.3](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.2...v2.3.3) (2025-06-16)
 
 ### [2.3.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.1...v2.3.2) (2025-04-14)
