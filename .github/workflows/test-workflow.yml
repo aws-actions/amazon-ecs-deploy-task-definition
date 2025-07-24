@@ -20,7 +20,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:fa485f36-693b-40d8-86e2-3bd5a53e6dd0
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:3915a7e3-7c66-4c37-b475-d06aa5bef13a
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -30,7 +30,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
-      uses: aws-actions/amazon-ecs-deploy-task-definition@2aac05b258ce34c77d565926a64fcd3b9604b9a0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@4b08990e8909cf36bc2ca95f994312f090c41865
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -42,7 +42,7 @@ jobs:
         wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@2aac05b258ce34c77d565926a64fcd3b9604b9a0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@4b08990e8909cf36bc2ca95f994312f090c41865
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -55,7 +55,7 @@ jobs:
         enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@2aac05b258ce34c77d565926a64fcd3b9604b9a0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@4b08990e8909cf36bc2ca95f994312f090c41865
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
@@ -64,7 +64,7 @@ jobs:
         enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service VolumeConfiguration
-      uses: aws-actions/amazon-ecs-deploy-task-definition@2aac05b258ce34c77d565926a64fcd3b9604b9a0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@4b08990e8909cf36bc2ca95f994312f090c41865
       with:
         task-definition: task-definition-volume-configuration.json
         service: github-actions-deploy-task-def-integ-test
@@ -75,7 +75,7 @@ jobs:
         service-managed-ebs-volume: '{"filesystemType":"xfs","roleArn":"arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GitHubActionsVolumeConfigurationsEBSRole","encrypted":false,"sizeInGiB":30}'
 
     - name: Deploy Amazon ECS task definition with one-off task and VolumeConfiguration
-      uses: aws-actions/amazon-ecs-deploy-task-definition@2aac05b258ce34c77d565926a64fcd3b9604b9a0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@4b08990e8909cf36bc2ca95f994312f090c41865
       with:
         task-definition: task-definition-run-task-volume-configuration.json
         cluster: github-actions-deploy-task-def-integ-test
