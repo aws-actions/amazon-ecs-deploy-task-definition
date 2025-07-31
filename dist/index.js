@@ -276,14 +276,20 @@ function findAppSpecKey(obj, keyName) {
   throw new Error(`AppSpec file must include property '${keyName}'`);
 }
 
-function isEmptyValue(value) {
+
+// Accepts an optional set of keys to keep even if their value is null or empty string
+function isEmptyValue(value, key, keepNullValueKeysSet) {
+  // If key is in keepNullValueKeysSet, do not treat as empty
+  if (keepNullValueKeysSet && key && keepNullValueKeysSet.has(key)) {
+    return false;
+  }
   if (value === null || value === undefined || value === '') {
     return true;
   }
 
   if (Array.isArray(value)) {
     for (var element of value) {
-      if (!isEmptyValue(element)) {
+      if (!isEmptyValue(element, undefined, keepNullValueKeysSet)) {
         // the array has at least one non-empty element
         return false;
       }
@@ -306,20 +312,28 @@ function isEmptyValue(value) {
   return false;
 }
 
-function emptyValueReplacer(_, value) {
-  if (isEmptyValue(value)) {
-    return undefined;
-  }
 
-  if (Array.isArray(value)) {
-    return value.filter(e => !isEmptyValue(e));
-  }
-
-  return value;
+// Accepts keepNullValueKeysSet as closure
+function makeEmptyValueReplacer(keepNullValueKeysSet) {
+  return function emptyValueReplacer(key, value) {
+    if (isEmptyValue(value, key, keepNullValueKeysSet)) {
+      return undefined;
+    }
+    if (Array.isArray(value)) {
+      return value.filter(e => !isEmptyValue(e, undefined, keepNullValueKeysSet));
+    }
+    return value;
+  };
 }
 
-function cleanNullKeys(obj) {
-  return JSON.parse(JSON.stringify(obj, emptyValueReplacer));
+
+// Accepts an optional array of keys to keep if null/empty
+function cleanNullKeys(obj, keepNullValueKeys) {
+  let keepNullValueKeysSet = null;
+  if (Array.isArray(keepNullValueKeys) && keepNullValueKeys.length > 0) {
+    keepNullValueKeysSet = new Set(keepNullValueKeys);
+  }
+  return JSON.parse(JSON.stringify(obj, makeEmptyValueReplacer(keepNullValueKeysSet)));
 }
 
 function removeIgnoredAttributes(taskDef) {
@@ -492,13 +506,21 @@ async function run() {
       propagateTags = propagateTagsInput;
     }
 
+
+    // Get keep-null-value-keys input comma-separated
+    let keepNullValueKeysInput = core.getInput('keep-null-value-keys', { required: false }) || '';
+    let keepNullValueKeys = [];
+    if (keepNullValueKeysInput) {
+        keepNullValueKeys = keepNullValueKeysInput.split(',').map(k => k.trim()).filter(Boolean);
+    }
+
     // Register the task definition
     core.debug('Registering the task definition');
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
       taskDefinitionFile :
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
+    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents), keepNullValueKeys)));
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents);
