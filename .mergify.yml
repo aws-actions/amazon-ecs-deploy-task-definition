@@ -1,5 +1,10 @@
 queue_rules:
   - name: default
+    queue_conditions:
+      # Conditions to get out of the queue (= merged)
+      - status-success=Run Unit Tests
+      - status-success=Semantic Pull Request
+      - status-success=Analyze (javascript)
     merge_conditions:
       # Conditions to get out of the queue (= merged)
       - status-success=Run Unit Tests
