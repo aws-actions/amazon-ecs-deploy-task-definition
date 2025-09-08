@@ -333,6 +333,147 @@ describe('Deploy to ECS', () => {
         });
     });
 
+    test('preserves empty string values for specified keys when using keep-null-value-keys', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'keep-null-value-keys') return '["environment", "tag"]';
+            return '';
+        });
+        
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            // Create a task definition with properties that we want to preserve
+            return JSON.stringify({
+                family: 'task-def-family',
+                containerDefinitions: [{
+                    name: 'sample-container',
+                    environment: [{
+                        name: 'TEST_ENV',
+                        value: ''  // Empty string value that should be preserved
+                    }],
+                    logConfiguration: {
+                        logDriver: 'splunk',
+                        options: {
+                            'tag': ''  // Empty tag value that should be preserved
+                        }
+                    },
+                    essential: true
+                }]
+            });
+        });
+
+        // Modify the mockEcsRegisterTaskDef to check for preserved empty values
+        const originalMockImplementation = mockEcsRegisterTaskDef.getMockImplementation();
+        mockEcsRegisterTaskDef.mockImplementation(taskDef => {
+            // Check that our empty environment variable value is preserved
+            expect(taskDef.containerDefinitions[0].environment[0].value).toBe('');
+            
+            // Check that our empty tag value is preserved in options
+            expect(taskDef.containerDefinitions[0].logConfiguration.options.tag).toBe('');
+            
+            // Return the original mock implementation response
+            return Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } });
+        });
+
+        await run();
+        
+        // Reset the mock implementation
+        mockEcsRegisterTaskDef.mockImplementation(originalMockImplementation);
+    });
+
+    test('preserves empty array values for specified keys when using keep-null-value-keys', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'keep-null-value-keys') return '["command", "environment"]';
+            return '';
+        });
+        
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            // Create a task definition with empty array properties that we want to preserve
+            return JSON.stringify({
+                family: 'task-def-family',
+                containerDefinitions: [{
+                    name: 'sample-container',
+                    command: [],  // Empty array that should be preserved
+                    environment: [], // Empty array that should be preserved
+                    essential: true
+                }]
+            });
+        });
+
+        // Modify the mockEcsRegisterTaskDef to check for preserved empty arrays
+        const originalMockImplementation = mockEcsRegisterTaskDef.getMockImplementation();
+        mockEcsRegisterTaskDef.mockImplementation(taskDef => {
+            // Check that our empty arrays are preserved
+            expect(Array.isArray(taskDef.containerDefinitions[0].command)).toBe(true);
+            expect(taskDef.containerDefinitions[0].command.length).toBe(0);
+            
+            expect(Array.isArray(taskDef.containerDefinitions[0].environment)).toBe(true);
+            expect(taskDef.containerDefinitions[0].environment.length).toBe(0);
+            
+            // Return the original mock implementation response
+            return Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } });
+        });
+
+        await run();
+        
+        // Reset the mock implementation
+        mockEcsRegisterTaskDef.mockImplementation(originalMockImplementation);
+    });
+
+    test('preserves empty object values for specified keys when using keep-null-value-keys', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'keep-null-value-keys') return '["placementConstraints", "volumes"]';
+            return '';
+        });
+        
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            // Create a task definition with empty object properties that we want to preserve
+            return JSON.stringify({
+                family: 'task-def-family',
+                containerDefinitions: [{
+                    name: 'sample-container',
+                    essential: true
+                }],
+                placementConstraints: {}, // Empty object that should be preserved
+                volumes: {}  // Empty object that should be preserved
+            });
+        });
+
+        // Modify the mockEcsRegisterTaskDef to check for preserved empty objects
+        const originalMockImplementation = mockEcsRegisterTaskDef.getMockImplementation();
+        mockEcsRegisterTaskDef.mockImplementation(taskDef => {
+            // Check that our empty objects are preserved
+            expect(typeof taskDef.placementConstraints).toBe('object');
+            expect(Object.keys(taskDef.placementConstraints).length).toBe(0);
+            
+            expect(typeof taskDef.volumes).toBe('object');
+            expect(Object.keys(taskDef.volumes).length).toBe(0);
+            
+            // Return the original mock implementation response
+            return Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } });
+        });
+
+        await run();
+        
+        // Reset the mock implementation
+        mockEcsRegisterTaskDef.mockImplementation(originalMockImplementation);
+    });
+    
+
+
     test('maintains empty keys in proxyConfiguration.properties for APPMESH', async () => {
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
@@ -708,20 +849,16 @@ describe('Deploy to ECS', () => {
 
     test('does not wait for a CodeDeploy deployment, parses JSON appspec file', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // run-task
-            .mockReturnValueOnce('')                     // desired count
-            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                     // propagate-task
-            .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
-            .mockReturnValueOnce('MyApplication')        // codedeploy-application
-            .mockReturnValueOnce('MyDeploymentGroup');   // codedeploy-deployment-group
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'service') return 'service-456';
+                if (input === 'cluster') return 'cluster-789';
+                if (input === 'wait-for-service-stability') return 'false';
+                if (input === 'codedeploy-appspec') return '/hello/appspec.json';
+                if (input === 'codedeploy-application') return 'MyApplication';
+                if (input === 'codedeploy-deployment-group') return 'MyDeploymentGroup';
+                return '';
+            });
 
         fs.readFileSync.mockReturnValue(`
             {
@@ -1133,17 +1270,17 @@ describe('Deploy to ECS', () => {
 
     test('run task', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('true');                 // run-task
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'run-task') return 'true';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1169,25 +1306,24 @@ describe('Deploy to ECS', () => {
 
     test('run task with options', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
-            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]'); // run-task-tags
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'enable-ecs-managed-tags') return 'false';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'false';
+                if (input === 'run-task-started-by') return 'someJoe';
+                if (input === 'run-task-launch-type') return 'EC2';
+                if (input === 'run-task-subnets') return 'a,b';
+                if (input === 'run-task-security-groups') return 'c,d';
+                if (input === 'run-task-container-overrides') return JSON.stringify([{ name: 'someapp', command: 'somecmd' }]);
+                if (input === 'run-task-assign-public-IP') return 'DISABLED';
+                if (input === 'run-task-tags') return '[{"key": "project", "value": "myproject"}]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1211,26 +1347,24 @@ describe('Deploy to ECS', () => {
 
     test('run task with capacity provider strategy', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('')                      // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
-            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]') // run-task-tags
-            .mockReturnValueOnce('[{"capacityProvider":"FARGATE_SPOT","weight":1}]'); // run-task-capacity-provider-strategy
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'enable-ecs-managed-tags') return 'false';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'false';
+                if (input === 'run-task-started-by') return 'someJoe';
+                if (input === 'run-task-launch-type') return '';
+                if (input === 'run-task-subnets') return 'a,b';
+                if (input === 'run-task-security-groups') return 'c,d';
+                if (input === 'run-task-container-overrides') return JSON.stringify([{ name: 'someapp', command: 'somecmd' }]);
+                if (input === 'run-task-assign-public-IP') return 'DISABLED';
+                if (input === 'run-task-tags') return '[{"key": "project", "value": "myproject"}]';
+                if (input === 'run-task-capacity-provider-strategy') return '[{"capacityProvider":"FARGATE_SPOT","weight":1}]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1253,24 +1387,22 @@ describe('Deploy to ECS', () => {
     });
 
     test('run task and service ', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('service-456')           // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('true')                  // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'somecluster';
+            if (input === 'wait-for-service-stability') return 'true';
+            if (input === 'run-task') return 'true';
+            if (input === 'wait-for-task-stopped') return 'false';
+            if (input === 'run-task-started-by') return 'someJoe';
+            if (input === 'run-task-launch-type') return 'EC2';
+            if (input === 'run-task-subnets') return 'a,b';
+            if (input === 'run-task-security-groups') return 'c,d';
+            if (input === 'run-task-assign-public-IP') return 'DISABLED';
+            if (input === 'run-task-container-overrides') return JSON.stringify([{ name: 'someapp', command: 'somecmd' }]);
+            // Empty string for all other inputs
+            return '';
+        });
  
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1307,18 +1439,19 @@ describe('Deploy to ECS', () => {
 
     test('run task and wait for it to stop', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true');                 // wait-for-task-stopped
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'true';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1332,24 +1465,22 @@ describe('Deploy to ECS', () => {
 
     test('run task in bridge network mode', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('service-456')           // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('true')                  // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true')                  // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('')                      // run-task-subnet-ids
-            .mockReturnValueOnce('')                      // run-task-security-group-ids
-            .mockReturnValueOnce('')                      // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'service') return 'service-456';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'wait-for-service-stability') return 'true';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'true';
+                if (input === 'run-task-started-by') return 'someJoe';
+                if (input === 'run-task-launch-type') return 'EC2';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1368,17 +1499,19 @@ describe('Deploy to ECS', () => {
     
     test('run task with setting true to enableECSManagedTags', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('true')                  // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true');                 // run-task
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'enable-ecs-managed-tags') return 'true';
+                if (input === 'run-task') return 'true';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1397,17 +1530,19 @@ describe('Deploy to ECS', () => {
     
     test('run task with setting false to enableECSManagedTags', async () => {
         core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true');                 // run-task
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'enable-ecs-managed-tags') return 'false';
+                if (input === 'run-task') return 'true';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1469,18 +1604,19 @@ describe('Deploy to ECS', () => {
 
     test('error is caught if run task fails with (wait-for-task-stopped: false) and with service', async () => {
         core.getInput = jest
-        .fn()
-        .mockReturnValueOnce('task-definition.json')  // task-definition
-        .mockReturnValueOnce('')                      // service
-        .mockReturnValueOnce('somecluster')           // cluster
-        .mockReturnValueOnce('')                      // wait-for-service-stability
-        .mockReturnValueOnce('')                      // wait-for-minutes
-        .mockReturnValueOnce('')                      // force-new-deployment
-        .mockReturnValueOnce('')                      // desired-count
-        .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-        .mockReturnValueOnce('')                      // propagate-tags
-        .mockReturnValueOnce('true')                  // run-task
-        .mockReturnValueOnce('false');                // wait-for-task-stopped
+        .fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'cluster') return 'somecluster';
+            if (input === 'run-task') return 'true';
+            if (input === 'wait-for-task-stopped') return 'false';
+            if (input === 'run-task-launch-type') return 'FARGATE';
+            if (input === 'run-task-container-overrides') return '[]';
+            if (input === 'run-task-tags') return '[]';
+            if (input === 'run-task-capacity-provider-strategy') return '[]';
+            if (input === 'run-task-managed-ebs-volume-name') return '';
+            if (input === 'run-task-managed-ebs-volume') return '{}';
+            return '';
+        });
         
         mockRunTask.mockImplementation(
             () => Promise.resolve({

@@ -88,6 +88,9 @@ inputs:
   propagate-tags:
     description: "Determines to propagate the tags from the 'SERVICE' to the task."
     required: false
+  keep-null-value-keys:
+    description: 'A comma-separated list of keys whose empty values (empty string, array, or object) should be preserved in the task definition. By default, empty values are removed.'
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition.'

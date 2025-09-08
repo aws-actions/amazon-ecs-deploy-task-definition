@@ -366,6 +366,25 @@ To tag your tasks:
         wait-for-task-stopped: true
 ```
 
+
+## Preserving Empty Values with keep-null-value-keys
+
+By default, this action removes empty string, array, and object values from the ECS task definition before registering it. If you want to preserve empty values for specific keys, use the `keep-null-value-keys` input. This is a comma-separated list of key names. When specified, any empty value for those keys will be kept in the registered task definition.
+
+**Example:**
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        keep-null-value-keys: tag,command,placementConstraints
+```
+
+This is useful for cases where a default value is non-null and you want to override the value and set it to null.
+
 ## Troubleshooting
 
 This action emits debug logs to help troubleshoot deployment failures.  To see the debug logs, create a secret named `ACTIONS_STEP_DEBUG` with value `true` in your repository.
