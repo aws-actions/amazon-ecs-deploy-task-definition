@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.4...v2.4.0) (2025-09-09)
+
+
+### Features
+
+* adding keep-null-value-keys [#780](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/780) ([#781](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/781)) ([635a63a](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/635a63a50a1ff398d214c139aa791738ee2e6155))
+
 ### [2.3.4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.3...v2.3.4) (2025-07-24)
 
 
