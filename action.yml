@@ -6,7 +6,10 @@ branding:
 inputs:
   task-definition:
     description: 'The path to the ECS task definition file to register.'
-    required: true
+    required: false
+  task-definition-arn:
+    description: 'The ARN of the ECS task definition to register.'
+    required: false
   desired-count:
     description: 'The number of instantiations of the task to place and keep running in your service.'
     required: false
