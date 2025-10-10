@@ -58,10 +58,10 @@ jobs:
         with:
           payload: |
             {
-              "Notification Type": "Pull Request",
-              "Notification URL":"${{ github.event.pull_request.html_url }}",
-              "GitHub Repo": "${{ github.repository }}",
-              "Notification Title": "${{ steps.sanitize-title.outputs.safe-title }}"
+              "Notification_Type": "Pull Request",
+              "Notification_URL":"${{ github.event.pull_request.html_url }}",
+              "GitHub_Repo": "${{ github.repository }}",
+              "Notification_Title": "${{ steps.sanitize-title.outputs.safe-title }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -72,10 +72,10 @@ jobs:
         with:
           payload: |
             {
-              "Notification Type": "Issue",
-              "Notification URL":"${{ github.event.issue.html_url }}",
-              "GitHub Repo": "${{ github.repository }}",
-              "Notification Title": "${{ steps.sanitize-title.outputs.safe-title }}"
+              "Notification_Type": "Issue",
+              "Notification_URL":"${{ github.event.issue.html_url }}",
+              "GitHub_Repo": "${{ github.repository }}",
+              "Notification_Title": "${{ steps.sanitize-title.outputs.safe-title }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -86,10 +86,10 @@ jobs:
         with:
           payload: |
             {
-              "Notification Type": "Issue comment",
-              "Notification URL":"${{ github.event.comment.html_url }}",
-              "GitHub Repo": "${{ github.repository }}",
-              "Notification Title": "${{ steps.sanitize-title.outputs.safe-title }}"
+              "Notification_Type": "Issue comment",
+              "Notification_URL":"${{ github.event.comment.html_url }}",
+              "GitHub_Repo": "${{ github.repository }}",
+              "Notification_Title": "${{ steps.sanitize-title.outputs.safe-title }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
