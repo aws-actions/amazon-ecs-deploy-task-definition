@@ -1,33 +1,33 @@
 "use strict";
-exports.id = 869;
-exports.ids = [869];
+exports.id = 163;
+exports.ids = [163];
 exports.modules = {
 
-/***/ 5869:
+/***/ 26163:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 
-var sharedIniFileLoader = __webpack_require__(4964);
-var propertyProvider = __webpack_require__(1238);
-var client = __webpack_require__(5152);
+var sharedIniFileLoader = __webpack_require__(93438);
+var propertyProvider = __webpack_require__(1104);
+var client = __webpack_require__(17582);
 
 const resolveCredentialSource = (credentialSource, profileName, logger) => {
     const sourceProvidersMap = {
         EcsContainer: async (options) => {
-            const { fromHttp } = await __webpack_require__.e(/* import() */ 605).then(__webpack_require__.bind(__webpack_require__, 8605));
-            const { fromContainerMetadata } = await __webpack_require__.e(/* import() */ 566).then(__webpack_require__.t.bind(__webpack_require__, 566, 19));
+            const { fromHttp } = await __webpack_require__.e(/* import() */ 795).then(__webpack_require__.bind(__webpack_require__, 60795));
+            const { fromContainerMetadata } = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 40566, 19));
             logger?.debug("@aws-sdk/credential-provider-ini - credential_source is EcsContainer");
             return async () => propertyProvider.chain(fromHttp(options ?? {}), fromContainerMetadata(options))().then(setNamedProvider);
         },
         Ec2InstanceMetadata: async (options) => {
             logger?.debug("@aws-sdk/credential-provider-ini - credential_source is Ec2InstanceMetadata");
-            const { fromInstanceMetadata } = await __webpack_require__.e(/* import() */ 566).then(__webpack_require__.t.bind(__webpack_require__, 566, 19));
+            const { fromInstanceMetadata } = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 40566, 19));
             return async () => fromInstanceMetadata(options)().then(setNamedProvider);
         },
         Environment: async (options) => {
             logger?.debug("@aws-sdk/credential-provider-ini - credential_source is Environment");
-            const { fromEnv } = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 5606, 19));
+            const { fromEnv } = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 56104, 19));
             return async () => fromEnv(options)().then(setNamedProvider);
         },
     };
@@ -64,12 +64,12 @@ const isCredentialSourceProfile = (arg, { profile, logger }) => {
     }
     return withProviderProfile;
 };
-const resolveAssumeRoleCredentials = async (profileName, profiles, options, visitedProfiles = {}, resolveProfileData) => {
+const resolveAssumeRoleCredentials = async (profileName, profiles, options, visitedProfiles = {}) => {
     options.logger?.debug("@aws-sdk/credential-provider-ini - resolveAssumeRoleCredentials (STS)");
     const profileData = profiles[profileName];
     const { source_profile, region } = profileData;
     if (!options.roleAssumer) {
-        const { getDefaultRoleAssumer } = await __webpack_require__.e(/* import() */ 136).then(__webpack_require__.t.bind(__webpack_require__, 1136, 23));
+        const { getDefaultRoleAssumer } = await __webpack_require__.e(/* import() */ 58).then(__webpack_require__.t.bind(__webpack_require__, 31058, 23));
         options.roleAssumer = getDefaultRoleAssumer({
             ...options.clientConfig,
             credentialProviderLogger: options.logger,
@@ -118,13 +118,13 @@ const isCredentialSourceWithoutRoleArn = (section) => {
 };
 
 const isProcessProfile = (arg) => Boolean(arg) && typeof arg === "object" && typeof arg.credential_process === "string";
-const resolveProcessCredentials = async (options, profile) => __webpack_require__.e(/* import() */ 360).then(__webpack_require__.t.bind(__webpack_require__, 5360, 19)).then(({ fromProcess }) => fromProcess({
+const resolveProcessCredentials = async (options, profile) => __webpack_require__.e(/* import() */ 630).then(__webpack_require__.t.bind(__webpack_require__, 15630, 19)).then(({ fromProcess }) => fromProcess({
     ...options,
     profile,
 })().then((creds) => client.setCredentialFeature(creds, "CREDENTIALS_PROFILE_PROCESS", "v")));
 
 const resolveSsoCredentials = async (profile, profileData, options = {}) => {
-    const { fromSSO } = await __webpack_require__.e(/* import() */ 998).then(__webpack_require__.t.bind(__webpack_require__, 998, 19));
+    const { fromSSO } = await __webpack_require__.e(/* import() */ 212).then(__webpack_require__.t.bind(__webpack_require__, 8212, 19));
     return fromSSO({
         profile,
         logger: options.logger,
@@ -169,7 +169,7 @@ const isWebIdentityProfile = (arg) => Boolean(arg) &&
     typeof arg.web_identity_token_file === "string" &&
     typeof arg.role_arn === "string" &&
     ["undefined", "string"].indexOf(typeof arg.role_session_name) > -1;
-const resolveWebIdentityCredentials = async (profile, options) => Promise.all(/* import() */[__webpack_require__.e(136), __webpack_require__.e(956)]).then(__webpack_require__.t.bind(__webpack_require__, 9956, 23)).then(({ fromTokenFile }) => fromTokenFile({
+const resolveWebIdentityCredentials = async (profile, options) => Promise.all(/* import() */[__webpack_require__.e(58), __webpack_require__.e(654)]).then(__webpack_require__.t.bind(__webpack_require__, 47654, 23)).then(({ fromTokenFile }) => fromTokenFile({
     webIdentityTokenFile: profile.web_identity_token_file,
     roleArn: profile.role_arn,
     roleSessionName: profile.role_session_name,
@@ -184,7 +184,7 @@ const resolveProfileData = async (profileName, profiles, options, visitedProfile
         return resolveStaticCredentials(data, options);
     }
     if (isAssumeRoleRecursiveCall || isAssumeRoleProfile(data, { profile: profileName, logger: options.logger })) {
-        return resolveAssumeRoleCredentials(profileName, profiles, options, visitedProfiles, resolveProfileData);
+        return resolveAssumeRoleCredentials(profileName, profiles, options, visitedProfiles);
     }
     if (isStaticCredsProfile(data)) {
         return resolveStaticCredentials(data, options);

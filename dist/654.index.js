@@ -1,23 +1,23 @@
 "use strict";
-exports.id = 956;
-exports.ids = [956];
+exports.id = 654;
+exports.ids = [654];
 exports.modules = {
 
-/***/ 8079:
+/***/ 77753:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromTokenFile = void 0;
-const client_1 = __webpack_require__(5152);
-const property_provider_1 = __webpack_require__(1238);
-const shared_ini_file_loader_1 = __webpack_require__(4964);
-const fs_1 = __webpack_require__(9896);
-const fromWebToken_1 = __webpack_require__(4453);
+const client_1 = __webpack_require__(17582);
+const property_provider_1 = __webpack_require__(1104);
+const shared_ini_file_loader_1 = __webpack_require__(93438);
+const fs_1 = __webpack_require__(79896);
+const fromWebToken_1 = __webpack_require__(92543);
 const ENV_TOKEN_FILE = "AWS_WEB_IDENTITY_TOKEN_FILE";
 const ENV_ROLE_ARN = "AWS_ROLE_ARN";
 const ENV_ROLE_SESSION_NAME = "AWS_ROLE_SESSION_NAME";
-const fromTokenFile = (init = {}) => async (awsIdentityProperties) => {
+const fromTokenFile = (init = {}) => async () => {
     init.logger?.debug("@aws-sdk/credential-provider-web-identity - fromTokenFile");
     const webIdentityTokenFile = init?.webIdentityTokenFile ?? process.env[ENV_TOKEN_FILE];
     const roleArn = init?.roleArn ?? process.env[ENV_ROLE_ARN];
@@ -33,7 +33,7 @@ const fromTokenFile = (init = {}) => async (awsIdentityProperties) => {
             (0, fs_1.readFileSync)(webIdentityTokenFile, { encoding: "ascii" }),
         roleArn,
         roleSessionName,
-    })(awsIdentityProperties);
+    })();
     if (webIdentityTokenFile === process.env[ENV_TOKEN_FILE]) {
         (0, client_1.setCredentialFeature)(credentials, "CREDENTIALS_ENV_VARS_STS_WEB_ID_TOKEN", "h");
     }
@@ -44,7 +44,7 @@ exports.fromTokenFile = fromTokenFile;
 
 /***/ }),
 
-/***/ 4453:
+/***/ 92543:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -88,7 +88,7 @@ const fromWebToken = (init) => async (awsIdentityProperties) => {
     const { roleArn, roleSessionName, webIdentityToken, providerId, policyArns, policy, durationSeconds } = init;
     let { roleAssumerWithWebIdentity } = init;
     if (!roleAssumerWithWebIdentity) {
-        const { getDefaultRoleAssumerWithWebIdentity } = await Promise.resolve().then(() => __importStar(__webpack_require__(1136)));
+        const { getDefaultRoleAssumerWithWebIdentity } = await Promise.resolve().then(() => __importStar(__webpack_require__(31058)));
         roleAssumerWithWebIdentity = getDefaultRoleAssumerWithWebIdentity({
             ...init.clientConfig,
             credentialProviderLogger: init.logger,
@@ -113,13 +113,13 @@ exports.fromWebToken = fromWebToken;
 
 /***/ }),
 
-/***/ 9956:
+/***/ 47654:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 
-var fromTokenFile = __webpack_require__(8079);
-var fromWebToken = __webpack_require__(4453);
+var fromTokenFile = __webpack_require__(77753);
+var fromWebToken = __webpack_require__(92543);
 
 
 
