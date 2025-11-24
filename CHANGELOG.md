@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.4.0...v2.5.0) (2025-11-24)
+
+
+### Features
+
+* Set url to deployments instead of events ([#809](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/809)) ([2b13337](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/2b133375894817b239fc2e7fbe0b3166f32fd593))
+
+
+### Bug Fixes
+
+* Slack notifications webhook ([#801](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/801)) ([6a4f2b4](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/6a4f2b497dd89fe4308e14c8de1bde6595b1016d))
+
 ## [2.4.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.3.4...v2.4.0) (2025-09-09)
 
 
