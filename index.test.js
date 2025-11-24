@@ -191,7 +191,7 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
-        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=fake-region");
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/events?region=fake-region");
     });
 
     test('registers the task definition contents and updates the service if deployment controller type is ECS', async () => {
@@ -225,7 +225,7 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
-        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=fake-region");
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/events?region=fake-region");
     });
 
     test('prints Chinese console domain for cn regions', async () => {
@@ -233,7 +233,7 @@ describe('Deploy to ECS', () => {
         config.region = () => Promise.resolve('cn-fake-region');
         await run();
 
-        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://cn-fake-region.console.amazonaws.cn/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=cn-fake-region");
+        expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://cn-fake-region.console.amazonaws.cn/ecs/v2/clusters/cluster-789/services/service-456/events?region=cn-fake-region");
 
         // reset
         config.region = originalRegion;
