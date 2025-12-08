@@ -385,7 +385,8 @@ async function run() {
     });
 
     // Get inputs
-    const taskDefinitionContent = core.getInput('task-definition', { required: true });
+    const taskDefinitionArn = core.getInput('task-definition-arn', { required: false });
+    const taskDefinitionFile = core.getInput('task-definition', { required: false });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
@@ -407,18 +408,14 @@ async function run() {
 
     let taskDefArn = null;
 
-    // Of taskDefContent starts with arn: then we assume it is a task definition ARN
-    if (taskDefinitionContent.startsWith("arn:")) {
-      taskDefArn = taskDefinitionContent;
-
-    // 
-    // Else we assume it is a task definition file
-    } else {
-      const taskDefinitionFile = taskDefinitionContent;
-
+    // Prioritize task-definition-arn if provided
+    if (taskDefinitionArn) {
+      taskDefArn = taskDefinitionArn;
+    } else if (taskDefinitionFile) {
+      // Fall back to task-definition file if provided
       core.debug('Registering the task definition');
       const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
-        taskDefinitionFile :
+      taskDefinitionFile :
         path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
       const fileContents = fs.readFileSync(taskDefPath, 'utf8');
       const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
@@ -431,6 +428,10 @@ async function run() {
         core.debug(JSON.stringify(taskDefContents, undefined, 4));
         throw(error);
       }
+    } else {
+      // Error if neither is provided
+      core.setFailed('Either task-definition or task-definition-arn must be provided');
+      throw new Error('Either task-definition or task-definition-arn must be provided');
     }
 
     if (!taskDefArn) {
@@ -496,4 +497,3 @@ module.exports = run;
 if (require.main === module) {
     run();
 }
-// 
