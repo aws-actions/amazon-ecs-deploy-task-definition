@@ -1411,26 +1411,6 @@ describe('Deploy to ECS', () => {
             // Empty string for all other inputs
             return '';
         });
- 
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('service-456')           // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('true')                  // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])); // run-task-container-overrides
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
