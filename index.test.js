@@ -863,21 +863,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'codedeploy-deployment-group') return 'MyDeploymentGroup';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // run-task
-            .mockReturnValueOnce('')                     // desired count
-            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                     // propagate-task
-            .mockReturnValueOnce('/hello/appspec.json')  // codedeploy-appspec
-            .mockReturnValueOnce('MyApplication')        // codedeploy-application
-            .mockReturnValueOnce('MyDeploymentGroup');   // codedeploy-deployment-group
 
         fs.readFileSync.mockReturnValue(`
             {
@@ -1304,18 +1289,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('')                      // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('true');                 // run-task
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1359,26 +1332,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
-            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]'); // run-task-tags
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1420,27 +1373,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('false')                 // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('')                      // run-task-launch-type
-            .mockReturnValueOnce('a,b')                   // run-task-subnet-ids
-            .mockReturnValueOnce('c,d')                   // run-task-security-group-ids
-            .mockReturnValueOnce(JSON.stringify([{ name: 'someapp', command: 'somecmd' }])) // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
-            .mockReturnValueOnce('[{"key": "project", "value": "myproject"}]') // run-task-tags
-            .mockReturnValueOnce('[{"capacityProvider":"FARGATE_SPOT","weight":1}]'); // run-task-capacity-provider-strategy
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1548,19 +1480,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true');                 // wait-for-task-stopped
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1590,25 +1509,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('service-456')           // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('true')                  // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true')                  // run-task
-            .mockReturnValueOnce('true')                  // wait-for-task-stopped
-            .mockReturnValueOnce('someJoe')               // run-task-started-by
-            .mockReturnValueOnce('EC2')                   // run-task-launch-type
-            .mockReturnValueOnce('')                      // run-task-subnet-ids
-            .mockReturnValueOnce('')                      // run-task-security-group-ids
-            .mockReturnValueOnce('')                      // run-task-container-overrides
-            .mockReturnValueOnce('')                      // run-task-assign-public-IP
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1640,18 +1540,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('true')                  // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true');                 // run-task
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1683,18 +1571,6 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
-            .fn()
-            .mockReturnValueOnce('task-definition.json')  // task-definition
-            .mockReturnValueOnce('')                      // service
-            .mockReturnValueOnce('somecluster')           // cluster
-            .mockReturnValueOnce('3')                     // max-retries
-            .mockReturnValueOnce('')                      // wait-for-service-stability
-            .mockReturnValueOnce('')                      // wait-for-minutes
-            .mockReturnValueOnce('')                      // force-new-deployment
-            .mockReturnValueOnce('')                      // desired-count
-            .mockReturnValueOnce('false')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('')                      // propagate-tags
-            .mockReturnValueOnce('true');                 // run-task
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -1770,20 +1646,6 @@ describe('Deploy to ECS', () => {
             if (input === 'run-task-managed-ebs-volume') return '{}';
             return '';
         });
-        
-        .fn()
-        .mockReturnValueOnce('task-definition.json')  // task-definition
-        .mockReturnValueOnce('')                      // service
-        .mockReturnValueOnce('somecluster')           // cluster
-        .mockReturnValueOnce('3')                     // max-retries
-        .mockReturnValueOnce('')                      // wait-for-service-stability
-        .mockReturnValueOnce('')                      // wait-for-minutes
-        .mockReturnValueOnce('')                      // force-new-deployment
-        .mockReturnValueOnce('')                      // desired-count
-        .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-        .mockReturnValueOnce('')                      // propagate-tags
-        .mockReturnValueOnce('true')                  // run-task
-        .mockReturnValueOnce('false');                // wait-for-task-stopped
 
         mockRunTask.mockImplementation(
             () => Promise.resolve({
