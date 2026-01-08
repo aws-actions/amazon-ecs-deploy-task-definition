@@ -57,8 +57,9 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')         // service
-            .mockReturnValueOnce('cluster-789');        // cluster
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3');                   // max-retries
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
 
@@ -95,7 +96,7 @@ describe('Deploy to ECS', () => {
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
                 failures: [],
-                services: [{ 
+                services: [{
                     status: 'ACTIVE'
                 }]
             })
@@ -628,6 +629,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
+            .mockReturnValueOnce('3')                   // max-retries
             .mockReturnValueOnce('TRUE');               // wait-for-service-stability
 
         mockEcsDescribeServices.mockImplementation(
@@ -705,6 +707,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
+            .mockReturnValueOnce('3')                   // max-retries
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
             .mockReturnValueOnce('60');                 // wait-for-minutes
 
@@ -781,6 +784,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
+            .mockReturnValueOnce('3')                   // max-retries
             .mockReturnValueOnce('TRUE')                // wait-for-service-stability
             .mockReturnValueOnce('1000');               // wait-for-minutes
 
@@ -1076,6 +1080,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('');                    // desired count
 
@@ -1117,6 +1122,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('60')                   // wait-for-minutes
             .mockReturnValueOnce('');                    // desired count
@@ -1159,6 +1165,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('1000')                 // wait-for-minutes
             .mockReturnValueOnce('abc');                 // desired count is NaN
@@ -1201,6 +1208,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('true')                 // force-new-deployment
@@ -1403,7 +1411,7 @@ describe('Deploy to ECS', () => {
             // Empty string for all other inputs
             return '';
         });
- 
+
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
@@ -1496,7 +1504,7 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
     });
-    
+
     test('run task with setting true to enableECSManagedTags', async () => {
         core.getInput = jest
             .fn(input => {
@@ -1527,7 +1535,7 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
     });
-    
+
     test('run task with setting false to enableECSManagedTags', async () => {
         core.getInput = jest
             .fn(input => {
@@ -1565,6 +1573,7 @@ describe('Deploy to ECS', () => {
         .mockReturnValueOnce('task-definition.json')  // task-definition
         .mockReturnValueOnce('')                      // service
         .mockReturnValueOnce('somecluster')           // cluster
+        .mockReturnValueOnce('3')                     // max-retries
         .mockReturnValueOnce('')                      // wait-for-service-stability
         .mockReturnValueOnce('')                      // wait-for-minutes
         .mockReturnValueOnce('')                      // force-new-deployment
@@ -1617,7 +1626,7 @@ describe('Deploy to ECS', () => {
             if (input === 'run-task-managed-ebs-volume') return '{}';
             return '';
         });
-        
+
         mockRunTask.mockImplementation(
             () => Promise.resolve({
                 failures: [{
@@ -1732,12 +1741,13 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
             .mockReturnValueOnce('')                     // desired-count
             .mockReturnValueOnce('')                     // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags      
+            .mockReturnValueOnce('SERVICE');             // propagate-tags
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1758,13 +1768,14 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
     });
-    
+
     test('update service with setting true to enableECSManagedTags', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment
@@ -1791,13 +1802,14 @@ describe('Deploy to ECS', () => {
             volumeConfigurations: []
         });
     });
-    
+
     test('update service with setting false to enableECSManagedTags', async () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3')                    // max-retries
             .mockReturnValueOnce('false')                // wait-for-service-stability
             .mockReturnValueOnce('')                     // wait-for-minutes
             .mockReturnValueOnce('')                     // force-new-deployment

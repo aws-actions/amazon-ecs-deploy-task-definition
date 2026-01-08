@@ -228,7 +228,7 @@ Running a service requires the following minimum set of permissions:
    ]
 }
 ```
- 
+
 Running a one-off/stand-alone task requires the following minimum set of permissions:
 ```json
 {
@@ -342,7 +342,7 @@ In the following example, the service would not be updated until the ad-hoc task
         wait-for-task-stopped: true
 ```
 
-Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE` 
+Overrides and VPC networking options are available as well. See [action.yml](action.yml) for more details. The `FARGATE`
 launch type requires `awsvpc` network mode in your task definition and you must specify a network configuration.
 
 ### Tags
@@ -369,21 +369,44 @@ To tag your tasks:
 
 ## Preserving Empty Values with keep-null-value-keys
 
-By default, this action removes empty string, array, and object values from the ECS task definition before registering it. If you want to preserve empty values for specific keys, use the `keep-null-value-keys` input. This is a comma-separated list of key names. When specified, any empty value for those keys will be kept in the registered task definition.
+By default, this action removes empty string, array, and object values from the ECS task definition before registering it. This behavior aligns with ECS defaults but can be problematic when you explicitly want to override a non-null default value with an empty or null value.
+
+To preserve empty values for specific keys, use the keep-null-value-keys input. This is a comma-separated list of key names. When specified, empty values for those keys will be retained in the registered task definition.
+
+This is particularly useful in cases where ECS or a previous task definition applies a default value and you want to explicitly unset it.
 
 **Example:**
 
-```yaml
-    - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-      with:
-        task-definition: task-definition.json
-        service: my-service
-        cluster: my-cluster
-        keep-null-value-keys: tag,command,placementConstraints
+```
+- name: Deploy to Amazon ECS
+  uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+  with:
+    task-definition: task-definition.json
+    service: my-service
+    cluster: my-cluster
+    keep-null-value-keys: tag,command,placementConstraints
+    wait-for-service-stability: true
 ```
 
-This is useful for cases where a default value is non-null and you want to override the value and set it to null.
+## Retries
+
+To automatically retry a failed task definition deployment, use the max-retries input. This controls how many times the action will attempt to register and deploy the task definition before failing.
+
+- Default: 3
+- Minimum: 0 (no retries)
+
+```
+- name: Deploy to Amazon ECS
+  uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+  with:
+    task-definition: task-definition.json
+    service: my-service
+    cluster: my-cluster
+    max-retries: 5
+    wait-for-service-stability: true
+```
+
+Retries apply to transient failures during task definition registration or service update, such as eventual consistency issues or temporary AWS API errors.
 
 ## Troubleshooting
 

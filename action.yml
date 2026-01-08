@@ -90,6 +90,8 @@ inputs:
     required: false
   keep-null-value-keys:
     description: 'A comma-separated list of keys whose empty values (empty string, array, or object) should be preserved in the task definition. By default, empty values are removed.'
+  max-retries:
+    description: 'The maximum number of retry attempts for AWS API calls. Defaults to 3.'
     required: false
 outputs:
   task-definition-arn:
