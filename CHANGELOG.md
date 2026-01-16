@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.6.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.5.1...v2.6.0) (2026-01-16)
+
+
+### Features
+
+* Add support for `maxAttempts` to allow retrying after failure ([#750](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/750)) ([ede1821](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/ede1821b97413828ebafee4f8737abf42488595c))
+
 ### [2.5.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.5.0...v2.5.1) (2025-12-18)
 
 ## [2.5.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.4.0...v2.5.0) (2025-11-24)
