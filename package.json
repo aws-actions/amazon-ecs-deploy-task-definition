@@ -27,7 +27,7 @@
   "dependencies": {
     "@actions/core": "^2.0.1",
     "@aws-sdk/client-codedeploy": "^3.922.0",
-    "@aws-sdk/client-ecs": "^3.908.0",
+    "@aws-sdk/client-ecs": "^3.971.0",
     "yaml": "^2.8.2"
   },
   "devDependencies": {
