@@ -22,6 +22,9 @@ inputs:
   wait-for-minutes:
     description: 'How long to wait for the ECS service to reach stable state, in minutes (default: 30 minutes, max: 6 hours). For CodeDeploy deployments, any wait time configured in the CodeDeploy deployment group will be added to this value.'
     required: false
+  wait-max-delay-seconds:
+    description: 'Maximum delay in seconds between polling attempts when waiting for service stability or task completion. If not set, AWS SDK uses exponential backoff up to 120 seconds. Set to 15 for consistent 15-second polling intervals.'
+    required: false
   codedeploy-appspec:
     description: "The path to the AWS CodeDeploy AppSpec file, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'appspec.yaml'."
     required: false

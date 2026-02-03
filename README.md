@@ -12,6 +12,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 - [Credentials and Region](#credentials-and-region)
 - [Permissions](#permissions)
 - [AWS CodeDeploy Support](#aws-codedeploy-support)
+- [Polling Configuration](#polling-configuration)
 - [Troubleshooting](#troubleshooting)
 - [License Summary](#license-summary)
 - [Security Disclosures](#security-disclosures)
@@ -387,6 +388,25 @@ This is particularly useful in cases where ECS or a previous task definition app
     keep-null-value-keys: tag,command,placementConstraints
     wait-for-service-stability: true
 ```
+
+## Polling Configuration
+
+By default when waiting for service stability or task completion, the AWS SDK uses exponential backoff which can result in delays up to 120 seconds between polling attempts. This means even after your service becomes stable, you may wait up to 2 minutes before the next poll detects it.
+
+To use consistent polling intervals instead, set `wait-max-delay-seconds`:
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+        wait-max-delay-seconds: 15
+```
+
+This configuration polls every 15 seconds instead of using exponential backoff.
 
 ## Retries
 

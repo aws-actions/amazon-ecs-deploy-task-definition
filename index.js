@@ -21,7 +21,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 ];
 
 // Method to run a stand-alone task with desired inputs
-async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags) {
+async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags, waitMaxDelaySeconds) {
   core.info('Running task')
 
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
@@ -96,7 +96,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
 
   // Wait for task to end
   if (waitForTask && waitForTask.toLowerCase() === "true") {
-    await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes)
+    await waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes, waitMaxDelaySeconds)
     await tasksExitCode(ecs, clusterName, taskArns)
   } else {
     core.debug('Not waiting for the task to stop');
@@ -145,18 +145,24 @@ function convertToManagedEbsVolumeObject(managedEbsVolume) {
 }
 
 // Poll tasks until they enter a stopped state
-async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
+async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes, waitMaxDelaySeconds) {
   if (waitForMinutes > MAX_WAIT_MINUTES) {
     waitForMinutes = MAX_WAIT_MINUTES;
   }
 
   core.info(`Waiting for tasks to stop. Will wait for ${waitForMinutes} minutes`);
 
-  const waitTaskResponse = await waitUntilTasksStopped({
+  const waiterConfig = {
     client: ecs,
     minDelay: WAIT_DEFAULT_DELAY_SEC,
     maxWaitTime: waitForMinutes * 60,
-  }, {
+  };
+
+  if (waitMaxDelaySeconds) {
+    waiterConfig.maxDelay = waitMaxDelaySeconds;
+  }
+
+  const waitTaskResponse = await waitUntilTasksStopped(waiterConfig, {
     cluster: clusterName,
     tasks: taskArns,
   });
@@ -191,7 +197,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 }
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds) {
   core.debug('Updating the service');
 
   const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
@@ -236,11 +242,18 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   // Wait for service stability
   if (waitForService && waitForService.toLowerCase() === 'true') {
     core.debug(`Waiting for the service to become stable. Will wait for ${waitForMinutes} minutes`);
-    await waitUntilServicesStable({
+
+    const waiterConfig = {
       client: ecs,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
       maxWaitTime: waitForMinutes * 60
-    }, {
+    };
+
+    if (waitMaxDelaySeconds) {
+      waiterConfig.maxDelay = waitMaxDelaySeconds;
+    }
+
+    await waitUntilServicesStable(waiterConfig, {
       services: [service],
       cluster: clusterName
     });
@@ -375,7 +388,7 @@ function validateProxyConfigurations(taskDef){
 }
 
 // Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
-async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
+async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes, waitMaxDelaySeconds) {
   core.debug('Updating AppSpec file with new task definition ARN');
 
   let codeDeployAppSpecFile = core.getInput('codedeploy-appspec', { required : false });
@@ -454,11 +467,18 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
       totalWaitMin = MAX_WAIT_MINUTES;
     }
     core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
-    await waitUntilDeploymentSuccessful({
+
+    const waiterConfig = {
       client: codedeploy,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
       maxWaitTime: totalWaitMin * 60
-    }, {
+    };
+
+    if (waitMaxDelaySeconds) {
+      waiterConfig.maxDelay = waitMaxDelaySeconds;
+    }
+
+    await waitUntilDeploymentSuccessful(waiterConfig, {
       deploymentId: createDeployResponse.deploymentId
     });
   } else {
@@ -479,6 +499,9 @@ async function run() {
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
+
+    const waitMaxDelaySecondsInput = core.getInput('wait-max-delay-seconds', { required: false });
+    const waitMaxDelaySeconds = waitMaxDelaySecondsInput ? parseInt(waitMaxDelaySecondsInput) : null;
 
     const forceNewDeployInput = core.getInput('force-new-deployment', { required: false }) || 'false';
     const forceNewDeployment = forceNewDeployInput.toLowerCase() === 'true';
@@ -539,7 +562,7 @@ async function run() {
     core.debug(`shouldRunTask: ${shouldRunTask}`);
     if (shouldRunTask) {
       core.debug("Running ad-hoc task...");
-      await runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags);
+      await runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSManagedTags, waitMaxDelaySeconds);
     }
 
     // Update the service with the new task definition
@@ -563,12 +586,12 @@ async function run() {
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         core.debug('Updating service...');
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment
         core.debug('Deploying service in the default cluster');
-        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
+        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes, waitMaxDelaySeconds);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
       }
