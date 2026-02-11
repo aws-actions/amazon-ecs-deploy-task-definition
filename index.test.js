@@ -689,6 +689,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -768,6 +769,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -841,6 +843,7 @@ describe('Deploy to ECS', () => {
                 client: mockCodeDeployClient,
                 minDelay: 15,
                 maxWaitTime: 6 * 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -1041,6 +1044,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -1108,6 +1112,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1151,6 +1156,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1194,6 +1200,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: 6 * 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],

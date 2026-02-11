@@ -8,6 +8,19 @@ const crypto = require('crypto');
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
 
+// AbortController for cancelling long-running wait operations on workflow cancellation
+const abortController = new AbortController();
+const abortSignal = abortController.signal;
+
+function registerCancellationHandlers() {
+  const handler = () => {
+    core.info('Received cancellation signal. Aborting wait operations...');
+    abortController.abort();
+  };
+  process.on('SIGINT', handler);
+  process.on('SIGTERM', handler);
+}
+
 // Attributes that are returned by DescribeTaskDefinition, but are not valid RegisterTaskDefinition inputs
 const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
   'compatibilities',
@@ -156,6 +169,7 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
     client: ecs,
     minDelay: WAIT_DEFAULT_DELAY_SEC,
     maxWaitTime: waitForMinutes * 60,
+    abortSignal,
   }, {
     cluster: clusterName,
     tasks: taskArns,
@@ -239,7 +253,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     await waitUntilServicesStable({
       client: ecs,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
-      maxWaitTime: waitForMinutes * 60
+      maxWaitTime: waitForMinutes * 60,
+      abortSignal,
     }, {
       services: [service],
       cluster: clusterName
@@ -457,7 +472,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     await waitUntilDeploymentSuccessful({
       client: codedeploy,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
-      maxWaitTime: totalWaitMin * 60
+      maxWaitTime: totalWaitMin * 60,
+      abortSignal,
     }, {
       deploymentId: createDeployResponse.deploymentId
     });
@@ -467,6 +483,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 }
 
 async function run() {
+  registerCancellationHandlers();
+
   try {
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
