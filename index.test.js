@@ -2070,4 +2070,33 @@ describe('Deploy to ECS', () => {
             }]
         });
     });
+
+    test('aborts service wait when cancellation signal is emitted', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        let receivedAbortSignal;
+        waitUntilServicesStable.mockImplementation(({ abortSignal }) => {
+            receivedAbortSignal = abortSignal;
+            return new Promise((resolve, reject) => {
+                abortSignal.addEventListener('abort', () => {
+                    reject(new Error('Wait aborted by signal'));
+                });
+            });
+        });
+
+        const runPromise = run();
+        await new Promise(resolve => setImmediate(resolve));
+        process.emit('SIGTERM');
+        await runPromise;
+
+        expect(receivedAbortSignal).toBeDefined();
+        expect(receivedAbortSignal.aborted).toBe(true);
+        expect(core.setFailed).toHaveBeenCalledWith('Wait aborted by signal');
+    });
 });
