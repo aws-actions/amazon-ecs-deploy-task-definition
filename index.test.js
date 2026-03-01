@@ -2107,6 +2107,161 @@ describe('Deploy to ECS', () => {
         });
     });
 
+    test('fails the action if the deployment rollout state is FAILED', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        // First call: deployment controller detection
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{ status: 'ACTIVE' }]
+        });
+
+        // Second call: rollout state check after waitUntilServicesStable
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{
+                status: 'ACTIVE',
+                deployments: [{
+                    status: 'PRIMARY',
+                    taskDefinition: 'task:def:arn',
+                    rolloutState: 'FAILED',
+                    rolloutStateReason: 'ECS deployment circuit breaker: rolling back to previous deployment'
+                }]
+            }]
+        });
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('ECS deployment circuit breaker: rolling back to previous deployment'));
+    });
+
+    test('succeeds when deployment rollout state is COMPLETED', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        // First call: deployment controller detection
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{ status: 'ACTIVE' }]
+        });
+
+        // Second call: rollout state check
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{
+                status: 'ACTIVE',
+                deployments: [{
+                    status: 'PRIMARY',
+                    taskDefinition: 'task:def:arn',
+                    rolloutState: 'COMPLETED'
+                }]
+            }]
+        });
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(core.info).toHaveBeenCalledWith('Deployment completed successfully');
+    });
+
+    test('polls until rollout state leaves IN_PROGRESS', async () => {
+        jest.useFakeTimers();
+
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        // First call: deployment controller detection
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{ status: 'ACTIVE' }]
+        });
+
+        // Second call: still IN_PROGRESS
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{
+                status: 'ACTIVE',
+                deployments: [{
+                    status: 'PRIMARY',
+                    taskDefinition: 'task:def:arn',
+                    rolloutState: 'IN_PROGRESS'
+                }]
+            }]
+        });
+
+        // Third call: COMPLETED
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{
+                status: 'ACTIVE',
+                deployments: [{
+                    status: 'PRIMARY',
+                    taskDefinition: 'task:def:arn',
+                    rolloutState: 'COMPLETED'
+                }]
+            }]
+        });
+
+        const runPromise = run();
+        await jest.runAllTimersAsync();
+        await runPromise;
+
+        jest.useRealTimers();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsDescribeServices).toHaveBeenCalledTimes(3);
+        expect(core.info).toHaveBeenCalledWith('Deployment completed successfully');
+    });
+
+    test('skips rollout check when circuit breaker is not enabled', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        // First call: deployment controller detection
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{ status: 'ACTIVE' }]
+        });
+
+        // Second call: no rolloutState (circuit breaker not enabled)
+        mockEcsDescribeServices.mockResolvedValueOnce({
+            failures: [],
+            services: [{
+                status: 'ACTIVE',
+                deployments: [{
+                    status: 'PRIMARY',
+                    taskDefinition: 'task:def:arn'
+                    // no rolloutState
+                }]
+            }]
+        });
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+    });
+
     test('run task with EBS volume configuration', async () => {
         core.getInput = jest
             .fn()

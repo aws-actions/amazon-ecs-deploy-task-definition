@@ -144,6 +144,44 @@ function convertToManagedEbsVolumeObject(managedEbsVolume) {
   return managedEbsVolumeObject;
 }
 
+// Poll the deployment's rolloutState until it reaches a terminal state
+async function waitForRolloutComplete(ecs, clusterName, service, taskDefArn, waitForMinutes) {
+  const deadline = Date.now() + waitForMinutes * 60 * 1000;
+
+  core.debug('Checking deployment rollout state');
+
+  while (Date.now() < deadline) {
+    const describeResponse = await ecs.describeServices({
+      services: [service],
+      cluster: clusterName
+    });
+
+    const serviceInfo = describeResponse.services[0];
+    const primaryDeployment = serviceInfo.deployments && serviceInfo.deployments.find(d => d.status === 'PRIMARY');
+
+    if (!primaryDeployment || !primaryDeployment.rolloutState) {
+      core.debug('Rollout state not available (circuit breaker may not be enabled)');
+      return;
+    }
+
+    core.debug(`Deployment rollout state: ${primaryDeployment.rolloutState}`);
+
+    if (primaryDeployment.rolloutState === 'COMPLETED') {
+      core.info('Deployment completed successfully');
+      return;
+    }
+
+    if (primaryDeployment.rolloutState === 'FAILED') {
+      throw new Error(`Deployment failed: ${primaryDeployment.rolloutStateReason || 'Circuit breaker triggered a rollback'}`);
+    }
+
+    // IN_PROGRESS - keep polling
+    await new Promise(resolve => setTimeout(resolve, WAIT_DEFAULT_DELAY_SEC * 1000));
+  }
+
+  throw new Error(`Timed out waiting for deployment rollout to complete after ${waitForMinutes} minutes`);
+}
+
 // Poll tasks until they enter a stopped state
 async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes, waitMaxDelaySeconds) {
   if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -257,6 +295,8 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
       services: [service],
       cluster: clusterName
     });
+
+    await waitForRolloutComplete(ecs, clusterName, service, taskDefArn, waitForMinutes);
   } else {
     core.debug('Not waiting for the service to become stable');
   }
