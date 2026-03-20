@@ -638,11 +638,11 @@ exports.paginateListAccounts = paginateListAccounts;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRuntimeConfig = void 0;
 const tslib_1 = __webpack_require__(1860);
-const package_json_1 = tslib_1.__importDefault(__webpack_require__(5188));
+const package_json_1 = tslib_1.__importDefault(__webpack_require__(2807));
 const core_1 = __webpack_require__(8704);
 const util_user_agent_node_1 = __webpack_require__(1656);
 const config_resolver_1 = __webpack_require__(9316);
-const hash_node_1 = __webpack_require__(5092);
+const hash_node_1 = __webpack_require__(2711);
 const middleware_retry_1 = __webpack_require__(9618);
 const node_config_provider_1 = __webpack_require__(5704);
 const node_http_handler_1 = __webpack_require__(1279);
@@ -746,7 +746,7 @@ exports.getRuntimeConfig = getRuntimeConfig;
 
 var protocolHttp = __webpack_require__(2356);
 var core = __webpack_require__(402);
-var propertyProvider = __webpack_require__(1238);
+var propertyProvider = __webpack_require__(8857);
 var client = __webpack_require__(5152);
 var signatureV4 = __webpack_require__(5118);
 
@@ -1051,7 +1051,7 @@ exports.validateSigningProperties = validateSigningProperties;
 var __webpack_unused_export__;
 
 
-var propertyProvider = __webpack_require__(1238);
+var propertyProvider = __webpack_require__(8857);
 var sharedIniFileLoader = __webpack_require__(4964);
 var client = __webpack_require__(5152);
 var tokenProviders = __webpack_require__(5433);
@@ -1270,7 +1270,7 @@ Object.defineProperty(exports, "SSOClient", ({
 
 var client = __webpack_require__(5152);
 var httpAuthSchemes = __webpack_require__(7523);
-var propertyProvider = __webpack_require__(1238);
+var propertyProvider = __webpack_require__(8857);
 var sharedIniFileLoader = __webpack_require__(4964);
 var fs = __webpack_require__(9896);
 
@@ -1432,7 +1432,7 @@ exports.nodeProvider = nodeProvider;
 
 /***/ }),
 
-/***/ 5188:
+/***/ 2807:
 /***/ ((module) => {
 
 module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/client-sso","description":"AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native","version":"3.921.0","scripts":{"build":"concurrently \'yarn:build:cjs\' \'yarn:build:es\' \'yarn:build:types\'","build:cjs":"node ../../scripts/compilation/inline client-sso","build:es":"tsc -p tsconfig.es.json","build:include:deps":"lerna run --scope $npm_package_name --include-dependencies build","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"rimraf ./dist-* && rimraf *.tsbuildinfo","extract:docs":"api-extractor run --local","generate:client":"node ../../scripts/generate-clients/single-service --solo sso"},"main":"./dist-cjs/index.js","types":"./dist-types/index.d.ts","module":"./dist-es/index.js","sideEffects":false,"dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"3.921.0","@aws-sdk/middleware-host-header":"3.921.0","@aws-sdk/middleware-logger":"3.921.0","@aws-sdk/middleware-recursion-detection":"3.921.0","@aws-sdk/middleware-user-agent":"3.921.0","@aws-sdk/region-config-resolver":"3.921.0","@aws-sdk/types":"3.921.0","@aws-sdk/util-endpoints":"3.921.0","@aws-sdk/util-user-agent-browser":"3.921.0","@aws-sdk/util-user-agent-node":"3.921.0","@smithy/config-resolver":"^4.4.1","@smithy/core":"^3.17.2","@smithy/fetch-http-handler":"^5.3.5","@smithy/hash-node":"^4.2.4","@smithy/invalid-dependency":"^4.2.4","@smithy/middleware-content-length":"^4.2.4","@smithy/middleware-endpoint":"^4.3.6","@smithy/middleware-retry":"^4.4.6","@smithy/middleware-serde":"^4.2.4","@smithy/middleware-stack":"^4.2.4","@smithy/node-config-provider":"^4.3.4","@smithy/node-http-handler":"^4.4.4","@smithy/protocol-http":"^5.3.4","@smithy/smithy-client":"^4.9.2","@smithy/types":"^4.8.1","@smithy/url-parser":"^4.2.4","@smithy/util-base64":"^4.3.0","@smithy/util-body-length-browser":"^4.2.0","@smithy/util-body-length-node":"^4.2.1","@smithy/util-defaults-mode-browser":"^4.3.5","@smithy/util-defaults-mode-node":"^4.2.7","@smithy/util-endpoints":"^3.2.4","@smithy/util-middleware":"^4.2.4","@smithy/util-retry":"^4.2.4","@smithy/util-utf8":"^4.2.0","tslib":"^2.6.2"},"devDependencies":{"@tsconfig/node18":"18.2.4","@types/node":"^18.19.69","concurrently":"7.0.0","downlevel-dts":"0.10.1","rimraf":"3.0.2","typescript":"~5.8.3"},"engines":{"node":">=18.0.0"},"typesVersions":{"<4.0":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["dist-*/**"],"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","browser":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.browser"},"react-native":{"./dist-es/runtimeConfig":"./dist-es/runtimeConfig.native"},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-sso","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"clients/client-sso"}}');
