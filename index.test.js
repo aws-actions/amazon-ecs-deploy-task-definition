@@ -689,6 +689,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -768,6 +769,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -841,6 +843,7 @@ describe('Deploy to ECS', () => {
                 client: mockCodeDeployClient,
                 minDelay: 15,
                 maxWaitTime: 6 * 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -1041,6 +1044,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -1089,6 +1093,7 @@ describe('Deploy to ECS', () => {
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
                 ) * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 deploymentId: 'deployment-1',
@@ -1151,6 +1156,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1194,6 +1200,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1237,6 +1244,7 @@ describe('Deploy to ECS', () => {
                 client: mockEcsClient,
                 minDelay: 15,
                 maxWaitTime: 6 * 60 * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1265,6 +1273,7 @@ describe('Deploy to ECS', () => {
                 minDelay: 15,
                 maxDelay: 15,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 services: ['service-456'],
@@ -1567,6 +1576,7 @@ describe('Deploy to ECS', () => {
                 minDelay: 15,
                 maxDelay: 15,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+                abortSignal: expect.any(AbortSignal),
             },
             {
                 cluster: 'somecluster',
@@ -2152,5 +2162,34 @@ describe('Deploy to ECS', () => {
                 }
             }]
         });
+    });
+
+    test('aborts service wait when cancellation signal is emitted', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        let receivedAbortSignal;
+        waitUntilServicesStable.mockImplementation(({ abortSignal }) => {
+            receivedAbortSignal = abortSignal;
+            return new Promise((resolve, reject) => {
+                abortSignal.addEventListener('abort', () => {
+                    reject(new Error('Wait aborted by signal'));
+                });
+            });
+        });
+
+        const runPromise = run();
+        await new Promise(resolve => setImmediate(resolve));
+        process.emit('SIGTERM');
+        await runPromise;
+
+        expect(receivedAbortSignal).toBeDefined();
+        expect(receivedAbortSignal.aborted).toBe(true);
+        expect(core.setFailed).toHaveBeenCalledWith('Wait aborted by signal');
     });
 });
