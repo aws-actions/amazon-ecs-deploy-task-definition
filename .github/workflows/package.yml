@@ -18,6 +18,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr checkout ${{ github.event.pull_request.number }}
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Package
         run: |
           npm ci

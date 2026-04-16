@@ -1053,6 +1053,49 @@ describe('Deploy to ECS', () => {
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/deployment-1?region=fake-region");
     });
 
+    test('creates CodeDeploy deployment with custom max delay', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'TRUE';
+            if (input === 'wait-max-delay-seconds') return '15';
+            return '';
+        });
+
+        mockEcsDescribeServices.mockImplementation(
+            () => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deploymentController: {
+                        type: 'CODE_DEPLOY'
+                    }
+                }]
+            })
+        );
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(waitUntilDeploymentSuccessful).toHaveBeenNthCalledWith(
+            1,
+            {
+                client: mockCodeDeployClient,
+                minDelay: 15,
+                maxDelay: 15,
+                maxWaitTime: (
+                    EXPECTED_DEFAULT_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
+                    EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME
+                ) * 60,
+            },
+            {
+                deploymentId: 'deployment-1',
+            }
+        );
+    });
+
     test('registers the task definition contents at an absolute path', async () => {
         core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
@@ -1202,17 +1245,43 @@ describe('Deploy to ECS', () => {
         );
     });
 
+    test('waits for the service to be stable with custom max delay', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'TRUE';
+            if (input === 'wait-max-delay-seconds') return '15';
+            return '';
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
+            1,
+            {
+                client: mockEcsClient,
+                minDelay: 15,
+                maxDelay: 15,
+                maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+            },
+            {
+                services: ['service-456'],
+                cluster: 'cluster-789',
+            }
+        );
+    });
+
     test('force new deployment', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('3')                    // max-retries
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('true')                 // force-new-deployment
-            .mockReturnValueOnce('4');                   // desired count is number
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'force-new-deployment') return 'true';
+            if (input === 'desired-count') return '4';
+            return '';
+        });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1471,6 +1540,41 @@ describe('Deploy to ECS', () => {
         expect(waitUntilTasksStopped).toHaveBeenCalledTimes(1);
     });
 
+    test('run task and wait for it to stop with custom max delay', async () => {
+        core.getInput = jest
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'true';
+                if (input === 'wait-max-delay-seconds') return '15';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(waitUntilTasksStopped).toHaveBeenNthCalledWith(
+            1,
+            {
+                client: mockEcsClient,
+                minDelay: 15,
+                maxDelay: 15,
+                maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
+            },
+            {
+                cluster: 'somecluster',
+                tasks: ["arn:aws:ecs:fake-region:account_id:task/arn"],
+            }
+        );
+    });
+
     test('run task in bridge network mode', async () => {
         core.getInput = jest
             .fn(input => {
@@ -1568,20 +1672,19 @@ describe('Deploy to ECS', () => {
     });
 
     test('error is caught if run task fails with (wait-for-task-stopped: true)', async () => {
-        core.getInput = jest
-        .fn()
-        .mockReturnValueOnce('task-definition.json')  // task-definition
-        .mockReturnValueOnce('')                      // service
-        .mockReturnValueOnce('somecluster')           // cluster
-        .mockReturnValueOnce('3')                     // max-retries
-        .mockReturnValueOnce('')                      // wait-for-service-stability
-        .mockReturnValueOnce('')                      // wait-for-minutes
-        .mockReturnValueOnce('')                      // force-new-deployment
-        .mockReturnValueOnce('')                      // desired-count
-        .mockReturnValueOnce('')                      // enable-ecs-managed-tags
-        .mockReturnValueOnce('')                      // propagate-tags
-        .mockReturnValueOnce('true')                  // run-task
-        .mockReturnValueOnce('true');                 // wait-for-task-stopped
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'cluster') return 'somecluster';
+            if (input === 'run-task') return 'true';
+            if (input === 'wait-for-task-stopped') return 'true';
+            if (input === 'run-task-launch-type') return 'FARGATE';
+            if (input === 'run-task-container-overrides') return '[]';
+            if (input === 'run-task-tags') return '[]';
+            if (input === 'run-task-capacity-provider-strategy') return '[]';
+            if (input === 'run-task-managed-ebs-volume-name') return '';
+            if (input === 'run-task-managed-ebs-volume') return '{}';
+            return '';
+        });
 
         mockRunTask.mockImplementation(
             () => Promise.resolve({
@@ -1736,18 +1839,13 @@ describe('Deploy to ECS', () => {
     });
 
     test('propagate service tags from service', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('3')                    // max-retries
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // desired-count
-            .mockReturnValueOnce('')                     // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'propagate-tags') return 'SERVICE';
+            return '';
+        });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1770,18 +1868,14 @@ describe('Deploy to ECS', () => {
     });
 
     test('update service with setting true to enableECSManagedTags', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('3')                    // max-retries
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // desired-count
-            .mockReturnValueOnce('true')                 // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'enable-ecs-managed-tags') return 'true';
+            if (input === 'propagate-tags') return 'SERVICE';
+            return '';
+        });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1804,18 +1898,14 @@ describe('Deploy to ECS', () => {
     });
 
     test('update service with setting false to enableECSManagedTags', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
-            .mockReturnValueOnce('service-456')          // service
-            .mockReturnValueOnce('cluster-789')          // cluster
-            .mockReturnValueOnce('3')                    // max-retries
-            .mockReturnValueOnce('false')                // wait-for-service-stability
-            .mockReturnValueOnce('')                     // wait-for-minutes
-            .mockReturnValueOnce('')                     // force-new-deployment
-            .mockReturnValueOnce('')                     // desired-count
-            .mockReturnValueOnce('false')                // enable-ecs-managed-tags
-            .mockReturnValueOnce('SERVICE');             // propagate-tags
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'enable-ecs-managed-tags') return 'false';
+            if (input === 'propagate-tags') return 'SERVICE';
+            return '';
+        });
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);

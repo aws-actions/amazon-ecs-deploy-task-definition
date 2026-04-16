@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.6.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.6.0...v2.6.1) (2026-03-25)
+
+
+### Bug Fixes
+
+* add optional wait-max-delay-seconds input to configure waiter polling ([#839](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/839)) ([5fda33a](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/5fda33a2e6341c21114e3088fbe9aec20fd5b6ef))
+* upgrade Node.js runtime to node24 ([#852](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/852)) ([8f67c1a](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/8f67c1aa3b1c3d6eb1092b0185059e6c38b6595b))
+
 ## [2.6.0](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.5.1...v2.6.0) (2026-01-16)
 
 
