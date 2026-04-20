@@ -263,9 +263,102 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
       services: [service],
       cluster: clusterName
     });
+
+    await verifyServiceDeployment(ecs, clusterName, service, taskDefArn);
   } else {
     core.debug('Not waiting for the service to become stable');
   }
+}
+
+async function verifyServiceDeployment(ecs, clusterName, serviceName, expectedTaskDefArn) {
+  core.debug(
+    `Verifying that service '${serviceName}' stabilized on expected task definition '${expectedTaskDefArn}'`
+  );
+
+  // Describe the service after the waiter reports "stable".
+  // This extra check is necessary because ECS can become stable again
+  // by rolling back to the previous deployment if circuit breaker
+  // rollback is enabled.
+  const describeResponse = await ecs.describeServices({
+    cluster: clusterName,
+    services: [serviceName]
+  });
+
+  // Surface any ECS-level lookup failures explicitly.
+  const failures = describeResponse.failures || [];
+  if (failures.length > 0) {
+    const failure = failures[0];
+    throw new Error(
+      `Failed to describe service '${serviceName}': ${failure.reason || 'unknown error'}`
+    );
+  }
+
+  // We expect exactly one service back because we queried by name.
+  const service = describeResponse.services && describeResponse.services[0];
+  if (!service) {
+    throw new Error(`Service '${serviceName}' was not returned by DescribeServices`);
+  }
+
+  const deployments = service.deployments || [];
+
+  // Find the deployment created from the task definition revision
+  // we just deployed.
+  const expectedDeployment = deployments.find(
+    deployment => deployment.taskDefinition === expectedTaskDefArn
+  );
+
+  // Find the deployment ECS considers PRIMARY after stabilization.
+  // This is the deployment currently serving traffic / considered active.
+  const primaryDeployment = deployments.find(
+    deployment => deployment.status === 'PRIMARY'
+  );
+
+  // If ECS explicitly marks the expected deployment as FAILED,
+  // fail immediately and include the AWS reason when available.
+  if (expectedDeployment && expectedDeployment.rolloutState === 'FAILED') {
+    const reason = expectedDeployment.rolloutStateReason
+      ? ` Reason: ${expectedDeployment.rolloutStateReason}`
+      : '';
+    throw new Error(
+      `ECS deployment failed for task definition '${expectedTaskDefArn}'.${reason}`
+    );
+  }
+
+  // PRIMARY should always exist for a healthy service state.
+  if (!primaryDeployment) {
+    throw new Error(`No PRIMARY deployment found for service '${serviceName}'`);
+  }
+
+  // This is the key rollback check:
+  // even if the service is "stable", ECS may have rolled back to the
+  // previous task definition. In that case, the PRIMARY deployment
+  // will not match the task definition we expected to promote.
+  if (primaryDeployment.taskDefinition !== expectedTaskDefArn) {
+    throw new Error(
+      `ECS deployment did not complete on the expected task definition. ` +
+      `Expected PRIMARY task definition '${expectedTaskDefArn}', but found ` +
+      `'${primaryDeployment.taskDefinition}'. This usually means ECS rolled back ` +
+      `after the new deployment failed.`
+    );
+  }
+
+  // When rolloutState is available, require the expected deployment
+  // to have fully completed, not merely exist.
+  // This is an additional safeguard on top of the PRIMARY check.
+  if (
+    expectedDeployment &&
+    expectedDeployment.rolloutState &&
+    expectedDeployment.rolloutState !== 'COMPLETED'
+  ) {
+    throw new Error(
+      `ECS deployment for task definition '${expectedTaskDefArn}' did not reach ` +
+      `COMPLETED. Current rolloutState: '${expectedDeployment.rolloutState}'.`
+    );
+  }
+
+  core.info(
+    `Deployment verified: service '${serviceName}' is PRIMARY on expected task definition.`
+  );
 }
 
 // Find value in a CodeDeploy AppSpec file with a case-insensitive key

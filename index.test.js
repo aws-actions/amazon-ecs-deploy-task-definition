@@ -93,13 +93,21 @@ describe('Deploy to ECS', () => {
 
         mockEcsUpdateService.mockImplementation(() => Promise.resolve({}));
 
-        mockEcsDescribeServices.mockImplementation(
-            () => Promise.resolve({
-                failures: [],
-                services: [{
-                    status: 'ACTIVE'
-                }]
-            })
+        mockEcsDescribeServices.mockImplementation(() =>
+          Promise.resolve({
+            failures: [],
+            services: [{
+              status: 'ACTIVE',
+              deploymentController: { type: 'ECS' },
+              deployments: [
+                {
+                  status: 'PRIMARY',
+                  taskDefinition: 'task:def:arn',
+                  rolloutState: 'COMPLETED'
+                }
+              ]
+            }]
+          })
         );
 
         mockCodeDeployCreateDeployment.mockImplementation(
@@ -1115,6 +1123,141 @@ describe('Deploy to ECS', () => {
 
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family-absolute-path' });
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+    });
+
+    test('verifies expected task definition becomes PRIMARY after service stability wait', async () => {
+      core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-definition.json') // task-definition
+        .mockReturnValueOnce('service-456') // service
+        .mockReturnValueOnce('cluster-789') // cluster
+        .mockReturnValueOnce('3') // max-retries
+        .mockReturnValueOnce('true'); // wait-for-service-stability
+
+      let describeCount = 0;
+      mockEcsDescribeServices.mockImplementation(() => {
+        describeCount += 1;
+
+        if (describeCount === 1) {
+          return Promise.resolve({
+            failures: [],
+            services: [{ status: 'ACTIVE', deploymentController: { type: 'ECS' } }]
+          });
+        }
+
+        return Promise.resolve({
+          failures: [],
+          services: [{
+            status: 'ACTIVE',
+            deployments: [
+              {
+                status: 'PRIMARY',
+                taskDefinition: 'task:def:arn',
+                rolloutState: 'COMPLETED'
+              }
+            ]
+          }]
+        });
+      });
+
+      await run();
+
+      expect(waitUntilServicesStable).toHaveBeenCalledTimes(1);
+      expect(core.setFailed).toHaveBeenCalledTimes(0);
+    });
+
+    test('fails when expected deployment rolloutState is FAILED', async () => {
+      core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-definition.json')
+        .mockReturnValueOnce('service-456')
+        .mockReturnValueOnce('cluster-789')
+        .mockReturnValueOnce('3')
+        .mockReturnValueOnce('true');
+
+      let describeCount = 0;
+      mockEcsDescribeServices.mockImplementation(() => {
+        describeCount += 1;
+
+        if (describeCount === 1) {
+          return Promise.resolve({
+            failures: [],
+            services: [{ status: 'ACTIVE', deploymentController: { type: 'ECS' } }]
+          });
+        }
+
+        return Promise.resolve({
+          failures: [],
+          services: [{
+            status: 'ACTIVE',
+            deployments: [
+              {
+                status: 'ACTIVE',
+                taskDefinition: 'task:def:arn',
+                rolloutState: 'FAILED',
+                rolloutStateReason: 'ECS deployment circuit breaker: task failed health checks'
+              },
+              {
+                status: 'PRIMARY',
+                taskDefinition: 'task:def:old',
+                rolloutState: 'COMPLETED'
+              }
+            ]
+          }]
+        });
+      });
+
+      await run();
+
+      expect(waitUntilServicesStable).toHaveBeenCalledTimes(1);
+      expect(core.setFailed).toHaveBeenCalledTimes(1);
+      expect(core.setFailed.mock.calls[0][0]).toContain("ECS deployment failed for task definition 'task:def:arn'");
+    });
+
+    test('fails when service stabilizes on a different PRIMARY task definition after rollback', async () => {
+      core.getInput = jest
+        .fn()
+        .mockReturnValueOnce('task-definition.json')
+        .mockReturnValueOnce('service-456')
+        .mockReturnValueOnce('cluster-789')
+        .mockReturnValueOnce('3')
+        .mockReturnValueOnce('true');
+
+      let describeCount = 0;
+      mockEcsDescribeServices.mockImplementation(() => {
+        describeCount += 1;
+
+        if (describeCount === 1) {
+          return Promise.resolve({
+            failures: [],
+            services: [{ status: 'ACTIVE', deploymentController: { type: 'ECS' } }]
+          });
+        }
+
+        return Promise.resolve({
+          failures: [],
+          services: [{
+            status: 'ACTIVE',
+            deployments: [
+              {
+                status: 'PRIMARY',
+                taskDefinition: 'task:def:old',
+                rolloutState: 'COMPLETED'
+              },
+              {
+                status: 'ACTIVE',
+                taskDefinition: 'task:def:arn'
+              }
+            ]
+          }]
+        });
+      });
+
+      await run();
+
+      expect(waitUntilServicesStable).toHaveBeenCalledTimes(1);
+      expect(core.setFailed).toHaveBeenCalledTimes(1);
+      expect(core.setFailed.mock.calls[0][0]).toContain('did not complete on the expected task definition');
     });
 
     test('waits for the service to be stable', async () => {
