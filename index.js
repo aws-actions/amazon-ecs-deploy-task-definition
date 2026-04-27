@@ -197,7 +197,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
 }
 
 // Deploy to a service that uses the 'ECS' deployment controller
-async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds) {
+async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds, beforeDeploymentId) {
   core.debug('Updating the service');
 
   const serviceManagedEBSVolumeName = core.getInput('service-managed-ebs-volume-name', { required: false }) || '';
@@ -232,7 +232,11 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   if (!isNaN(desiredCount) && desiredCount !== undefined) {
     params.desiredCount = desiredCount;
   }
-  await ecs.updateService(params);
+  const updateResponse = await ecs.updateService(params);
+
+  // Extract the PRIMARY deployment ID from the update response
+  const primaryDeployment = (updateResponse.service.deployments || []).find(d => d.status === 'PRIMARY');
+  const afterDeploymentId = primaryDeployment ? primaryDeployment.id : null;
 
   const region = await ecs.config.region();
   const consoleHostname = region.startsWith('cn') ? 'console.amazonaws.cn' : 'console.aws.amazon.com';
@@ -257,6 +261,36 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
       services: [service],
       cluster: clusterName
     });
+
+    // Verify the deployment was successful (not rolled back)
+    if (afterDeploymentId && afterDeploymentId !== beforeDeploymentId) {
+      core.debug('Verifying deployment succeeded after service stability...');
+
+      const verifyResponse = await ecs.describeServices({
+        services: [service],
+        cluster: clusterName
+      });
+
+      const verifiedService = verifyResponse.services[0];
+      const deployment = (verifiedService.deployments || []).find(d => d.id === afterDeploymentId);
+
+      if (!deployment) {
+        throw new Error(
+          `Deployment ${afterDeploymentId} not found after stabilization. ` +
+          `The deployment was likely rolled back by the deployment circuit breaker.`
+        );
+      }
+
+      if (deployment.rolloutState === 'FAILED') {
+        throw new Error(
+          `Deployment ${afterDeploymentId} FAILED: ${deployment.rolloutStateReason || 'unknown reason'}`
+        );
+      }
+
+      core.info(`Deployment ${afterDeploymentId} verified: rolloutState=${deployment.rolloutState || 'N/A'}`);
+    } else {
+      core.debug('No new deployment was created by the update, skipping deployment verification');
+    }
   } else {
     core.debug('Not waiting for the service to become stable');
   }
@@ -585,8 +619,11 @@ async function run() {
 
       if (!serviceResponse.deploymentController || !serviceResponse.deploymentController.type || serviceResponse.deploymentController.type === 'ECS') {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
+        const beforePrimaryDeployment = (serviceResponse.deployments || []).find(d => d.status === 'PRIMARY');
+        const beforeDeploymentId = beforePrimaryDeployment ? beforePrimaryDeployment.id : null;
+
         core.debug('Updating service...');
-        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds);
+        await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment, desiredCount, enableECSManagedTags, propagateTags, waitMaxDelaySeconds, beforeDeploymentId);
 
       } else if (serviceResponse.deploymentController.type === 'CODE_DEPLOY') {
         // Service uses CodeDeploy, so we should start a CodeDeploy deployment

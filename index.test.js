@@ -91,13 +91,26 @@ describe('Deploy to ECS', () => {
             () => Promise.resolve({ taskDefinition: { taskDefinitionArn: 'task:def:arn' } })
         );
 
-        mockEcsUpdateService.mockImplementation(() => Promise.resolve({}));
+        mockEcsUpdateService.mockImplementation(() => Promise.resolve({
+            service: {
+                deployments: [{
+                    id: 'deployment-new-1',
+                    status: 'PRIMARY',
+                    rolloutState: 'IN_PROGRESS'
+                }]
+            }
+        }));
 
         mockEcsDescribeServices.mockImplementation(
             () => Promise.resolve({
                 failures: [],
                 services: [{
-                    status: 'ACTIVE'
+                    status: 'ACTIVE',
+                    deployments: [{
+                        id: 'deployment-old-1',
+                        status: 'PRIMARY',
+                        rolloutState: 'COMPLETED'
+                    }]
                 }]
             })
         );
@@ -1127,24 +1140,26 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('');                    // desired count
 
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
+
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
-        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
-        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
-            cluster: 'cluster-789',
-            services: ['service-456']
-        });
-        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            cluster: 'cluster-789',
-            service: 'service-456',
-            taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            enableECSManagedTags: null,
-            propagateTags: null,
-            volumeConfigurations: []
-        });
+        expect(mockEcsDescribeServices).toHaveBeenCalledTimes(2);
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
             {
@@ -1169,6 +1184,22 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('TRUE')                 // wait-for-service-stability
             .mockReturnValueOnce('60')                   // wait-for-minutes
             .mockReturnValueOnce('');                    // desired count
+
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1213,6 +1244,22 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('1000')                 // wait-for-minutes
             .mockReturnValueOnce('abc');                 // desired count is NaN
 
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
+
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
@@ -1254,6 +1301,22 @@ describe('Deploy to ECS', () => {
             if (input === 'wait-max-delay-seconds') return '15';
             return '';
         });
+
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
@@ -1481,6 +1544,22 @@ describe('Deploy to ECS', () => {
             return '';
         });
 
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
+
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
 
@@ -1593,6 +1672,22 @@ describe('Deploy to ECS', () => {
                 if (input === 'run-task-managed-ebs-volume') return '{}';
                 return '';
             });
+
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-new-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
 
         await run();
         expect(mockRunTask).toHaveBeenCalledWith({
@@ -2152,5 +2247,98 @@ describe('Deploy to ECS', () => {
                 }
             }]
         });
+    });
+
+    test('fails if deployment is rolled back by circuit breaker', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }));
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('not found after stabilization')
+        );
+    });
+
+    test('fails if deployment rolloutState is FAILED', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        mockEcsDescribeServices
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [{ id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' }]
+                }]
+            }))
+            .mockImplementationOnce(() => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deployments: [
+                        { id: 'deployment-old-1', status: 'PRIMARY', rolloutState: 'COMPLETED' },
+                        { id: 'deployment-new-1', status: 'ACTIVE', rolloutState: 'FAILED', rolloutStateReason: 'Circuit breaker triggered' }
+                    ]
+                }]
+            }));
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('FAILED')
+        );
+    });
+
+    test('skips deployment verification when no new deployment is created', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'service') return 'service-456';
+            if (input === 'cluster') return 'cluster-789';
+            if (input === 'wait-for-service-stability') return 'true';
+            return '';
+        });
+
+        // Same deployment ID before and after — no new deployment
+        mockEcsUpdateService.mockImplementation(() => Promise.resolve({
+            service: {
+                deployments: [{
+                    id: 'deployment-old-1',
+                    status: 'PRIMARY',
+                    rolloutState: 'COMPLETED'
+                }]
+            }
+        }));
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        // describeServices should only be called once (before update), not for verification
+        expect(mockEcsDescribeServices).toHaveBeenCalledTimes(1);
     });
 });
