@@ -1,0 +1,32 @@
+{
+  "containerDefinitions": [
+    {
+      "entryPoint": [
+        "sh",
+        "-c"
+      ],
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "command": [
+        "echo hello"
+      ],
+      "cpu": 256,
+      "memoryReservation": 512,
+      "image": "httpd:does-not-exist-99999",
+      "essential": true,
+      "name": "sample-app"
+    }
+  ],
+  "memory": "512",
+  "family": "github-actions-deploy-task-def-integ-tests",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "256"
+}

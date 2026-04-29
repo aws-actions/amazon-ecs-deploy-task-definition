@@ -54,6 +54,24 @@ jobs:
         wait-for-task-stopped: true
         enable-ecs-managed-tags: true
 
+    - name: Deploy bad image to test rollback detection
+      id: bad-deploy
+      continue-on-error: true
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition-bad-image.json
+        service: github-actions-deploy-task-def-integ-test
+        cluster: github-actions-deploy-task-def-integ-test
+        wait-for-service-stability: true
+
+    - name: Verify rollback was detected
+      run: |
+        if [ "${{ steps.bad-deploy.outcome }}" != "failure" ]; then
+          echo "::error::Expected deployment to fail due to rollback detection, but outcome was: ${{ steps.bad-deploy.outcome }}"
+          exit 1
+        fi
+        echo "Rollback correctly detected"
+
     - name: Deploy Amazon ECS task definition with ECS Service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
