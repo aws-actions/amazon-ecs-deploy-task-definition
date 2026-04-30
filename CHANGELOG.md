@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.6.2](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.6.1...v2.6.2) (2026-04-30)
+
+
+### Bug Fixes
+
+* Detect deployment rollback after service stabilization ([#860](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/860)) ([d46c585](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/commit/d46c585e6f666913d6b0bac36d4f2f88184b9454))
+
 ### [2.6.1](https://github.com/aws-actions/amazon-ecs-deploy-task-definition/compare/v2.6.0...v2.6.1) (2026-03-25)
 
 
