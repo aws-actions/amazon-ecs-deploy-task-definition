@@ -82,7 +82,7 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
     networkConfiguration: Object.keys(awsvpcConfiguration).length === 0 ? null : { awsvpcConfiguration: awsvpcConfiguration },
     enableECSManagedTags: enableECSManagedTags,
     tags: tags,
-    volumeConfigurations: volumeConfigurations
+    ...(volumeConfigurations.length > 0 && { volumeConfigurations })
   });
 
   core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
@@ -231,7 +231,7 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     forceNewDeployment: forceNewDeployment,
     enableECSManagedTags: enableECSManagedTags,
     propagateTags: propagateTags,
-    volumeConfigurations: volumeConfigurations
+    ...(volumeConfigurations.length > 0 && { volumeConfigurations })
   };
 
   // Add the desiredCount property only if it is defined and a number.
