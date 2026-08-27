@@ -20,7 +20,7 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:80903f6d-c398-47ce-b1b8-10ee456e83fe
+        echo Integration test run: githubactionsamazonecsdeplo-NWcjHIgDJLXw:36d81878-7bfd-41b2-b2e5-eaeea24fb2fa
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -30,7 +30,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to false
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -42,7 +42,7 @@ jobs:
         wait-for-task-stopped: false
 
     - name: Deploy Amazon ECS task definition with one-off task and wait for task stopped set to true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition-run-task.json
         cluster: github-actions-deploy-task-def-integ-test
@@ -57,7 +57,7 @@ jobs:
     - name: Deploy bad image to test rollback detection
       id: bad-deploy
       continue-on-error: true
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition-bad-image.json
         service: github-actions-deploy-task-def-integ-test
@@ -73,7 +73,7 @@ jobs:
         echo "Rollback correctly detected"
 
     - name: Deploy Amazon ECS task definition with ECS Service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition.json
         service: github-actions-deploy-task-def-integ-test
@@ -82,7 +82,7 @@ jobs:
         enable-ecs-managed-tags: true
 
     - name: Deploy Amazon ECS task definition with ECS Service VolumeConfiguration
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition-volume-configuration.json
         service: github-actions-deploy-task-def-integ-test
@@ -93,7 +93,7 @@ jobs:
         service-managed-ebs-volume: '{"filesystemType":"xfs","roleArn":"arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GitHubActionsVolumeConfigurationsEBSRole","encrypted":false,"sizeInGiB":30}'
 
     - name: Deploy Amazon ECS task definition with one-off task and VolumeConfiguration
-      uses: aws-actions/amazon-ecs-deploy-task-definition@c240ce98abc4d74bd14b653be344cf14a280b841
+      uses: aws-actions/amazon-ecs-deploy-task-definition@10a12db2b4741703f03060448e2c9f1f6fa9c140
       with:
         task-definition: task-definition-run-task-volume-configuration.json
         cluster: github-actions-deploy-task-def-integ-test
