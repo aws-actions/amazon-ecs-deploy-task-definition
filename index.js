@@ -27,8 +27,19 @@ async function runTask(ecs, clusterName, taskDefArn, waitForMinutes, enableECSMa
   const waitForTask = core.getInput('wait-for-task-stopped', { required: false }) || 'false';
   const startedBy = core.getInput('run-task-started-by', { required: false }) || 'GitHub-Actions';
   const launchType = core.getInput('run-task-launch-type', { required: false }) || 'FARGATE';
+  const ALLOWED_LAUNCH_TYPES = ['FARGATE', 'EC2', 'EXTERNAL', ''];
+  if (!ALLOWED_LAUNCH_TYPES.includes(launchType)) {
+    throw new Error(`Invalid run-task-launch-type '${launchType}'. Must be one of: FARGATE, EC2, EXTERNAL`);
+  }
+  const RESOURCE_ID_LIST_PATTERN = /^[A-Za-z0-9\-,]*$/;
   const subnetIds = core.getInput('run-task-subnets', { required: false }) || '';
+  if (!RESOURCE_ID_LIST_PATTERN.test(subnetIds)) {
+    throw new Error('Invalid run-task-subnets value. Must be a comma-separated list of subnet IDs');
+  }
   const securityGroupIds = core.getInput('run-task-security-groups', { required: false }) || '';
+  if (!RESOURCE_ID_LIST_PATTERN.test(securityGroupIds)) {
+    throw new Error('Invalid run-task-security-groups value. Must be a comma-separated list of security group IDs');
+  }
   const containerOverrides = JSON.parse(core.getInput('run-task-container-overrides', { required: false }) || '[]');
   const assignPublicIP = core.getInput('run-task-assign-public-IP', { required: false }) || 'DISABLED';
   const tags = JSON.parse(core.getInput('run-task-tags', { required: false }) || '[]');
