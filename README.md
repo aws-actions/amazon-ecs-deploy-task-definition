@@ -391,7 +391,7 @@ This is particularly useful in cases where ECS or a previous task definition app
 
 ## Polling Configuration
 
-By default when waiting for service stability or task completion, the AWS SDK uses exponential backoff which can result in delays up to 120 seconds between polling attempts. This means even after your service becomes stable, you may wait up to 2 minutes before the next poll detects it.
+By default when waiting for service stability or task completion, the AWS SDK uses exponential backoff between polling attempts. For the ECS waiters the delay grows up to 600 seconds (10 minutes) in `@aws-sdk/client-ecs` v3.995.0 and later, which this action bundles as of v2.6.3. Once the backoff reaches that maximum, polls are 10 minutes apart, so even after your service becomes stable you may wait several minutes before the next poll detects it and the job finishes. CodeDeploy deployments are not affected: the CodeDeploy waiter still backs off up to 120 seconds.
 
 To use consistent polling intervals instead, set `wait-max-delay-seconds`:
 
