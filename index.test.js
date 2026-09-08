@@ -57,6 +57,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('3');                   // max-retries
@@ -206,6 +207,100 @@ describe('Deploy to ECS', () => {
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=fake-region");
+    });
+
+    test('deploys a pre-registered task definition arn without registering a new revision', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('')                     // task-definition
+            .mockReturnValueOnce('arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7') // task-definition-arn
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3');                   // max-retries
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenCalledTimes(0);
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7');
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            service: 'service-456',
+            taskDefinition: 'arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7',
+            forceNewDeployment: false,
+            enableECSManagedTags: null,
+            propagateTags: null,
+            volumeConfigurations: []
+        });
+    });
+
+    test('registers the task definition file when both task-definition and task-definition-arn are provided', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7') // task-definition-arn
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3');                   // max-retries
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, expect.objectContaining({
+            taskDefinition: 'task:def:arn'
+        }));
+    });
+
+    test('fails when neither task-definition nor task-definition-arn is provided', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('')                     // task-definition
+            .mockReturnValueOnce('')                     // task-definition-arn
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3');                   // max-retries
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledWith('Either task definition or task definition arn must be provided');
+        expect(mockEcsRegisterTaskDef).toHaveBeenCalledTimes(0);
+        expect(mockEcsUpdateService).toHaveBeenCalledTimes(0);
+    });
+
+    test('creates a CodeDeploy deployment from a pre-registered task definition arn', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('')                     // task-definition
+            .mockReturnValueOnce('arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7') // task-definition-arn
+            .mockReturnValueOnce('service-456')          // service
+            .mockReturnValueOnce('cluster-789')          // cluster
+            .mockReturnValueOnce('3');                   // max-retries
+
+        mockEcsDescribeServices.mockImplementation(
+            () => Promise.resolve({
+                failures: [],
+                services: [{
+                    status: 'ACTIVE',
+                    deploymentController: {
+                        type: 'CODE_DEPLOY'
+                    }
+                }]
+            })
+        );
+
+        await run();
+
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenCalledTimes(0);
+        expect(mockCodeDeployCreateDeployment).toHaveBeenNthCalledWith(1, expect.objectContaining({
+            revision: expect.objectContaining({
+                appSpecContent: expect.objectContaining({
+                    content: expect.stringContaining('arn:aws:ecs:fake-region:111122223333:task-definition/task-def-family:7')
+                })
+            })
+        }));
     });
 
     test('registers the task definition contents and updates the service if deployment controller type is ECS', async () => {
@@ -640,6 +735,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('3')                   // max-retries
@@ -718,6 +814,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('3')                   // max-retries
@@ -795,6 +892,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789')         // cluster
             .mockReturnValueOnce('3')                   // max-retries
@@ -1110,7 +1208,7 @@ describe('Deploy to ECS', () => {
     });
 
     test('registers the task definition contents at an absolute path', async () => {
-        core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json');
+        core.getInput = jest.fn().mockReturnValueOnce('/hello/task-definition.json').mockReturnValueOnce('');
         fs.readFileSync.mockImplementation((pathInput, encoding) => {
             if (encoding != 'utf8') {
                 throw new Error(`Wrong encoding ${encoding}`);
@@ -1134,6 +1232,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('3')                    // max-retries
@@ -1178,6 +1277,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('3')                    // max-retries
@@ -1237,6 +1337,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('cluster-789')          // cluster
             .mockReturnValueOnce('3')                    // max-retries
@@ -1371,6 +1472,7 @@ describe('Deploy to ECS', () => {
         core.getInput = jest
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce('') // task-definition-arn
             .mockReturnValueOnce('service-456')          // service
             .mockReturnValueOnce('');                    // desired count
 
@@ -1397,7 +1499,8 @@ describe('Deploy to ECS', () => {
     test('does not update service if none specified', async () => {
         core.getInput = jest
             .fn()
-            .mockReturnValueOnce('task-definition.json'); // task-definition
+            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce(''); // task-definition-arn
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
