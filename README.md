@@ -8,6 +8,7 @@ Registers an Amazon ECS task definition and deploys it to an ECS service.
 
 - [Usage](#usage)
     + [Task definition file](#task-definition-file)
+    + [Deploying an existing task definition revision](#deploying-an-existing-task-definition-revision)
     + [Task definition container image values](#task-definition-container-image-values)
 - [Credentials and Region](#credentials-and-region)
 - [Permissions](#permissions)
@@ -58,6 +59,24 @@ If you do not wish to store your task definition as a file in your git repositor
       run: |
         aws ecs describe-task-definition --task-definition my-task-definition-family --query taskDefinition > task-definition.json
 ```
+
+### Deploying an existing task definition revision
+
+If the task definition revision you want to deploy is already registered in ECS, use `task-definition-arn` instead of `task-definition`. The action skips `RegisterTaskDefinition` entirely and deploys the revision as-is, which is useful for promoting an already-tested revision between environments or for rolling back to a known-good revision.
+
+```yaml
+    - name: Deploy an existing task definition revision
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition-arn: arn:aws:ecs:us-east-2:123456789012:task-definition/my-task-definition-family:7
+        service: my-service
+        cluster: my-cluster
+        wait-for-service-stability: true
+```
+
+For rolling (`ECS` deployment controller) deployments and one-off `run-task` invocations, a `family:revision` pair or a bare family name is also accepted, because ECS resolves those itself. For blue/green (`CODE_DEPLOY`) deployments, pass the full ARN: the value is written into the AppSpec `TaskDefinition` property, which requires an ARN.
+
+`task-definition` and `task-definition-arn` are mutually exclusive. At least one is required, and if both are supplied, `task-definition` takes precedence and a new revision is registered from the file. The `task-definition-arn` output is set in both cases, so downstream steps do not need to know which input was used.
 
 ### Task definition container image values
 

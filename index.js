@@ -523,7 +523,8 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 async function run() {
   try {
     // Get inputs
-    const taskDefinitionFile = core.getInput('task-definition', { required: true });
+    const taskDefinitionFile = core.getInput('task-definition', { required: false });
+    const taskDefinitionArn = core.getInput('task-definition-arn', { required: false });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const maxRetries = parseInt(core.getInput('max-retries', { required: false })) || 3;
@@ -570,23 +571,31 @@ async function run() {
       retryMode: 'standard'
     });
 
-    // Register the task definition
-    core.debug('Registering the task definition');
-    const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
-      taskDefinitionFile :
-      path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
-    const fileContents = fs.readFileSync(taskDefPath, 'utf8');
-    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents), keepNullValueKeys)));
-    let registerResponse;
-    try {
-      registerResponse = await ecs.registerTaskDefinition(taskDefContents);
-    } catch (error) {
-      core.setFailed("Failed to register task definition in ECS: " + error.message);
-      core.debug("Task definition contents:");
-      core.debug(JSON.stringify(taskDefContents, undefined, 4));
-      throw(error);
+    let taskDefArn;
+    if (taskDefinitionFile) {
+      core.info('The task definition file will be registered.');
+      core.debug('Registering the task definition');
+      const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
+        taskDefinitionFile :
+        path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
+      const fileContents = fs.readFileSync(taskDefPath, 'utf8');
+      const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents), keepNullValueKeys)));
+      let registerResponse;
+      try {
+        registerResponse = await ecs.registerTaskDefinition(taskDefContents);
+      } catch (error) {
+        core.setFailed("Failed to register task definition in ECS: " + error.message);
+        core.debug("Task definition contents:");
+        core.debug(JSON.stringify(taskDefContents, undefined, 4));
+        throw(error);
+      }
+      taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
+    } else if (taskDefinitionArn) {
+      core.info('The task definition arn will be deployed without registering a new revision.');
+      taskDefArn = taskDefinitionArn;
+    } else {
+      throw new Error('Either task definition or task definition arn must be provided');
     }
-    const taskDefArn = registerResponse.taskDefinition.taskDefinitionArn;
     core.setOutput('task-definition-arn', taskDefArn);
 
     // Run the task outside of the service
