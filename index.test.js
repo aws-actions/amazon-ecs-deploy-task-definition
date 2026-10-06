@@ -202,7 +202,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=fake-region");
@@ -236,7 +235,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenCalledTimes(0);
         expect(core.info).toBeCalledWith("Deployment started. Watch this deployment's progress in the Amazon ECS console: https://fake-region.console.aws.amazon.com/ecs/v2/clusters/cluster-789/services/service-456/deployments?region=fake-region");
@@ -1217,7 +1215,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1276,7 +1273,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
         expect(waitUntilServicesStable).toHaveBeenNthCalledWith(
             1,
@@ -1363,7 +1359,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: true,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
     });
 
@@ -1390,7 +1385,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
     });
 
@@ -1438,7 +1432,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: null,
             enableECSManagedTags: null,
             tags: [],
-            volumeConfigurations: []
         });
 
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
@@ -1480,7 +1473,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
             enableECSManagedTags: false,
             tags: [{"key": "project", "value": "myproject"}],
-            volumeConfigurations: []
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1521,7 +1513,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
             enableECSManagedTags: false,
             tags: [{"key": "project", "value": "myproject"}],
-            volumeConfigurations: []
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1576,7 +1567,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: null,
-            volumeConfigurations: []
         });
         expect(mockRunTask).toHaveBeenCalledWith({
             startedBy: 'someJoe',
@@ -1588,7 +1578,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: { awsvpcConfiguration: { subnets: ['a', 'b'], securityGroups: ['c', 'd'], assignPublicIp: "DISABLED" } },
             enableECSManagedTags: null,
             tags: [],
-            volumeConfigurations: []
         });
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
     });
@@ -1700,7 +1689,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: null,
             enableECSManagedTags: null,
             tags: [],
-            volumeConfigurations: []
         });
     });
 
@@ -1731,7 +1719,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: null,
             enableECSManagedTags: true,
             tags: [],
-            volumeConfigurations: []
         });
     });
 
@@ -1762,7 +1749,6 @@ describe('Deploy to ECS', () => {
             networkConfiguration: null,
             enableECSManagedTags: false,
             tags: [],
-            volumeConfigurations: []
         });
     });
 
@@ -1958,7 +1944,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: null,
             propagateTags: 'SERVICE',
-            volumeConfigurations: []
         });
     });
 
@@ -1988,7 +1973,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: true,
             propagateTags: 'SERVICE',
-            volumeConfigurations: []
         });
     });
 
@@ -2018,7 +2002,6 @@ describe('Deploy to ECS', () => {
             forceNewDeployment: false,
             enableECSManagedTags: false,
             propagateTags: 'SERVICE',
-            volumeConfigurations: []
         });
     });
 
@@ -2129,78 +2112,6 @@ describe('Deploy to ECS', () => {
         });
     });
 
-    test('remove service EBS volume configuration', async () => {
-
-        // First call - create service with EBS configuration
-        core.getInput = jest
-            .fn()
-            .mockImplementation((name) => {
-                const inputs = {
-                    'task-definition': 'task-definition.json',
-                    'service': 'service-456',
-                    'cluster': 'cluster-789',
-                    'service-managed-ebs-volume-name': 'ebs1',
-                    'service-managed-ebs-volume': JSON.stringify({
-                        filesystemType: "xfs",
-                        roleArn: "arn:aws:iam::123:role/ebs-role",
-                        encrypted: false,
-                        sizeInGiB: 30
-                    }),
-                    'run-task': 'false'
-                };
-                return inputs[name] || '';
-            });
-
-        await run();
-
-        // Second call - remove EBS configuration
-        core.getInput = jest
-            .fn()
-            .mockImplementation((name) => {
-                const inputs = {
-                    'task-definition': 'task-definition.json',
-                    'service': 'service-456',
-                    'cluster': 'cluster-789',
-                    'run-task': 'false'
-                };
-                return inputs[name] || '';
-            });
-
-        await run();
-
-        // Verify both calls were made correctly
-        expect(mockEcsUpdateService).toHaveBeenCalledTimes(2);
-
-        // Verify first call had the EBS configuration
-        expect(mockEcsUpdateService.mock.calls[0][0]).toEqual({
-            cluster: 'cluster-789',
-            service: 'service-456',
-            taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            enableECSManagedTags: null,
-            propagateTags: null,
-            volumeConfigurations: [{
-                name: 'ebs1',
-                managedEBSVolume: {
-                    filesystemType: "xfs",
-                    roleArn: "arn:aws:iam::123:role/ebs-role",
-                    encrypted: false,
-                    sizeInGiB: 30
-                }
-            }]
-        });
-
-        // Verify second call had empty volume configurations
-        expect(mockEcsUpdateService.mock.calls[1][0]).toEqual({
-            cluster: 'cluster-789',
-            service: 'service-456',
-            taskDefinition: 'task:def:arn',
-            forceNewDeployment: false,
-            enableECSManagedTags: null,
-            propagateTags: null,
-            volumeConfigurations: []
-        });
-    });
 
     test('run task with EBS volume configuration', async () => {
         core.getInput = jest
