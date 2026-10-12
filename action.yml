@@ -5,8 +5,11 @@ branding:
   color: 'orange'
 inputs:
   task-definition:
-    description: 'The path to the ECS task definition file to register.'
-    required: true
+    description: 'The path to the ECS task definition file to register. Mutually exclusive with task-definition-arn; if both are given, this file takes precedence.'
+    required: false
+  task-definition-arn:
+    description: 'The full Amazon Resource Name (ARN) of an already-registered task definition to deploy. Use instead of task-definition to deploy an existing revision without registering a new one.'
+    required: false
   desired-count:
     description: 'The number of instantiations of the task to place and keep running in your service.'
     required: false
