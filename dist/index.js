@@ -13,6 +13,9 @@ const fs = __nccwpck_require__(9896);
 const crypto = __nccwpck_require__(6982);
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
+// Newer @aws-sdk/client-ecs versions default the ECS waiters' maxDelay to 600s, which can leave
+// the action idle for minutes after the service is stable. Keep the previous 120s default.
+const WAIT_DEFAULT_MAX_DELAY_SEC = 120;
 
 // Attributes that are returned by DescribeTaskDefinition, but are not valid RegisterTaskDefinition inputs
 const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
@@ -161,12 +164,9 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes, w
   const waiterConfig = {
     client: ecs,
     minDelay: WAIT_DEFAULT_DELAY_SEC,
+    maxDelay: waitMaxDelaySeconds || WAIT_DEFAULT_MAX_DELAY_SEC,
     maxWaitTime: waitForMinutes * 60,
   };
-
-  if (waitMaxDelaySeconds) {
-    waiterConfig.maxDelay = waitMaxDelaySeconds;
-  }
 
   const waitTaskResponse = await waitUntilTasksStopped(waiterConfig, {
     cluster: clusterName,
@@ -256,12 +256,9 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
     const waiterConfig = {
       client: ecs,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
+      maxDelay: waitMaxDelaySeconds || WAIT_DEFAULT_MAX_DELAY_SEC,
       maxWaitTime: waitForMinutes * 60
     };
-
-    if (waitMaxDelaySeconds) {
-      waiterConfig.maxDelay = waitMaxDelaySeconds;
-    }
 
     await waitUntilServicesStable(waiterConfig, {
       services: [service],
@@ -511,12 +508,9 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
     const waiterConfig = {
       client: codedeploy,
       minDelay: WAIT_DEFAULT_DELAY_SEC,
+      maxDelay: waitMaxDelaySeconds || WAIT_DEFAULT_MAX_DELAY_SEC,
       maxWaitTime: totalWaitMin * 60
     };
-
-    if (waitMaxDelaySeconds) {
-      waiterConfig.maxDelay = waitMaxDelaySeconds;
-    }
 
     await waitUntilDeploymentSuccessful(waiterConfig, {
       deploymentId: createDeployResponse.deploymentId
