@@ -697,6 +697,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: (
                     EXPECTED_DEFAULT_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
@@ -776,6 +777,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: (
                     60 +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
@@ -853,6 +855,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: 6 * 60 * 60,
             },
             {
@@ -1049,6 +1052,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockCodeDeployClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: (
                     EXPECTED_DEFAULT_WAIT_TIME +
                     EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME +
@@ -1165,6 +1169,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: EXPECTED_DEFAULT_WAIT_TIME * 60,
             },
             {
@@ -1224,6 +1229,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: 60 * 60,
             },
             {
@@ -1283,6 +1289,7 @@ describe('Deploy to ECS', () => {
             {
                 client: mockEcsClient,
                 minDelay: 15,
+                maxDelay: 120,
                 maxWaitTime: 6 * 60 * 60,
             },
             {
@@ -1617,6 +1624,32 @@ describe('Deploy to ECS', () => {
         expect(mockRunTask).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toHaveBeenNthCalledWith(2, 'run-task-arn', ["arn:aws:ecs:fake-region:account_id:task/arn"]);
         expect(waitUntilTasksStopped).toHaveBeenCalledTimes(1);
+    });
+
+    test('run task and wait for it to stop with default max delay of 120 seconds', async () => {
+        core.getInput = jest
+            .fn(input => {
+                if (input === 'task-definition') return 'task-definition.json';
+                if (input === 'cluster') return 'somecluster';
+                if (input === 'run-task') return 'true';
+                if (input === 'wait-for-task-stopped') return 'true';
+                if (input === 'run-task-launch-type') return 'FARGATE';
+                if (input === 'run-task-container-overrides') return '[]';
+                if (input === 'run-task-tags') return '[]';
+                if (input === 'run-task-capacity-provider-strategy') return '[]';
+                if (input === 'run-task-managed-ebs-volume-name') return '';
+                if (input === 'run-task-managed-ebs-volume') return '{}';
+                return '';
+            });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(waitUntilTasksStopped).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({ minDelay: 15, maxDelay: 120 }),
+            expect.anything()
+        );
     });
 
     test('run task and wait for it to stop with custom max delay', async () => {
