@@ -428,6 +428,22 @@ To automatically retry a failed task definition deployment, use the max-retries 
 
 Retries apply to transient failures during task definition registration or service update, such as eventual consistency issues or temporary AWS API errors.
 
+## Proxy Configuration
+
+If your runner needs to go through a proxy to reach AWS APIs, set the `http-proxy` input:
+
+```yaml
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: task-definition.json
+        service: my-service
+        cluster: my-cluster
+        http-proxy: "http://proxy.example.com:3128"
+```
+
+If `http-proxy` is not set, the action uses the `HTTPS_PROXY` or `HTTP_PROXY` environment variables (or their lowercase variants) if they are present.
+
 ## Troubleshooting
 
 This action emits debug logs to help troubleshoot deployment failures.  To see the debug logs, create a secret named `ACTIONS_STEP_DEBUG` with value `true` in your repository.

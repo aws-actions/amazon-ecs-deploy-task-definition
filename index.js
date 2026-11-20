@@ -2,6 +2,8 @@ const path = require('path');
 const core = require('@actions/core');
 const { CodeDeploy, waitUntilDeploymentSuccessful } = require('@aws-sdk/client-codedeploy');
 const { ECS, waitUntilServicesStable, waitUntilTasksStopped } = require('@aws-sdk/client-ecs');
+const { NodeHttpHandler } = require('@smithy/node-http-handler');
+const { HttpsProxyAgent } = require('https-proxy-agent');
 const yaml = require('yaml');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -520,6 +522,22 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
   }
 }
 
+function getProxyAgent() {
+  const proxyInput = core.getInput('http-proxy', { required: false });
+  const proxyFromEnv = process.env.HTTPS_PROXY || process.env.https_proxy ||
+    process.env.HTTP_PROXY || process.env.http_proxy;
+
+  if (proxyInput) {
+    core.info('Using proxy from action input');
+    return new HttpsProxyAgent(proxyInput);
+  }
+  if (proxyFromEnv) {
+    core.info('Using proxy from environment');
+    return new HttpsProxyAgent(proxyFromEnv);
+  }
+  return undefined;
+}
+
 async function run() {
   try {
     // Get inputs
@@ -558,16 +576,23 @@ async function run() {
     if (keepNullValueKeysInput) {
         keepNullValueKeys = keepNullValueKeysInput.split(',').map(k => k.trim()).filter(Boolean);
     }
+    const proxyAgent = getProxyAgent();
+    const requestHandler = proxyAgent ?
+      new NodeHttpHandler({ httpAgent: proxyAgent, httpsAgent: proxyAgent }) :
+      undefined;
+
     const ecs = new ECS({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
       maxAttempts: maxRetries,
-      retryMode: 'standard'
+      retryMode: 'standard',
+      requestHandler
     });
 
     const codedeploy = new CodeDeploy({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
       maxAttempts: maxRetries,
-      retryMode: 'standard'
+      retryMode: 'standard',
+      requestHandler
     });
 
     // Register the task definition

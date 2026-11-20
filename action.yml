@@ -96,6 +96,9 @@ inputs:
   max-retries:
     description: 'The maximum number of retry attempts for AWS API calls. Defaults to 3.'
     required: false
+  http-proxy:
+    description: 'Proxy to use for AWS API requests, e.g. "http://proxy.example.com:3128". If not set, the HTTPS_PROXY or HTTP_PROXY environment variables are used if present.'
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition.'
