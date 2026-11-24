@@ -179,18 +179,22 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
   });
 
   const containers = [].concat(...describeResponse.tasks.map(task => task.containers))
-  const exitCodes = containers.map(container => container.exitCode)
-  const reasons = containers.map(container => container.reason)
 
-  const failuresIdx = [];
+  // ECS only sets `reason` for some failures (for example a container that was
+  // killed or could not start). A container that simply exits with a non-zero
+  // code has no reason, so describe it by name and exit code instead.
+  const failures = containers
+    .filter(container => container.exitCode !== 0)
+    .map(container => {
+      if (container.reason) {
+        return container.reason;
+      }
+      if (container.exitCode === undefined || container.exitCode === null) {
+        return `Container ${container.name} stopped without an exit code`;
+      }
+      return `Container ${container.name} exited with code ${container.exitCode}`;
+    });
 
-  exitCodes.filter((exitCode, index) => {
-    if (exitCode !== 0) {
-      failuresIdx.push(index)
-    }
-  })
-
-  const failures = reasons.filter((_, index) => failuresIdx.indexOf(index) !== -1)
   if (failures.length > 0) {
     throw new Error(`Run task failed: ${JSON.stringify(failures)}`);
   }

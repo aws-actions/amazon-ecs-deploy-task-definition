@@ -1809,6 +1809,93 @@ describe('Deploy to ECS', () => {
         expect(core.setFailed).toBeCalledWith("arn:aws:ecs:fake-region:account_id:task/arn is TASK_FAILED");
     });
 
+    test('error names the container and exit code when a stopped task has no container reason', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'cluster') return 'somecluster';
+            if (input === 'run-task') return 'true';
+            if (input === 'wait-for-task-stopped') return 'true';
+            if (input === 'run-task-launch-type') return 'FARGATE';
+            if (input === 'run-task-container-overrides') return '[]';
+            if (input === 'run-task-tags') return '[]';
+            if (input === 'run-task-capacity-provider-strategy') return '[]';
+            if (input === 'run-task-managed-ebs-volume-name') return '';
+            if (input === 'run-task-managed-ebs-volume') return '{}';
+            return '';
+        });
+
+        mockEcsDescribeTasks.mockImplementation(
+            () => Promise.resolve({
+                failures: [],
+                tasks: [
+                    {
+                        containers: [
+                            {
+                                name: 'migrate',
+                                lastStatus: "STOPPED",
+                                exitCode: 1,
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            },
+                            {
+                                name: 'sidecar',
+                                lastStatus: "STOPPED",
+                                exitCode: 0,
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            }
+                        ],
+                        desiredStatus: "STOPPED",
+                        lastStatus: "STOPPED",
+                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                    }
+                ]
+            })
+        );
+
+        await run();
+        expect(core.setFailed).toBeCalledWith('Run task failed: ["Container migrate exited with code 1"]');
+    });
+
+    test('error keeps the container reason when a stopped task reports one', async () => {
+        core.getInput = jest.fn(input => {
+            if (input === 'task-definition') return 'task-definition.json';
+            if (input === 'cluster') return 'somecluster';
+            if (input === 'run-task') return 'true';
+            if (input === 'wait-for-task-stopped') return 'true';
+            if (input === 'run-task-launch-type') return 'FARGATE';
+            if (input === 'run-task-container-overrides') return '[]';
+            if (input === 'run-task-tags') return '[]';
+            if (input === 'run-task-capacity-provider-strategy') return '[]';
+            if (input === 'run-task-managed-ebs-volume-name') return '';
+            if (input === 'run-task-managed-ebs-volume') return '{}';
+            return '';
+        });
+
+        mockEcsDescribeTasks.mockImplementation(
+            () => Promise.resolve({
+                failures: [],
+                tasks: [
+                    {
+                        containers: [
+                            {
+                                name: 'web',
+                                lastStatus: "STOPPED",
+                                exitCode: 137,
+                                reason: 'OutOfMemoryError: Container killed due to memory usage',
+                                taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                            }
+                        ],
+                        desiredStatus: "STOPPED",
+                        lastStatus: "STOPPED",
+                        taskArn: "arn:aws:ecs:fake-region:account_id:task/arn"
+                    }
+                ]
+            })
+        );
+
+        await run();
+        expect(core.setFailed).toBeCalledWith('Run task failed: ["OutOfMemoryError: Container killed due to memory usage"]');
+    });
+
     test('error is caught if run task fails with (wait-for-task-stopped: false) and with service', async () => {
         core.getInput = jest
         .fn(input => {
